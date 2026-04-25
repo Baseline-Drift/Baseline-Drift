@@ -1,0 +1,2469 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-title" content="STATUS HUD"/>
+  <title>STATUS HUD // Baseline Drift v5.0</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23080a0f'/%3E%3Crect x='8' y='8' width='12' height='3' fill='%23ffffff22'/%3E%3Crect x='8' y='8' width='3' height='12' fill='%23ffffff22'/%3E%3Crect x='80' y='8' width='12' height='3' fill='%23ffffff22'/%3E%3Crect x='89' y='8' width='3' height='12' fill='%23ffffff22'/%3E%3Crect x='8' y='89' width='12' height='3' fill='%23ffffff22'/%3E%3Crect x='8' y='80' width='3' height='12' fill='%23ffffff22'/%3E%3Crect x='80' y='89' width='12' height='3' fill='%23ffffff22'/%3E%3Crect x='89' y='80' width='3' height='12' fill='%23ffffff22'/%3E%3Ctext x='50' y='44' font-family='monospace' font-size='22' fill='%23ff4d6d' text-anchor='middle' font-weight='bold'%3EBD%3C/text%3E%3Crect x='20' y='52' width='60' height='4' rx='2' fill='%23ff4d6d33'/%3E%3Crect x='20' y='52' width='38' height='4' rx='2' fill='%23ff4d6d'/%3E%3Crect x='20' y='62' width='60' height='4' rx='2' fill='%2343d97b33'/%3E%3Crect x='20' y='62' width='22' height='4' rx='2' fill='%2343d97b'/%3E%3Crect x='20' y='72' width='60' height='4' rx='2' fill='%23a78bfa33'/%3E%3Crect x='20' y='72' width='46' height='4' rx='2' fill='%23a78bfa'/%3E%3C/svg%3E"/>
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23080a0f'/%3E%3Ctext x='50' y='44' font-family='monospace' font-size='22' fill='%23ff4d6d' text-anchor='middle' font-weight='bold'%3EBD%3C/text%3E%3C/svg%3E"/>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.opendyslexic.org/stylesheet.css" rel="stylesheet" onerror="this.remove()"/>
+  <style>
+    /* ── TOKEN SYSTEM ──────────────────────────────────────────────────── */
+    :root {
+      --fs: 1.15;
+
+      /* font sizes — all scale with --fs */
+      --t-xs:  calc(9px  * var(--fs));
+      --t-sm:  calc(11px * var(--fs));
+      --t-md:  calc(13px * var(--fs));
+      --t-lg:  calc(16px * var(--fs));
+      --t-xl:  calc(22px * var(--fs));
+      --t-2xl: calc(28px * var(--fs));
+
+      /* spacing — scales with --fs */
+      --sp-1: calc(4px  * var(--fs));
+      --sp-2: calc(6px  * var(--fs));
+      --sp-3: calc(8px  * var(--fs));
+      --sp-4: calc(12px * var(--fs));
+      --sp-5: calc(16px * var(--fs));
+      --sp-6: calc(20px * var(--fs));
+      --sp-7: calc(24px * var(--fs));
+
+      /* colour tokens — dark (default) */
+      --bg:           #080a0f;
+      --surface:      rgba(255,255,255,0.025);
+      --surface-2:    rgba(255,255,255,0.04);
+      --border:       rgba(255,255,255,0.07);
+      --border-2:     rgba(255,255,255,0.12);
+      --text-hi:      rgba(255,255,255,0.90);
+      --text-mid:     rgba(255,255,255,0.50);
+      --text-lo:      rgba(255,255,255,0.30);
+      --text-dim:     rgba(255,255,255,0.18);
+      --text-ghost:   rgba(255,255,255,0.08);
+      --track-bg:     rgba(255,255,255,0.06);
+      --tick-bg:      rgba(255,255,255,0.08);
+      --overlay-bg:   #0d0f16;
+
+      /* stat colours */
+      --c-vitality:   #ff4d6d;
+      --c-stamina:    #43d97b;
+      --c-affect:     #a78bfa;
+      --c-focus:      #fbbf24;
+
+      /* condition colours */
+      --c-optimal:      #43d97b;
+      --c-functional:   #fbbf24;
+      --c-baseline:     #fb923c;
+      --c-critical:     #ff4d6d;
+      --c-dysregulated: #c084fc;
+
+      /* accent */
+      --accent:       #ff4d6d;
+    }
+
+    body.light-theme {
+      --bg:           #f0f0f0;
+      --surface:      rgba(0,0,0,0.04);
+      --surface-2:    rgba(0,0,0,0.06);
+      --border:       rgba(0,0,0,0.10);
+      --border-2:     rgba(0,0,0,0.16);
+      --text-hi:      rgba(0,0,0,0.85);
+      --text-mid:     rgba(0,0,0,0.50);
+      --text-lo:      rgba(0,0,0,0.30);
+      --text-dim:     rgba(0,0,0,0.18);
+      --text-ghost:   rgba(0,0,0,0.06);
+      --track-bg:     rgba(0,0,0,0.08);
+      --tick-bg:      rgba(0,0,0,0.10);
+      --overlay-bg:   #e4e4e4;
+    }
+
+    /* ── RESET ─────────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: var(--sp-5) var(--sp-4) 40px;
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      color: var(--text-hi);
+      font-size: calc(14px * var(--fs));
+      line-height: calc(1.4 * var(--fs));
+      -webkit-font-smoothing: antialiased;
+      transition: background .3s;
+    }
+    body.font-mono        { font-family: 'Share Tech Mono', monospace; }
+    body.font-dyslexic    { font-family: 'OpenDyslexic','Comic Sans MS',sans-serif; }
+    body.font-hyperlegible{ font-family: 'Atkinson Hyperlegible',sans-serif; }
+
+    /* ── HUD SHELL ─────────────────────────────────────────────────────── */
+    .hud {
+      width: 100%;
+      max-width: 520px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: var(--sp-6);
+      position: relative;
+      box-shadow: 0 0 60px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.05);
+      margin-top: 10px;
+    }
+    .hud::before,.hud::after,.corner-bl,.corner-br {
+      content:''; position:absolute; width:16px; height:16px;
+    }
+    .hud::before { top:0; left:0;  border-top:1px solid rgba(255,255,255,.2); border-left:1px solid rgba(255,255,255,.2); }
+    .hud::after  { top:0; right:0; border-top:1px solid rgba(255,255,255,.2); border-right:1px solid rgba(255,255,255,.2); }
+    .corner-bl   { bottom:0; left:0;  border-bottom:1px solid rgba(255,255,255,.2); border-left:1px solid rgba(255,255,255,.2); }
+    .corner-br   { bottom:0; right:0; border-bottom:1px solid rgba(255,255,255,.2); border-right:1px solid rgba(255,255,255,.2); }
+    body.light-theme .hud::before,
+    body.light-theme .hud::after,
+    body.light-theme .corner-bl,
+    body.light-theme .corner-br { border-color: rgba(0,0,0,.2) !important; }
+
+    /* ── HEARTS ────────────────────────────────────────────────────────── */
+    .hearts-row {
+      display: flex;
+      justify-content: center;
+      gap: var(--sp-5);
+      margin-bottom: var(--sp-5);
+    }
+    .heart-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--sp-1);
+    }
+    .heart-icon {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      transition: opacity .3s, filter .3s;
+    }
+    .heart-icon.full  { opacity:1; filter:drop-shadow(0 0 6px currentColor); }
+    .heart-icon.half  { opacity:.55; filter:none; }
+    .heart-icon.empty { opacity:.18; filter:none; }
+    .heart-label {
+      font-size: var(--t-xs);
+      letter-spacing: 2px;
+      font-weight: 700;
+      color: var(--text-lo);
+      text-transform: uppercase;
+    }
+
+    /* ── HEADER ────────────────────────────────────────────────────────── */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--sp-3);
+      margin-bottom: var(--sp-4);
+      flex-wrap: wrap;
+    }
+    .header-left { flex: 1; min-width: 0; }
+    .app-banner {
+      font-size: var(--t-xs);
+      letter-spacing: 5px;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 2px;
+      opacity: .8;
+      cursor: pointer;
+      user-select: none;
+      text-transform: uppercase;
+    }
+    .player-label {
+      font-size: var(--t-xs);
+      letter-spacing: 4px;
+      color: var(--text-lo);
+      margin-bottom: var(--sp-1);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .player-name {
+      font-size: var(--t-xl);
+      letter-spacing: 4px;
+      color: var(--text-hi);
+      font-weight: 700;
+      cursor: pointer;
+      border-bottom: 1px dashed var(--border-2);
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      transition: border-color .2s;
+    }
+    .player-name:hover { border-color: var(--text-mid); }
+    .player-name-input {
+      font-size: var(--t-xl);
+      letter-spacing: 4px;
+      color: var(--text-hi);
+      font-weight: 700;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--text-mid);
+      outline: none;
+      font-family: inherit;
+      width: 160px;
+      max-width: 100%;
+      padding: 0;
+    }
+    .time-block { text-align: right; flex-shrink: 0; }
+    .date-str {
+      font-size: var(--t-xs);
+      color: var(--text-lo);
+      letter-spacing: 2px;
+      margin-bottom: var(--sp-1);
+      font-weight: 700;
+    }
+    .time-str {
+      font-size: var(--t-sm);
+      color: var(--text-mid);
+      letter-spacing: 2px;
+      font-weight: 700;
+    }
+
+    /* ── CONDITION ─────────────────────────────────────────────────────── */
+    .condition-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sp-3);
+      padding: var(--sp-2) var(--sp-4);
+      border-radius: 2px;
+      margin-top: var(--sp-4);
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      transition: border-color .4s, background .4s;
+    }
+    .condition-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: var(--text-lo);
+      transition: background .4s, box-shadow .4s;
+    }
+    .condition-label {
+      font-size: var(--t-sm);
+      letter-spacing: 3px;
+      color: var(--text-lo);
+      font-weight: 700;
+      text-transform: uppercase;
+      transition: color .4s;
+    }
+    .condition-desc {
+      font-size: var(--t-sm);
+      color: var(--text-mid);
+      margin-top: var(--sp-3);
+      font-style: italic;
+      line-height: calc(1.5 * var(--fs));
+      font-weight: 700;
+    }
+    .note-to-self {
+      display: none;
+      font-size: var(--t-xs);
+      color: var(--text-dim);
+      margin-top: var(--sp-2);
+      letter-spacing: .5px;
+      font-weight: 700;
+      line-height: calc(1.4 * var(--fs));
+      word-break: break-word;
+    }
+    .last-logged {
+      font-size: var(--t-xs);
+      color: var(--text-dim);
+      margin-top: var(--sp-2);
+      letter-spacing: 2px;
+      font-weight: 700;
+    }
+
+    /* ── DIVIDER ───────────────────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: var(--sp-5) 0;
+    }
+
+    /* ── BANNERS ───────────────────────────────────────────────────────── */
+    .banner { display:none; border-radius:3px; padding:var(--sp-4) var(--sp-5); margin-bottom:var(--sp-5); }
+    .banner.visible { display:block; }
+    .banner-optimal {
+      background: rgba(67,217,123,.07);
+      border: 1px solid rgba(67,217,123,.3);
+      animation: pulse-green 2s ease-in-out infinite;
+    }
+    .banner-critical {
+      background: rgba(255,77,109,.08);
+      border: 1px solid rgba(255,77,109,.3);
+      animation: pulse-red 2s ease-in-out infinite;
+    }
+    .banner-dysregulated {
+      background: rgba(192,132,252,.07);
+      border: 1px solid rgba(192,132,252,.3);
+      animation: pulse-purple 2s ease-in-out infinite;
+    }
+    @keyframes pulse-green   { 0%,100%{border-color:rgba(67,217,123,.3)}  50%{border-color:rgba(67,217,123,.7)}  }
+    @keyframes pulse-red     { 0%,100%{border-color:rgba(255,77,109,.3)}  50%{border-color:rgba(255,77,109,.7)}  }
+    @keyframes pulse-purple  { 0%,100%{border-color:rgba(192,132,252,.3)} 50%{border-color:rgba(192,132,252,.7)} }
+    .banner-title {
+      font-size: var(--t-sm);
+      letter-spacing: 2px;
+      font-weight: 700;
+      margin-bottom: var(--sp-3);
+      text-transform: uppercase;
+    }
+    .emergency-btns { display:flex; flex-direction:column; gap:var(--sp-3); }
+    .em-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      padding: var(--sp-3) var(--sp-4);
+      border-radius: 2px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text-mid);
+      font-family: inherit;
+      font-size: var(--t-sm);
+      letter-spacing: 1px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .2s;
+      font-weight: 700;
+      word-break: break-word;
+    }
+    .em-btn.primary { border-color: rgba(255,77,109,.4); color: var(--c-critical); }
+    .dismiss-btn {
+      margin-top: var(--sp-3);
+      font-size: var(--t-xs);
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: inherit;
+      padding: var(--sp-1) 0;
+      font-weight: 700;
+    }
+
+    /* ── STAT BLOCK ────────────────────────────────────────────────────── */
+    .stat { margin-bottom: var(--sp-6); }
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--sp-3);
+      margin-bottom: var(--sp-2);
+    }
+    .stat-header-left { display:flex; align-items:flex-start; gap:var(--sp-3); flex:1; min-width:0; }
+    .stat-icon {
+      font-size: 18px;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .stat-name-block { flex:1; min-width:0; }
+    .stat-name {
+      font-size: var(--t-md);
+      letter-spacing: 3px;
+      font-weight: 700;
+      text-transform: uppercase;
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .stat-source {
+      font-size: var(--t-xs);
+      color: var(--text-lo);
+      letter-spacing: 1px;
+      font-weight: 700;
+      display: block;
+      margin-top: 2px;
+      white-space: nowrap;
+    }
+    .stat-header-right {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      flex-shrink: 0;
+    }
+    .stat-band {
+      font-size: var(--t-xs);
+      letter-spacing: 1px;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      min-width: 52px;
+      text-align: right;
+    }
+    .stat-lock {
+      font-size: 13px;
+      cursor: pointer;
+      opacity: .3;
+      transition: opacity .2s;
+      user-select: none;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .stat-lock.locked { opacity:.8; }
+    .stat-value {
+      font-size: var(--t-xl);
+      font-weight: 700;
+      line-height: 1;
+      min-width: 36px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .bar-track {
+      position: relative;
+      height: 10px;
+      border-radius: 2px;
+      margin-bottom: var(--sp-3);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--track-bg);
+    }
+    .bar-fill {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      border-radius: 2px;
+      transition: width .25s ease;
+    }
+    .bar-tick {
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 1px;
+      background: var(--tick-bg);
+      pointer-events: none;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      background: transparent;
+      cursor: pointer;
+      height: calc(18px * var(--fs));
+      margin-bottom: var(--sp-2);
+      touch-action: none;
+    }
+    input[type=range]:disabled { opacity:.3; cursor:not-allowed; }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: calc(16px * var(--fs));
+      height: calc(16px * var(--fs));
+      border-radius: 50%;
+      margin-top: -6px;
+      cursor: pointer;
+      border: none;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      height: 4px;
+      border-radius: 2px;
+      background: var(--track-bg);
+    }
+    input[type=range]::-moz-range-thumb {
+      width: calc(16px * var(--fs));
+      height: calc(16px * var(--fs));
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+    .stat-comment {
+      font-size: var(--t-sm);
+      color: var(--text-mid);
+      font-style: italic;
+      letter-spacing: .4px;
+      line-height: calc(1.5 * var(--fs));
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    /* ── SCORE BAR ─────────────────────────────────────────────────────── */
+    .score-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--sp-3) var(--sp-4);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      margin-top: var(--sp-4);
+      gap: var(--sp-3);
+    }
+    .score-item { text-align:center; flex:1; min-width:0; }
+    .score-label {
+      font-size: var(--t-xs);
+      letter-spacing: 3px;
+      color: var(--text-lo);
+      margin-bottom: 3px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .score-value {
+      font-size: calc(18px * var(--fs));
+      font-weight: 700;
+      color: var(--text-mid);
+      line-height: 1;
+    }
+    .score-divider { width:1px; height:30px; background:var(--border); flex-shrink:0; }
+
+    /* ── ACTION ROW ────────────────────────────────────────────────────── */
+    .action-row { display:flex; gap:var(--sp-3); margin-top:var(--sp-4); }
+    .log-btn {
+      flex: 1;
+      padding: var(--sp-3) var(--sp-4);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--text-dim);
+      font-family: inherit;
+      font-size: var(--t-xs);
+      letter-spacing: 3px;
+      cursor: not-allowed;
+      transition: all .2s;
+      font-weight: 700;
+      text-transform: uppercase;
+      line-height: calc(1.4 * var(--fs));
+    }
+    .log-btn.ready  { background:var(--surface-2); border-color:var(--border-2); color:var(--text-mid); cursor:pointer; }
+    .log-btn.logged { border-color:rgba(67,217,123,.4); color:var(--c-optimal); background:rgba(67,217,123,.06); cursor:default; }
+    .reset-btn {
+      padding: var(--sp-3) var(--sp-4);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--text-lo);
+      font-family: inherit;
+      font-size: var(--t-xs);
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all .2s;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* LOG NOTE ── */
+    .log-note-wrap { margin-top:var(--sp-3); display:none; }
+    .log-note-wrap.visible { display:block; }
+    .log-note-input {
+      width: 100%;
+      padding: var(--sp-3) var(--sp-4);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--text-mid);
+      font-family: inherit;
+      font-size: var(--t-sm);
+      outline: none;
+      resize: none;
+      line-height: calc(1.4 * var(--fs));
+      font-weight: 700;
+      min-height: calc(60px * var(--fs));
+    }
+    .log-note-input::placeholder { color:var(--text-dim); }
+    .log-note-input:focus { border-color:var(--border-2); }
+    .log-note-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: var(--sp-1);
+    }
+    .log-note-label { font-size:var(--t-xs); color:var(--text-dim); letter-spacing:2px; font-weight:700; }
+    .log-note-count { font-size:var(--t-xs); color:var(--text-dim); letter-spacing:1px; font-weight:700; }
+
+    /* ── FOOTER ────────────────────────────────────────────────────────── */
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: var(--sp-5);
+      flex-wrap: wrap;
+      gap: var(--sp-3);
+    }
+    .footer-left { font-size:var(--t-xs); color:var(--text-dim); letter-spacing:2px; font-weight:700; }
+    .footer-right { display:flex; align-items:center; gap:var(--sp-3); flex-wrap:wrap; }
+    .footer-btn {
+      font-size: var(--t-xs);
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: inherit;
+      padding: var(--sp-1) 0;
+      transition: color .2s;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .footer-btn:hover { color:var(--text-mid); }
+
+    .donate-row { margin-top:var(--sp-4); display:flex; justify-content:center; }
+    .donate-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sp-3);
+      padding: var(--sp-2) var(--sp-5);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      background: var(--surface);
+      color: var(--text-dim);
+      font-family: inherit;
+      font-size: var(--t-xs);
+      letter-spacing: 2px;
+      text-decoration: none;
+      transition: all .2s;
+      font-weight: 700;
+    }
+    .donate-btn:hover { border-color:rgba(255,193,50,.3); color:rgba(255,193,50,.6); background:rgba(255,193,50,.04); }
+
+    .cache-warn {
+      display: none;
+      margin-top: var(--sp-4);
+      padding: var(--sp-3) var(--sp-4);
+      background: rgba(251,191,36,.07);
+      border: 1px solid rgba(251,191,36,.25);
+      border-radius: 2px;
+      font-size: var(--t-xs);
+      color: rgba(251,191,36,.7);
+      letter-spacing: 1px;
+      font-weight: 700;
+      line-height: calc(1.6 * var(--fs));
+    }
+
+    /* ── OVERLAYS ──────────────────────────────────────────────────────── */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.75);
+      z-index: 100;
+      align-items: flex-end;
+      justify-content: center;
+      padding: var(--sp-5);
+    }
+    .overlay.open { display:flex; }
+    .overlay-panel {
+      width: 100%;
+      max-width: 520px;
+      background: var(--overlay-bg);
+      border: 1px solid var(--border-2);
+      border-radius: 4px;
+      padding: var(--sp-6);
+      max-height: 88vh;
+      overflow-y: auto;
+    }
+    .overlay-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--sp-5); }
+    .overlay-title { font-size:var(--t-xs); letter-spacing:4px; color:var(--text-lo); font-weight:700; text-transform:uppercase; }
+    .overlay-close { font-size:var(--t-xs); letter-spacing:2px; color:var(--text-dim); cursor:pointer; background:none; border:none; font-family:inherit; font-weight:700; }
+    .overlay-close:hover { color:var(--text-mid); }
+
+    .export-option {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-4);
+      padding: var(--sp-4);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      background: var(--surface);
+      cursor: pointer;
+      margin-bottom: var(--sp-3);
+      transition: all .2s;
+    }
+    .export-option:hover { background:var(--surface-2); border-color:var(--border-2); }
+    .export-icon  { font-size:18px; width:24px; text-align:center; flex-shrink:0; }
+    .export-label { font-size:var(--t-sm); letter-spacing:1px; color:var(--text-mid); font-weight:700; }
+    .export-desc  { font-size:var(--t-xs); color:var(--text-lo); margin-top:2px; font-weight:700; }
+
+    .graph-empty { font-size:var(--t-sm); color:var(--text-lo); text-align:center; padding:40px 0; font-style:italic; font-weight:700; }
+    .graph-legend { display:flex; flex-wrap:wrap; gap:var(--sp-3); margin-top:var(--sp-4); }
+    .legend-item  { display:flex; align-items:center; gap:var(--sp-2); font-size:var(--t-xs); color:var(--text-mid); font-weight:700; }
+    .legend-dot   { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .graph-filter { display:flex; flex-wrap:wrap; gap:var(--sp-2); margin-bottom:var(--sp-4); }
+    .gf-btn {
+      font-size: var(--t-xs);
+      padding: var(--sp-1) var(--sp-3);
+      border-radius: 2px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-lo);
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 700;
+      letter-spacing: 1px;
+      transition: all .2s;
+    }
+    .gf-btn.active { background:var(--surface-2); border-color:var(--border-2); color:var(--text-mid); }
+
+    .feedback-type-row { display:flex; gap:var(--sp-3); margin-bottom:var(--sp-4); }
+    .fb-type-btn {
+      flex: 1;
+      padding: var(--sp-3);
+      border-radius: 2px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-lo);
+      font-family: inherit;
+      font-size: var(--t-sm);
+      cursor: pointer;
+      letter-spacing: 1px;
+      font-weight: 700;
+      transition: all .2s;
+      text-transform: uppercase;
+    }
+    .fb-type-btn.active { background:var(--surface-2); border-color:var(--border-2); color:var(--text-mid); }
+    .fb-textarea {
+      width: 100%;
+      min-height: calc(100px * var(--fs));
+      padding: var(--sp-3) var(--sp-4);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--text-mid);
+      font-family: inherit;
+      font-size: var(--t-sm);
+      resize: vertical;
+      outline: none;
+      margin-bottom: var(--sp-3);
+      line-height: calc(1.5 * var(--fs));
+    }
+    .fb-submit {
+      width: 100%;
+      padding: var(--sp-3) var(--sp-4);
+      background: var(--surface-2);
+      border: 1px solid var(--border-2);
+      border-radius: 2px;
+      color: var(--text-mid);
+      font-family: inherit;
+      font-size: var(--t-xs);
+      letter-spacing: 3px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: all .2s;
+      text-transform: uppercase;
+    }
+    .fb-submit:hover { background:var(--surface); color:var(--text-hi); }
+
+    /* ── SETTINGS ──────────────────────────────────────────────────────── */
+    .settings-panel { display:none; margin-top:var(--sp-5); }
+    .settings-panel.open { display:block; }
+    .settings-section { background:var(--surface); border:1px solid var(--border); border-radius:3px; margin-bottom:var(--sp-3); overflow:hidden; }
+    .settings-section-header { display:flex; justify-content:space-between; align-items:center; padding:var(--sp-4) var(--sp-5); cursor:pointer; user-select:none; }
+    .settings-section-title  { font-size:var(--t-xs); letter-spacing:3px; color:var(--text-lo); font-weight:700; text-transform:uppercase; }
+    .settings-section-arrow  { font-size:10px; color:var(--text-dim); transition:transform .2s; }
+    .settings-section-arrow.open { transform:rotate(180deg); }
+    .settings-section-body   { display:none; padding:0 var(--sp-5) var(--sp-5); }
+    .settings-section-body.open { display:block; }
+    .setting-group  { margin-bottom:var(--sp-4); }
+    .setting-group:last-child { margin-bottom:0; }
+    .setting-label  { font-size:var(--t-xs); letter-spacing:2px; color:var(--text-lo); margin-bottom:var(--sp-3); display:block; font-weight:700; text-transform:uppercase; }
+    .setting-input  {
+      width: 100%;
+      padding: var(--sp-3) var(--sp-4);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--text-mid);
+      font-family: inherit;
+      font-size: var(--t-sm);
+      outline: none;
+      transition: border-color .2s;
+      font-weight: 700;
+    }
+    .setting-input:focus { border-color:var(--border-2); }
+    .setting-select {
+      width: 100%;
+      padding: var(--sp-3) var(--sp-4);
+      background: var(--overlay-bg);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--text-mid);
+      font-family: inherit;
+      font-size: var(--t-sm);
+      outline: none;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .toggle-row   { display:flex; align-items:center; gap:var(--sp-4); margin-bottom:var(--sp-3); }
+    .toggle-label { font-size:var(--t-sm); color:var(--text-mid); flex:1; font-weight:700; }
+    .toggle {
+      position: relative;
+      width: 36px; height: 20px;
+      background: var(--surface-2);
+      border-radius: 10px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      transition: background .2s;
+      flex-shrink: 0;
+    }
+    .toggle.on { background:rgba(255,77,109,.4); border-color:rgba(255,77,109,.4); }
+    .toggle::after {
+      content:''; position:absolute;
+      width:14px; height:14px; border-radius:50%;
+      background:var(--text-lo);
+      top:2px; left:2px;
+      transition:left .2s, background .2s;
+    }
+    .toggle.on::after { left:18px; background:var(--accent); }
+    .qc-btn {
+      font-size: var(--t-xs);
+      letter-spacing: 1px;
+      padding: var(--sp-2) var(--sp-3);
+      border-radius: 2px;
+      cursor: pointer;
+      font-family: inherit;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-lo);
+      transition: all .2s;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .qc-btn.active { background:var(--surface-2); border-color:var(--border-2); color:var(--text-mid); }
+    .save-btn {
+      width: 100%;
+      padding: var(--sp-3) var(--sp-4);
+      border-radius: 2px;
+      font-family: inherit;
+      font-size: var(--t-xs);
+      letter-spacing: 3px;
+      cursor: pointer;
+      margin-top: var(--sp-3);
+      font-weight: 700;
+      background: var(--surface-2);
+      border: 1px solid var(--border-2);
+      color: var(--text-mid);
+      transition: all .2s;
+      text-transform: uppercase;
+    }
+    .save-btn:hover { background:var(--surface); color:var(--text-hi); }
+    .reminder-btn {
+      width: 100%;
+      padding: var(--sp-3) var(--sp-4);
+      border-radius: 2px;
+      font-family: inherit;
+      font-size: var(--t-xs);
+      letter-spacing: 3px;
+      cursor: pointer;
+      margin-top: var(--sp-2);
+      font-weight: 700;
+      background: rgba(67,217,123,.05);
+      border: 1px solid rgba(67,217,123,.2);
+      color: rgba(67,217,123,.6);
+      transition: all .2s;
+      text-transform: uppercase;
+    }
+    .char-count { font-size:var(--t-xs); color:var(--text-dim); text-align:right; margin-top:var(--sp-1); font-weight:700; letter-spacing:1px; }
+    .second-contact { display:none; margin-top:var(--sp-3); padding-top:var(--sp-3); border-top:1px solid var(--border); }
+    .second-contact.visible { display:block; }
+    .version-tap {
+      font-size: var(--t-xs);
+      color: var(--text-dim);
+      text-align: center;
+      margin-top: var(--sp-4);
+      letter-spacing: 2px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: color .2s;
+      text-transform: uppercase;
+    }
+    .version-tap:hover { color:var(--text-lo); }
+
+    /* ── ONBOARDING ────────────────────────────────────────────────────── */
+    .onboarding-overlay { display:none; position:fixed; inset:0; background:rgba(8,10,15,.97); z-index:200; align-items:center; justify-content:center; padding:var(--sp-5); overflow-y:auto; }
+    .onboarding-overlay.open { display:flex; }
+    .onboarding-panel { width:100%; max-width:440px; text-align:center; padding:var(--sp-4); }
+    .onboarding-logo  { font-size:calc(24px * var(--fs)); letter-spacing:6px; color:var(--accent); font-weight:700; margin-bottom:var(--sp-1); text-transform:uppercase; }
+    .onboarding-sub   { font-size:var(--t-xs); letter-spacing:4px; color:var(--text-lo); margin-bottom:var(--sp-4); font-weight:700; }
+    .onboarding-text  { font-size:var(--t-sm); color:var(--text-mid); line-height:calc(1.7 * var(--fs)); margin-bottom:var(--sp-4); font-weight:700; font-style:italic; }
+    .onboarding-band  { background:var(--surface-2); border:1px solid var(--border); border-radius:2px; padding:var(--sp-4) var(--sp-5); margin-bottom:var(--sp-4); text-align:left; }
+    .onboarding-band-title { font-size:var(--t-xs); letter-spacing:3px; color:var(--text-lo); font-weight:700; margin-bottom:var(--sp-3); text-transform:uppercase; }
+    .onboarding-band-row   { display:flex; gap:var(--sp-3); margin-bottom:var(--sp-2); align-items:center; }
+    .onboarding-band-label { font-size:var(--t-xs); letter-spacing:2px; font-weight:700; min-width:72px; text-transform:uppercase; }
+    .onboarding-band-desc  { font-size:var(--t-xs); color:var(--text-mid); font-weight:700; }
+    .onboarding-btn {
+      padding: var(--sp-4) var(--sp-7);
+      background: rgba(255,77,109,.1);
+      border: 1px solid rgba(255,77,109,.4);
+      border-radius: 2px;
+      color: var(--accent);
+      font-family: inherit;
+      font-size: var(--t-sm);
+      letter-spacing: 4px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: all .2s;
+      text-transform: uppercase;
+    }
+
+    /* ── BOOST ─────────────────────────────────────────────────────────── */
+    .boost-btn {
+      width: 100%;
+      padding: var(--sp-3) var(--sp-4);
+      background: rgba(251,191,36,0.06);
+      border: 1px solid rgba(251,191,36,0.2);
+      border-radius: 2px;
+      color: rgba(251,191,36,0.7);
+      font-family: inherit;
+      font-size: var(--t-xs);
+      letter-spacing: 3px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: all .2s;
+      text-transform: uppercase;
+      margin-top: var(--sp-3);
+    }
+    .boost-btn:hover { background:rgba(251,191,36,0.12); color:rgba(251,191,36,0.9); }
+
+    /* ── OVERFLOW OVERLAY ──────────────────────────────────────────────── */
+    .overflow-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:300; align-items:center; justify-content:center; flex-direction:column; gap:var(--sp-4); padding:var(--sp-6); }
+    .overflow-overlay.open { display:flex; }
+    .overflow-cheat { font-size:var(--t-xs); letter-spacing:3px; color:rgba(251,191,36,0.6); font-weight:700; text-transform:uppercase; }
+    .overflow-ascii { font-size:calc(18px * var(--fs)); line-height:1.5; color:#fbbf24; text-align:center; filter:drop-shadow(0 0 12px #fbbf24); white-space:pre; font-family:monospace; }
+    .overflow-msg { font-size:var(--t-sm); letter-spacing:2px; color:var(--text-mid); font-weight:700; text-align:center; line-height:calc(1.8 * var(--fs)); }
+    .overflow-close { font-size:var(--t-xs); letter-spacing:2px; color:var(--text-dim); cursor:pointer; background:none; border:none; font-family:inherit; font-weight:700; margin-top:var(--sp-2); }
+
+    /* ── EASTER EGG ────────────────────────────────────────────────────── */
+    .ace-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.9); z-index:300; align-items:center; justify-content:center; flex-direction:column; gap:var(--sp-5); }
+    .ace-overlay.open { display:flex; }
+    .ace-cheat { font-size:var(--t-xs); letter-spacing:3px; color:rgba(255,77,109,.7); font-weight:700; text-transform:uppercase; }
+    .ace-ascii { font-size:calc(18px * var(--fs)); line-height:1.5; color:var(--accent); text-align:center; filter:drop-shadow(0 0 12px var(--accent)); white-space:pre; font-family:monospace; }
+    .ace-msg   { font-size:var(--t-sm); letter-spacing:3px; color:var(--text-mid); font-weight:700; text-transform:uppercase; }
+    .ace-close { font-size:var(--t-xs); letter-spacing:2px; color:var(--text-dim); cursor:pointer; background:none; border:none; font-family:inherit; font-weight:700; text-transform:uppercase; }
+
+    /* ── CHANGELOG ─────────────────────────────────────────────────────── */
+    .changelog-entry { margin-bottom:var(--sp-5); padding-bottom:var(--sp-5); border-bottom:1px solid var(--border); }
+    .changelog-entry:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+    .changelog-version { font-size:var(--t-sm); letter-spacing:3px; color:var(--accent); font-weight:700; margin-bottom:var(--sp-1); text-transform:uppercase; }
+    .changelog-date    { font-size:var(--t-xs); color:var(--text-dim); letter-spacing:2px; margin-bottom:var(--sp-3); font-weight:700; }
+    .changelog-item    { font-size:var(--t-xs); color:var(--text-mid); letter-spacing:1px; font-weight:700; margin-bottom:var(--sp-1); line-height:calc(1.5 * var(--fs)); padding-left:var(--sp-3); }
+    .changelog-item::before { content:'— '; color:var(--text-dim); }
+
+    /* ── COLOURBLIND ───────────────────────────────────────────────────── */
+    body.cb-mode .stat-vitality-colour { color:#4895EF!important; filter:drop-shadow(0 0 6px rgba(72,149,239,.45))!important; }
+    body.cb-mode .stat-vitality-fill   { background:linear-gradient(90deg,#4895EF88,#4895EF)!important; }
+    body.cb-mode .stat-vitality-track  { background:rgba(72,149,239,.12)!important; }
+    body.cb-mode .stat-stamina-colour  { color:#F48C06!important; filter:drop-shadow(0 0 6px rgba(244,140,6,.45))!important; }
+    body.cb-mode .stat-stamina-fill    { background:linear-gradient(90deg,#F48C0688,#F48C06)!important; }
+    body.cb-mode .stat-stamina-track   { background:rgba(244,140,6,.12)!important; }
+    body.cb-mode .stat-affect-colour   { color:#E040FB!important; filter:drop-shadow(0 0 6px rgba(224,64,251,.45))!important; }
+    body.cb-mode .stat-affect-fill     { background:linear-gradient(90deg,#E040FB88,#E040FB)!important; }
+    body.cb-mode .stat-affect-track    { background:rgba(224,64,251,.12)!important; }
+    body.cb-mode .stat-focus-colour    { color:#FFD60A!important; filter:drop-shadow(0 0 6px rgba(255,214,10,.45))!important; }
+    body.cb-mode .stat-focus-fill      { background:linear-gradient(90deg,#FFD60A88,#FFD60A)!important; }
+    body.cb-mode .stat-focus-track     { background:rgba(255,214,10,.12)!important; }
+  </style>
+</head>
+<body class="font-hyperlegible">
+
+<!-- ONBOARDING -->
+<div class="onboarding-overlay" id="onboarding-overlay">
+  <div class="onboarding-panel">
+    <div class="onboarding-logo">Baseline Drift</div>
+    <div class="onboarding-sub" id="onboarding-version">// STATUS HUD</div>
+    <div class="onboarding-text">
+      A self-monitoring tool for neurodivergent brains.<br>
+      Set your sliders. Log your day. See your patterns.
+    </div>
+    <div class="onboarding-band">
+      <div class="onboarding-band-title">// How sliders work</div>
+      <div class="onboarding-band-row"><span class="onboarding-band-label" style="color:#ff4d6d">LOW</span><span class="onboarding-band-desc">0–25 — significantly depleted</span></div>
+      <div class="onboarding-band-row"><span class="onboarding-band-label" style="color:#fb923c">BELOW CTR</span><span class="onboarding-band-desc">26–49 — below your centre</span></div>
+      <div class="onboarding-band-row"><span class="onboarding-band-label" style="color:#fbbf24">CENTRE</span><span class="onboarding-band-desc">50 — right at your baseline</span></div>
+      <div class="onboarding-band-row"><span class="onboarding-band-label" style="color:#43d97b">ABOVE CTR</span><span class="onboarding-band-desc">51–75 — above your centre</span></div>
+      <div class="onboarding-band-row"><span class="onboarding-band-label" style="color:#43d97b">HIGH</span><span class="onboarding-band-desc">76–100 — strong capacity</span></div>
+      <div style="font-size:9px;color:var(--text-dim);margin-top:10px;font-weight:700;letter-spacing:1px">Pick the band that fits. Don't overthink the number.</div>
+    </div>
+    <button class="onboarding-btn" onclick="dismissOnboarding()">GET STARTED</button>
+  </div>
+</div>
+
+<!-- OVERFLOW EASTER EGG -->
+<div class="overflow-overlay" id="overflow-overlay" onclick="closeOverflow()">
+  <div class="overflow-cheat" id="overflow-cheat">// STAT OVERFLOW</div>
+  <div class="overflow-ascii" id="overflow-ascii">/\_/\  
+( \u25C9_\u25CE ) 
+ > \u221E <</div>
+  <div class="overflow-msg" id="overflow-msg">WARNING: STAT OVERFLOW.<br>YOU HAVE ENTERED HYPERFOCUS TERRITORY.<br>TIME IS NO LONGER A CONCEPT. HYDRATE.</div>
+  <button class="overflow-close">// TAP TO CLOSE</button>
+</div>
+
+<!-- EASTER EGG -->
+<div class="ace-overlay" id="ace-overlay" onclick="closeAce()">
+  <div class="ace-cheat">// CHEAT CODE ACTIVATED</div>
+  <div class="ace-ascii">/\_/\  
+( o.o ) 
+ > ♥ <</div>
+  <div class="ace-msg">ACE SAYS YOU'RE DOING GREAT.</div>
+  <button class="ace-close">// TAP TO CLOSE</button>
+</div>
+
+<!-- BAND REFERENCE POPUP -->
+<div class="overlay" id="band-overlay" onclick="closeOverlay('band-overlay')">
+  <div class="overlay-panel" onclick="event.stopPropagation()" style="max-width:360px">
+    <div class="overlay-header">
+      <div class="overlay-title">// HOW SLIDERS WORK</div>
+      <button class="overlay-close" onclick="closeOverlay('band-overlay')">✕ CLOSE</button>
+    </div>
+    <div style="margin-bottom:var(--sp-4)">
+      <div style="display:flex;align-items:center;gap:var(--sp-4);padding:var(--sp-3) 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:var(--t-xs);font-weight:700;letter-spacing:2px;color:#ff4d6d;min-width:80px">LOW</span>
+        <span style="font-size:var(--t-xs);font-weight:700;color:var(--text-mid)">0–25 — significantly depleted</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:var(--sp-4);padding:var(--sp-3) 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:var(--t-xs);font-weight:700;letter-spacing:2px;color:#fb923c;min-width:80px">BELOW CTR</span>
+        <span style="font-size:var(--t-xs);font-weight:700;color:var(--text-mid)">26–49 — below your centre</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:var(--sp-4);padding:var(--sp-3) 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:var(--t-xs);font-weight:700;letter-spacing:2px;color:#fbbf24;min-width:80px">CENTRE</span>
+        <span style="font-size:var(--t-xs);font-weight:700;color:var(--text-mid)">50 — right at your baseline</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:var(--sp-4);padding:var(--sp-3) 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:var(--t-xs);font-weight:700;letter-spacing:2px;color:#43d97b;min-width:80px">ABOVE CTR</span>
+        <span style="font-size:var(--t-xs);font-weight:700;color:var(--text-mid)">51–75 — above your centre</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:var(--sp-4);padding:var(--sp-3) 0">
+        <span style="font-size:var(--t-xs);font-weight:700;letter-spacing:2px;color:#43d97b;min-width:80px">HIGH</span>
+        <span style="font-size:var(--t-xs);font-weight:700;color:var(--text-mid)">76–100 — strong capacity</span>
+      </div>
+    </div>
+    <div style="font-size:var(--t-xs);color:var(--text-dim);font-weight:700;letter-spacing:1px">// Pick the band that fits. Don't overthink the number.</div>
+  </div>
+</div>
+
+<!-- MAIN HUD -->
+<div class="hud">
+  <div class="corner-bl"></div>
+  <div class="corner-br"></div>
+
+  <div class="hearts-row" id="hearts-row"></div>
+
+  <div class="header">
+    <div class="header-left">
+      <div class="app-banner" id="app-banner">BASELINE DRIFT</div>
+      <div class="player-label">PLAYER STATUS</div>
+      <div class="player-name" id="player-name" onclick="editPlayerName()">YOUR NAME</div>
+    </div>
+    <div class="time-block">
+      <div class="date-str" id="date-str">---</div>
+      <div class="time-str" id="time-str">--:--:--</div>
+    </div>
+  </div>
+
+  <div class="condition-badge" id="condition-badge" onclick="onConditionBadgeTap()" style="cursor:pointer;width:100%">
+    <div class="condition-dot" id="condition-dot"></div>
+    <span class="condition-label" id="condition-label">SET YOUR STATS</span>
+  </div>
+  <div class="condition-desc" id="condition-desc">// Adjust three or more sliders to see your status.</div>
+  <div class="note-to-self" id="note-to-self"></div>
+  <div class="last-logged" id="last-logged"></div>
+  <div id="quick-actions" style="display:flex;gap:var(--sp-3);margin-top:var(--sp-3)">
+    <button onclick="recallLast()" style="flex:1;padding:var(--sp-3);background:var(--surface-2);border:1px solid var(--border);border-radius:2px;color:var(--text-lo);font-family:inherit;font-size:var(--t-xs);letter-spacing:2px;cursor:pointer;font-weight:700;transition:all .2s" onmouseover="this.style.color='var(--text-mid)'" onmouseout="this.style.color='var(--text-lo)'">↩ RECALL LAST</button>
+    <button onclick="useAsIs()" style="flex:1;padding:var(--sp-3);background:var(--surface-2);border:1px solid var(--border);border-radius:2px;color:var(--text-lo);font-family:inherit;font-size:var(--t-xs);letter-spacing:2px;cursor:pointer;font-weight:700;transition:all .2s" onmouseover="this.style.color='var(--text-mid)'" onmouseout="this.style.color='var(--text-lo)'">✓ USE AS-IS</button>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="banner banner-optimal" id="banner-optimal">
+    <div class="banner-title" style="color:var(--c-optimal)">✦ HIGH FUNCTIONING — Conditions are good.</div>
+    <button class="dismiss-btn" onclick="dismissBanner('optimal')">// DISMISS</button>
+  </div>
+  <div class="banner banner-dysregulated" id="banner-dysregulated">
+    <div class="banner-title" style="color:var(--c-dysregulated)">◈ SPLIT STATE — Body and mind out of sync.</div>
+    <div style="font-size:var(--t-xs);color:var(--text-mid);margin-bottom:var(--sp-3);font-weight:700;letter-spacing:1px">Your stats show high variance. This is a recognised state, not a failure.</div>
+    <button class="dismiss-btn" onclick="dismissBanner('dysregulated')">// DISMISS</button>
+  </div>
+  <div class="banner banner-critical" id="banner-critical">
+    <div class="banner-title" style="color:var(--c-critical)">⚠ SYSTEM CRITICAL — REACH OUT</div>
+    <div class="emergency-btns" id="emergency-btns"></div>
+    <button class="dismiss-btn" onclick="dismissBanner('critical')">// DISMISS</button>
+  </div>
+
+  <div id="stats-container"></div>
+
+  <div class="score-bar">
+    <div class="score-item">
+      <div class="score-label">TOTAL</div>
+      <div class="score-value" id="score-total" onclick="onScoreTotalTap()" style="cursor:default">200<span style="font-size:var(--t-xs);color:var(--text-lo)"> /400</span></div>
+    </div>
+    <div class="score-divider"></div>
+    <div class="score-item">
+      <div class="score-label">AVERAGE</div>
+      <div class="score-value" id="score-avg">50</div>
+    </div>
+    <div class="score-divider"></div>
+    <div class="score-item">
+      <div class="score-label">STATUS</div>
+      <div class="score-value" id="score-status" style="font-size:var(--t-xs);letter-spacing:2px;color:var(--text-lo)">---</div>
+    </div>
+  </div>
+
+  <div class="action-row">
+    <button class="log-btn" id="log-btn" onclick="logToday()">+ LOG TODAY'S READING</button>
+    <button class="reset-btn" onclick="resetSliders()">↺ RESET</button>
+  </div>
+  <button class="boost-btn" id="boost-btn" onclick="activateBoost()">☕ COFFEE +5 ALL STATS</button>
+  <div class="log-note-wrap" id="log-note-wrap">
+    <textarea class="log-note-input" id="log-note-input" placeholder="// Optional note — what's behind these numbers today?" maxlength="200" oninput="document.getElementById('log-note-count').textContent=200-this.value.length"></textarea>
+    <div class="log-note-meta">
+      <span class="log-note-label">// NOTE TO LOG</span>
+      <span class="log-note-count" id="log-note-count">200</span>
+    </div>
+  </div>
+
+  <div class="divider" style="margin-bottom:0"></div>
+
+  <div class="footer">
+    <span class="footer-left" id="footer-region">AU</span>
+    <div class="footer-right">
+      <button class="footer-btn" onclick="shareApp()">↗ SHARE</button>
+      <button class="footer-btn" onclick="openGraph()">GRAPH</button>
+      <button class="footer-btn" onclick="openExport()">EXPORT</button>
+      <button class="footer-btn" onclick="openFeedback()">FEEDBACK</button>
+      <button class="footer-btn" onclick="document.getElementById('licence-overlay').classList.add('open')">LICENCE</button>
+      <button class="footer-btn" onclick="toggleSettings()">SETTINGS</button>
+    </div>
+  </div>
+
+  <div class="donate-row" style="gap:var(--sp-3)">
+    <button onclick="document.getElementById('help-overlay').classList.add('open')" style="display:inline-flex;align-items:center;gap:var(--sp-2);padding:7px 16px;border:1px solid var(--border);border-radius:2px;background:var(--surface);color:var(--text-dim);font-family:inherit;font-size:var(--t-xs);letter-spacing:2px;cursor:pointer;font-weight:700;transition:all .2s">? HELP</button>
+    <a class="donate-btn" href="https://ko-fi.com/rots5" target="_blank" rel="noopener"><span>☕</span><span>TIP VIA KO-FI</span></a>
+  </div>
+
+  <div class="cache-warn" id="cache-warn">
+    ⚠ YOUR DATA IS STORED LOCALLY — Clearing your browser cache will delete all logged readings. Export regularly as backup.
+    <button onclick="dismissCacheWarn()" style="display:block;margin-top:var(--sp-2);background:none;border:none;color:rgba(251,191,36,.4);font-family:inherit;font-size:var(--t-xs);cursor:pointer;letter-spacing:2px;font-weight:700;padding:0">// DISMISS</button>
+  </div>
+
+  <!-- SETTINGS PANEL -->
+  <div class="settings-panel" id="settings-panel">
+
+    <div class="settings-section">
+      <div class="settings-section-header" onclick="toggleSection('sec-profile')">
+        <span class="settings-section-title">👤 PROFILE</span>
+        <span class="settings-section-arrow" id="arrow-sec-profile">▼</span>
+      </div>
+      <div class="settings-section-body" id="sec-profile">
+        <div class="setting-group">
+          <label class="setting-label">PLAYER NAME (MAX 12)</label>
+          <input class="setting-input" id="cfg-name" type="text" placeholder="YOUR NAME" maxlength="12"/>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">TIMEZONE</label>
+          <select class="setting-select" id="cfg-timezone">
+            <option value="Australia/Brisbane">Australia — Brisbane (AEST, UTC+10)</option>
+            <option value="Australia/Sydney">Australia — Sydney (AEST/AEDT)</option>
+            <option value="Australia/Melbourne">Australia — Melbourne (AEST/AEDT)</option>
+            <option value="Australia/Adelaide">Australia — Adelaide (ACST/ACDT)</option>
+            <option value="Australia/Darwin">Australia — Darwin (ACST, UTC+9:30)</option>
+            <option value="Australia/Perth">Australia — Perth (AWST, UTC+8)</option>
+            <option value="Pacific/Auckland">New Zealand — Auckland (NZST/NZDT)</option>
+            <option value="America/Los_Angeles">US — Pacific (PST/PDT)</option>
+            <option value="America/Denver">US — Mountain (MST/MDT)</option>
+            <option value="America/Chicago">US — Central (CST/CDT)</option>
+            <option value="America/New_York">US — Eastern (EST/EDT)</option>
+            <option value="America/Toronto">Canada — Toronto (EST/EDT)</option>
+            <option value="America/Vancouver">Canada — Vancouver (PST/PDT)</option>
+            <option value="Europe/London">UK — London (GMT/BST)</option>
+            <option value="Europe/Paris">Europe — Paris (CET/CEST)</option>
+            <option value="Europe/Berlin">Europe — Berlin (CET/CEST)</option>
+            <option value="Asia/Dubai">Gulf — Dubai (GST, UTC+4)</option>
+            <option value="Asia/Kolkata">India — Mumbai/Delhi (IST, UTC+5:30)</option>
+            <option value="Asia/Singapore">Asia — Singapore (SGT, UTC+8)</option>
+            <option value="Asia/Tokyo">Asia — Tokyo (JST, UTC+9)</option>
+            <option value="Asia/Seoul">Asia — Seoul (KST, UTC+9)</option>
+          </select>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">MY BASELINE AVERAGE</label>
+          <div style="display:flex;align-items:center;gap:var(--sp-3)">
+            <span style="font-size:var(--t-xs);color:var(--text-lo);font-weight:700">20</span>
+            <input type="range" min="20" max="70" value="50" id="cfg-baseline" style="flex:1;accent-color:var(--accent)" oninput="document.getElementById('baseline-label').textContent=this.value"/>
+            <span style="font-size:var(--t-xs);color:var(--text-lo);font-weight:700">70</span>
+            <span id="baseline-label" style="font-size:var(--t-sm);color:var(--accent);font-weight:700;min-width:24px;text-align:right">50</span>
+          </div>
+          <div style="font-size:var(--t-xs);color:var(--text-dim);margin-top:var(--sp-2);font-weight:700;letter-spacing:1px">Condition labels shift relative to your centre. Default is 50.</div>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">BOOST BUTTON LABEL (MAX 12)</label>
+          <input class="setting-input" id="cfg-boost" type="text" placeholder="COFFEE" maxlength="12"/>
+          <div style="font-size:var(--t-xs);color:var(--text-dim);margin-top:var(--sp-1);font-weight:700;letter-spacing:1px">+5 to all unlocked stats per tap</div>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">NOTE TO SELF (MAX 100)</label>
+          <input class="setting-input" id="cfg-note" type="text" placeholder="// I function best in the morning..." maxlength="100" oninput="document.getElementById('note-count').textContent=100-this.value.length"/>
+          <div class="char-count" id="note-count">100</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-header" onclick="toggleSection('sec-stats')">
+        <span class="settings-section-title">📊 STAT NAMES</span>
+        <span class="settings-section-arrow" id="arrow-sec-stats">▼</span>
+      </div>
+      <div class="settings-section-body" id="sec-stats">
+        <div class="setting-group">
+          <label class="setting-label">CUSTOMISE STAT LABELS</label>
+          <input class="setting-input" id="cfg-stat-vitality" type="text" placeholder="VITALITY" maxlength="12" style="margin-bottom:var(--sp-2)"/>
+          <input class="setting-input" id="cfg-stat-stamina"  type="text" placeholder="STAMINA"  maxlength="12" style="margin-bottom:var(--sp-2)"/>
+          <input class="setting-input" id="cfg-stat-affect"   type="text" placeholder="MOOD"     maxlength="12" style="margin-bottom:var(--sp-2)"/>
+          <input class="setting-input" id="cfg-stat-focus"    type="text" placeholder="FOCUS"    maxlength="12"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-header" onclick="toggleSection('sec-emergency')">
+        <span class="settings-section-title">🚨 EMERGENCY</span>
+        <span class="settings-section-arrow" id="arrow-sec-emergency">▼</span>
+      </div>
+      <div class="settings-section-body" id="sec-emergency">
+        <div class="setting-group">
+          <label class="setting-label">REGION / EMERGENCY NUMBER</label>
+          <select class="setting-select" id="cfg-region">
+            <option value="AU|000">Australia — 000</option>
+            <option value="NZ|111">New Zealand — 111</option>
+            <option value="US|911">United States — 911</option>
+            <option value="UK|999">United Kingdom — 999</option>
+            <option value="EU|112">Europe — 112</option>
+            <option value="CA|911">Canada — 911</option>
+            <option value="OTHER|112">Other — 112</option>
+          </select>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">EMERGENCY CONTACT 1</label>
+          <input class="setting-input" id="cfg-contact-name" type="text" placeholder="Contact name" maxlength="30" style="margin-bottom:var(--sp-2)"/>
+          <input class="setting-input" id="cfg-contact-num"  type="tel"  placeholder="Phone number"  maxlength="20"/>
+        </div>
+        <div class="setting-group">
+          <div class="toggle-row">
+            <span class="toggle-label">Add second emergency contact</span>
+            <div class="toggle" id="tog-second" onclick="toggleSecond()"></div>
+          </div>
+          <div class="second-contact" id="second-contact">
+            <input class="setting-input" id="cfg-contact2-name" type="text" placeholder="Contact 2 name"  maxlength="30" style="margin-bottom:var(--sp-2)"/>
+            <input class="setting-input" id="cfg-contact2-num"  type="tel"  placeholder="Contact 2 phone" maxlength="20"/>
+          </div>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">SHOW IN CRITICAL ALERT</label>
+          <div class="toggle-row"><span class="toggle-label">Emergency services</span><div class="toggle on" id="tog-services" onclick="toggleOpt('services')"></div></div>
+          <div class="toggle-row"><span class="toggle-label">Emergency contact 1</span><div class="toggle on" id="tog-contact"  onclick="toggleOpt('contact')"></div></div>
+          <div class="toggle-row" id="tog-contact2-row" style="display:none"><span class="toggle-label">Emergency contact 2</span><div class="toggle on" id="tog-contact2" onclick="toggleOpt('contact2')"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-header" onclick="toggleSection('sec-display')">
+        <span class="settings-section-title">🎨 DISPLAY & ACCESSIBILITY</span>
+        <span class="settings-section-arrow" id="arrow-sec-display">▼</span>
+      </div>
+      <div class="settings-section-body" id="sec-display">
+        <div class="setting-group">
+          <div class="toggle-row"><span class="toggle-label">Show stat labels under hearts</span><div class="toggle on" id="tog-heartlabels" onclick="toggleOpt('heartlabels')"></div></div>
+          <div class="toggle-row"><span class="toggle-label">Colourblind mode</span><div class="toggle" id="tog-cb" onclick="toggleCB()"></div></div>
+          <div class="toggle-row"><span class="toggle-label">Use system theme (light/dark)</span><div class="toggle" id="tog-systemtheme" onclick="toggleOpt('systemtheme')"></div></div>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">THEME</label>
+          <div style="display:flex;gap:var(--sp-3)">
+            <button class="qc-btn active" id="btn-dark"  onclick="setTheme('dark')"  style="flex:1;padding:var(--sp-3)">DARK</button>
+            <button class="qc-btn"        id="btn-light" onclick="setTheme('light')" style="flex:1;padding:var(--sp-3)">LIGHT</button>
+          </div>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">TEXT SIZE</label>
+          <div style="display:flex;align-items:center;gap:var(--sp-3)">
+            <span style="font-size:11px;color:var(--text-lo);font-weight:700">A</span>
+            <input type="range" min="0.8" max="1.4" step="0.05" value="1" id="cfg-fontsize" style="flex:1;accent-color:var(--accent)" oninput="applyFontSize(this.value);updateFsLabel(this.value)"/>
+            <span style="font-size:18px;color:var(--text-lo);font-weight:700">A</span>
+            <span id="fontsize-label" onclick="editFontSize()" title="Tap to type a value" style="font-size:var(--t-xs);color:var(--accent);font-weight:700;min-width:44px;text-align:right;letter-spacing:1px;cursor:pointer;border-bottom:1px dashed rgba(255,77,109,.3)">◉ 100%</span>
+          </div>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">FONT TYPE</label>
+          <div style="display:flex;gap:var(--sp-2);flex-wrap:wrap">
+            <button class="qc-btn"        id="btn-font-hyperlegible" onclick="setFontType('hyperlegible')" style="flex:1;padding:var(--sp-3);min-width:80px">READABLE</button>
+            <button class="qc-btn"        id="btn-font-mono"         onclick="setFontType('mono')"         style="flex:1;padding:var(--sp-3);min-width:80px">MONO</button>
+            <button class="qc-btn"        id="btn-font-dyslexic"     onclick="setFontType('dyslexic')"     style="flex:1;padding:var(--sp-3);min-width:80px">DYSLEXIC</button>
+          </div>
+          <div style="font-size:var(--t-xs);color:var(--text-dim);margin-top:var(--sp-2);font-weight:700">READABLE = Atkinson Hyperlegible &middot; DYSLEXIC = OpenDyslexic</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-header" onclick="toggleSection('sec-prefs')">
+        <span class="settings-section-title">⚙ PREFERENCES</span>
+        <span class="settings-section-arrow" id="arrow-sec-prefs">▼</span>
+      </div>
+      <div class="settings-section-body" id="sec-prefs">
+        <div class="setting-group">
+          <label class="setting-label">SLIDER INCREMENT</label>
+          <div style="display:flex;align-items:center;gap:var(--sp-3)">
+            <span style="font-size:var(--t-xs);color:var(--text-lo);font-weight:700">1</span>
+            <input type="range" min="1" max="25" value="5" id="cfg-increment" style="flex:1;accent-color:#fbbf24" oninput="document.getElementById('increment-label').textContent=this.value"/>
+            <span style="font-size:var(--t-xs);color:var(--text-lo);font-weight:700">25</span>
+            <span id="increment-label" style="font-size:var(--t-sm);color:var(--text-mid);font-weight:700;min-width:24px;text-align:right">5</span>
+          </div>
+        </div>
+        <div class="setting-group">
+          <div class="toggle-row"><span class="toggle-label">Auto-reset sliders to 50 on new day</span><div class="toggle" id="tog-autoreset" onclick="toggleOpt('autoreset')"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="save-btn" onclick="saveSettings()">SAVE / CLOSE SETTINGS</button>
+    <button class="reminder-btn" onclick="openReminder()">🔔 SET CHECK-IN REMINDER</button>
+    <button class="reminder-btn" style="background:rgba(167,139,250,0.05);border-color:rgba(167,139,250,0.2);color:rgba(167,139,250,0.6);margin-top:var(--sp-2)" onclick="document.getElementById('settings-panel').classList.remove('open');document.getElementById('onboarding-overlay').classList.add('open')">◈ VIEW INTRO &amp; GUIDE</button>
+    <div class="version-tap" id="version-tap" onclick="openChangelog()">BASELINE DRIFT // STATUS HUD v5.4 // TAP FOR CHANGELOG</div>
+  </div>
+</div>
+
+<!-- EXPORT OVERLAY -->
+<div class="overlay" id="export-overlay" onclick="closeOverlay('export-overlay')">
+  <div class="overlay-panel" onclick="event.stopPropagation()">
+    <div class="overlay-header">
+      <div class="overlay-title">// EXPORT / RESTORE</div>
+      <button class="overlay-close" onclick="closeOverlay('export-overlay')">✕ CLOSE</button>
+    </div>
+    <div class="export-option" onclick="exportCopy()"><span class="export-icon">📋</span><div><div class="export-label">COPY TO CLIPBOARD</div><div class="export-desc">Formatted text summary</div></div></div>
+    <div class="export-option" onclick="exportCSV()"><span class="export-icon">📊</span><div><div class="export-label">SAVE AS CSV</div><div class="export-desc">All logged readings — Excel or Sheets</div></div></div>
+    <div class="export-option" onclick="exportPDF()"><span class="export-icon">📄</span><div><div class="export-label">DOWNLOAD PDF SNAPSHOT</div><div class="export-desc">Today's reading as a printable record</div></div></div>
+    <div class="export-option" onclick="exportImage()"><span class="export-icon">🖼</span><div><div class="export-label">SHARE AS IMAGE CARD</div><div class="export-desc">Visual snapshot of current status</div></div></div>
+    <div class="export-option" onclick="backupData()"><span class="export-icon">💾</span><div><div class="export-label">BACKUP ALL DATA</div><div class="export-desc">Export everything as JSON — restore anytime using the option below</div></div></div>
+    <div class="export-option" onclick="document.getElementById('restore-input').click()"><span class="export-icon">📥</span><div><div class="export-label">RESTORE FROM BACKUP</div><div class="export-desc">Import a previously saved JSON backup</div></div></div>
+    <input type="file" id="restore-input" accept=".json" style="display:none" onchange="restoreData(event)"/>
+    <canvas id="export-canvas" style="display:none"></canvas>
+  </div>
+</div>
+
+<!-- GRAPH OVERLAY -->
+<div class="overlay" id="graph-overlay" onclick="closeOverlay('graph-overlay')">
+  <div class="overlay-panel" onclick="event.stopPropagation()">
+    <div class="overlay-header">
+      <div class="overlay-title">// READING HISTORY</div>
+      <button class="overlay-close" onclick="closeOverlay('graph-overlay')">✕ CLOSE</button>
+    </div>
+    <div class="graph-filter" id="graph-filter"></div>
+    <div id="graph-content"></div>
+    <div style="display:flex;gap:var(--sp-3);margin:var(--sp-4) 0 var(--sp-2);align-items:center">
+      <input type="date" id="past-date" style="flex:1;padding:var(--sp-3) var(--sp-4);background:var(--surface-2);border:1px solid var(--border);border-radius:2px;color:var(--text-mid);font-family:inherit;font-size:var(--t-xs);outline:none;font-weight:700"/>
+      <button onclick="logPastDate()" style="padding:var(--sp-3) var(--sp-4);background:var(--surface-2);border:1px solid var(--border);border-radius:2px;color:var(--text-mid);font-family:inherit;font-size:var(--t-xs);letter-spacing:2px;cursor:pointer;font-weight:700;white-space:nowrap">+ LOG DATE</button>
+    </div>
+    <div id="history-list" style="margin-top:var(--sp-3)"></div>
+  </div>
+</div>
+
+<!-- FEEDBACK OVERLAY -->
+<div class="overlay" id="feedback-overlay" onclick="closeOverlay('feedback-overlay')">
+  <div class="overlay-panel" onclick="event.stopPropagation()">
+    <div class="overlay-header">
+      <div class="overlay-title" id="feedback-title">// BUG REPORT</div>
+      <button class="overlay-close" onclick="closeOverlay('feedback-overlay')">✕ CLOSE</button>
+    </div>
+    <div class="feedback-type-row">
+      <button class="fb-type-btn active" id="fb-bug"     onclick="setFbType('bug')">⚠ BUG REPORT</button>
+      <button class="fb-type-btn"        id="fb-general" onclick="setFbType('general')">◈ FEEDBACK</button>
+    </div>
+    <textarea class="fb-textarea" id="fb-text" placeholder="What happened? Describe the bug — steps to reproduce, what you expected vs what you got."></textarea>
+    <div style="font-size:var(--t-xs);color:var(--text-dim);margin-bottom:var(--sp-3);font-weight:700;font-style:italic">// Tapping Send will open your email app with your feedback pre-filled.</div>
+    <button class="fb-submit" onclick="submitFeedback()">SEND FEEDBACK</button>
+  </div>
+</div>
+
+<!-- LICENCE OVERLAY -->
+<div class="overlay" id="licence-overlay" onclick="closeOverlay('licence-overlay')">
+  <div class="overlay-panel" onclick="event.stopPropagation()">
+    <div class="overlay-header">
+      <div class="overlay-title">// LICENCE</div>
+      <button class="overlay-close" onclick="closeOverlay('licence-overlay')">✕ CLOSE</button>
+    </div>
+    <div style="font-size:var(--t-sm);color:var(--text-mid);font-weight:700;margin-bottom:var(--sp-4);letter-spacing:1px">MIT License</div>
+    <div style="font-size:var(--t-xs);color:var(--text-lo);font-weight:700;letter-spacing:1px;line-height:calc(1.7 * var(--fs));margin-bottom:var(--sp-4)">Copyright (c) 2026 Baseline Drift (Nigel Chesher)</div>
+    <div style="font-size:var(--t-xs);color:var(--text-dim);font-weight:700;letter-spacing:1px;line-height:calc(1.7 * var(--fs));margin-bottom:var(--sp-4)">Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</div>
+    <div style="font-size:var(--t-xs);color:var(--text-dim);font-weight:700;letter-spacing:1px;line-height:calc(1.7 * var(--fs));margin-bottom:var(--sp-4)">The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</div>
+    <div style="font-size:var(--t-xs);color:var(--text-dim);font-weight:700;letter-spacing:1px;line-height:calc(1.7 * var(--fs))">THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</div>
+  </div>
+</div>
+
+<!-- HELP OVERLAY -->
+<div class="overlay" id="help-overlay" onclick="closeOverlay('help-overlay')">
+  <div class="overlay-panel" onclick="event.stopPropagation()">
+    <div class="overlay-header">
+      <div class="overlay-title">// FEATURE GUIDE</div>
+      <button class="overlay-close" onclick="closeOverlay('help-overlay')">✕ CLOSE</button>
+    </div>
+    <div class="changelog-entry">
+      <div class="changelog-version" style="color:var(--text-mid)">MAIN HUD</div>
+      <div class="changelog-item">Tap your <strong>player name</strong> to edit it inline — max 12 characters</div>
+      <div class="changelog-item">Tap <strong>SET YOUR STATS</strong> badge to see the band reference table</div>
+      <div class="changelog-item"><strong>RECALL LAST</strong> loads your most recent logged reading into the sliders</div>
+      <div class="changelog-item"><strong>USE AS-IS</strong> confirms all sliders at their current position — no movement required</div>
+      <div class="changelog-item">Tap the <strong>lock icon 🔓</strong> on any stat to hold it — reset and recall won't change it</div>
+      <div class="changelog-item">Add an optional <strong>note</strong> when logging to capture context behind the numbers</div>
+      <div class="changelog-item"><strong>DYSREGULATED</strong> condition fires when your stats show high variance — body and mind out of sync</div>
+    </div>
+    <div class="changelog-entry">
+      <div class="changelog-version" style="color:var(--text-mid)">GRAPH & HISTORY</div>
+      <div class="changelog-item">Tap <strong>GRAPH</strong> in the footer to view your reading history with trend lines per stat</div>
+      <div class="changelog-item">Use <strong>date range filters</strong> (7D / 30D / 3M / 6M / 12M / ALL) to focus the graph</div>
+      <div class="changelog-item">Log a reading for a <strong>past date</strong> using the date picker at the bottom of the graph overlay</div>
+      <div class="changelog-item">Tap <strong>EDIT</strong> on any logged reading to reload its values into the sliders</div>
+      <div class="changelog-item">Tap <strong>DEL</strong> to permanently delete a reading</div>
+      <div class="changelog-item">Past notes are shown under each reading in the history list</div>
+    </div>
+    <div class="changelog-entry">
+      <div class="changelog-version" style="color:var(--text-mid)">SETTINGS</div>
+      <div class="changelog-item">Set your <strong>personal baseline</strong> in Profile — condition thresholds shift relative to your centre, not a fixed scale</div>
+      <div class="changelog-item">Add a <strong>note to self</strong> in Profile — appears on the main HUD below your condition description</div>
+      <div class="changelog-item">Set your <strong>timezone</strong> in Profile — clock display updates to match</div>
+      <div class="changelog-item">Tap the <strong>◉ percentage</strong> next to the text size slider to type a value directly (80–140)</div>
+      <div class="changelog-item">Tap the <strong>version number</strong> at the bottom of settings to view the full changelog</div>
+      <div class="changelog-item">Set a <strong>Google Calendar reminder</strong> for your daily check-in via the reminder button</div>
+      <div class="changelog-item"><strong>Colourblind mode</strong> switches all stat colours to a high-contrast accessible palette</div>
+    </div>
+    <div class="changelog-entry">
+      <div class="changelog-version" style="color:var(--text-mid)">EXPORT / RESTORE</div>
+      <div class="changelog-item">Use <strong>BACKUP ALL DATA</strong> to export your full history and settings as a JSON file</div>
+      <div class="changelog-item">Use <strong>RESTORE FROM BACKUP</strong> to import a previously saved backup — do this before updating versions</div>
+      <div class="changelog-item">Export as <strong>CSV</strong> to open your readings in Excel or Google Sheets</div>
+      <div class="changelog-item"><strong>SHARE AS IMAGE</strong> generates a visual snapshot of your current status</div>
+    </div>
+    <div class="changelog-entry" style="border-bottom:none;margin-bottom:0;padding-bottom:0">
+      <div class="changelog-version" style="color:var(--text-mid)">SECRETS</div>
+      <div class="changelog-item">There are hidden features in this app. Find them yourself. 🐱</div>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGELOG OVERLAY -->
+<div class="overlay" id="changelog-overlay" onclick="closeOverlay('changelog-overlay')">
+  <div class="overlay-panel" onclick="event.stopPropagation()">
+    <div class="overlay-header">
+      <div class="overlay-title">// CHANGELOG</div>
+      <button class="overlay-close" onclick="closeOverlay('changelog-overlay')">✕ CLOSE</button>
+    </div>
+    <div id="changelog-content"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ── CONSTANTS ────────────────────────────────────────────────────────────────
+var VERSION   = '5.4';
+var APP_URL   = 'https://baseline-drift.github.io/baseline-drift/';
+var BUG_EMAIL = 'baselinedrift5@gmail.com';
+
+var STAT_DEFAULTS = [
+  { key:'vitality', defaultLabel:'VITALITY', source:'Sleep \u00B7 Recovery', icon:'\u2661', color:'#ff4d6d', glow:'rgba(255,77,109,0.45)',  track:'rgba(255,77,109,0.12)',
+    comments:['Critically depleted. Rest is non-negotiable right now.','Below half. Running on reserve \u2014 don\'t push it.','Right at your centre. Neither depleted nor recovering.','Decent reserves. Manageable day ahead.','Well rested. Body is ready.'] },
+  { key:'stamina',  defaultLabel:'STAMINA',  source:'Steps \u00B7 Activity', icon:'\u21AF', color:'#43d97b', glow:'rgba(67,217,123,0.45)',  track:'rgba(67,217,123,0.12)',
+    comments:['Empty. Physical effort is a real ask today.','Below half. Keep it steady \u2014 no heroics.','Right at your centre. Enough to function, not much more.','Good capacity. Pace yourself and it\'ll hold.','Charged. Ready to move.'] },
+  { key:'affect',   defaultLabel:'MOOD',     source:'Mood \u00B7 State',     icon:'\u25C8', color:'#a78bfa', glow:'rgba(167,139,250,0.45)', track:'rgba(167,139,250,0.12)',
+    comments:['Dysregulated. Low input day \u2014 protect the space.','Below baseline. Flat and functional at best.','Right at your centre. Neutral \u2014 not good, not bad.','Stable. Capacity is building.','Regulated. Full emotional capacity available.'] },
+  { key:'focus',    defaultLabel:'FOCUS',    source:'Mental \u00B7 Clarity', icon:'\u25CE', color:'#fbbf24', glow:'rgba(251,191,36,0.45)',  track:'rgba(251,191,36,0.12)',
+    comments:['Scattered. Thoughts won\'t land.','Below half. Drifting \u2014 partial attention only.','Right at your centre. Present but not sharp.','Locking in. Getting there.','Sharp. Full concentration available.'] }
+];
+
+var BAND_LABELS = ['LOW','BELOW CENTRE','CENTRE','ABOVE CENTRE','HIGH'];
+var BAND_COLORS = ['#ff4d6d','#fb923c','#fbbf24','#43d97b','#43d97b'];
+
+function getBand(val) {
+  return val <= 25 ? 0 : val < 50 ? 1 : val === 50 ? 2 : val <= 75 ? 3 : 4;
+}
+
+// Conditions are relative to personalBaseline
+// At default baseline=50: OPTIMAL>=80, FUNCTIONAL>=60, BASELINE>=40, CRITICAL<40
+function buildConditions(baseline) {
+  return [
+    { key:'optimal',    label:'OPTIMAL',       color:'#43d97b', desc:'All systems nominal. High-load work is viable.',          min: baseline + 30 },
+    { key:'functional', label:'FUNCTIONAL',     color:'#fbbf24', desc:'Operational. Mind your limits.',                         min: baseline + 10 },
+    { key:'baseline',   label:'BASELINE',       color:'#fb923c', desc:"You're here, that's enough.",                           min: baseline - 10 },
+    { key:'critical',   label:'CRITICAL',       color:'#ff4d6d', desc:'System stressed. Survive mode. No heroics.',             min: -999 }
+  ];
+}
+
+var CHANGELOG = [
+  { version:'5.4', date:'26 Apr 2026', items:[
+    'Migrated to GitHub Pages — https://baseline-drift.github.io/baseline-drift/',
+    '? HELP button moved to main HUD — visible without opening settings',
+    'HELP overlay — full feature guide restored and expanded (28 items across 5 sections)',
+    'LICENCE button in footer — MIT licence overlay with full text',
+    'Onboarding spacing loosened',
+    'BOOST button — +5 to all unlocked stats, customisable label (default ☕ COFFEE)',
+    'Boosting can push individual stats above 100',
+    'Score 420 → secret easter egg',
+    'Score 425 → STAT OVERFLOW — hyperfocus alert fires',
+    'Code authored by Claudia (Anthropic AI) and Nigel Chesher'
+  ]},
+  { version:'5.3', date:'26 Apr 2026', items:[
+    'Onboarding expanded — lock, recall/use as-is, inline name edit, log notes all explained',
+    'New HELP overlay — full feature reference via ? VIEW HELP in settings',
+    'Three new hidden features — find them yourself \uD83D\uDC31',
+    'Hidden dev comment in source listing all secret triggers'
+  ]},
+  { version:'5.2', date:'26 Apr 2026', items:[
+    'Export overlay renamed to EXPORT / RESTORE',
+    'Backup option notes that restore is available below',
+    'Onboarding version number now dynamic from VERSION constant',
+    'RECALL LAST + USE AS-IS buttons below condition badge',
+    'Both buttons hidden once condition activates, restored on reset',
+    'Reset and Recall Last now respect locked sliders'
+  ]},
+  { version:'5.1', date:'25 Apr 2026', items:[
+    'Default font scale bumped to 1.15 — more readable at default without glasses',
+    'Help button in settings — reopens full onboarding guide',
+    'Tapping SET YOUR STATS condition badge shows band reference popup',
+    'Band reference popup — LOW / MID-LOW / MID-HIGH / HIGH table, tap anywhere to close',
+    'Slider scroll fix — gesture-detecting touch handler replaces touch-action:pan-y; horizontal gestures move slider, vertical gestures restore value and allow scroll'
+  ]},
+  { version:'5.0', date:'25 Apr 2026', items:[
+    'Full CSS token architecture — all colours, spacing, and font sizes via custom properties',
+    '--fs variable now scales spacing, line-height, and padding (not just font-size)',
+    'Atkinson Hyperlegible set as default font',
+    'Stat source label moved to second line under stat name — fixes overflow at all font sizes',
+    'DYSREGULATED condition — fires when stat variance \u2265 60, overrides average-based condition',
+    'Personal baseline calibration — condition thresholds shift relative to your centre',
+    'Log notes — optional text attached to each reading (max 200 chars)',
+    'In-app changelog — tap version number in settings',
+    'Slider band labels — LOW / MID-LOW / MID-HIGH / HIGH shown alongside each value',
+    'Onboarding explains quantisation model — pick the band, not the number',
+    'Display and Accessibility settings merged into one section',
+    'Clean rebuild — verified JS, no accumulated patch debt'
+  ]},
+  { version:'4.6', date:'25 Apr 2026', items:[
+    'Timezone selector in Profile (22 options)',
+    'Note to Self field — renders below condition description on main HUD',
+    'Ground-up code rewrite with use strict and explicit function declarations',
+    'All JS verified via Node.js parser before release'
+  ]},
+  { version:'4.5.2', date:'25 Apr 2026', items:[
+    'white-space:nowrap on source labels — fixes Sleep \u00B7 Recovery wrapping',
+    'touch-action:pan-y replaces JS scroll direction detection — reliable mobile scroll fix',
+    'Feedback panel dynamic placeholder and title on type switch',
+    'Font size tap-to-type: tap percentage to enter value directly'
+  ]},
+  { version:'4.5.1', date:'25 Apr 2026', items:[
+    'Vitality heart icon sized to match others — resolves height mismatch in hearts row'
+  ]},
+  { version:'4.5', date:'25 Apr 2026', items:[
+    'Emoji icons replaced with pure Unicode text characters — fixes OS emoji renderer override',
+    'Fixed-size flex containers for heart icons — all stat labels baseline-aligned'
+  ]},
+  { version:'4.4.1 / 4.5 original', date:'24 Apr 2026', items:[
+    'Player name max 12 chars, lock per slider, mobile scroll fix',
+    'Easter egg (tap banner 7x), first-run onboarding, feedback confirmation',
+    'Edit logged reading, collapsible settings sections, last logged indicator',
+    'Graph date range filters, haptic feedback, customisable stat names, backup/restore'
+  ]}
+];
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+var values  = { vitality:50, stamina:50, affect:50, focus:50 };
+var moved   = { vitality:false, stamina:false, affect:false, focus:false };
+var locked  = { vitality:false, stamina:false, affect:false, focus:false };
+var STATS   = STAT_DEFAULTS.map(function(s){ return Object.assign({}, s, { label:s.defaultLabel }); });
+var bannerDismissed = { optimal:false, dysregulated:false, critical:false };
+var fbType = 'bug';
+var graphFilter = 30;
+var bannerTaps = 0;
+var bannerTimer = null;
+
+// ── CONFIG ───────────────────────────────────────────────────────────────────
+var cfg = {
+  name:'YOUR NAME', timezone:'Australia/Brisbane', noteToSelf:'',
+  personalBaseline: 50, boostLabel: 'COFFEE',
+  region:'AU|000', contactName:'', contactNum:'', contact2Name:'', contact2Num:'', showContact2:false,
+  showServices:true, showContact:true, showContact2Alert:true,
+  increment:5, autoReset:false, showHeartLabels:true, useSystemTheme:false,
+  statLabels:{ vitality:'VITALITY', stamina:'STAMINA', affect:'MOOD', focus:'FOCUS' }
+};
+
+function loadCfg() {
+  try { var s = localStorage.getItem('hud_cfg'); if (s) cfg = Object.assign({}, cfg, JSON.parse(s)); } catch(e) {}
+}
+function saveCfg() {
+  try { localStorage.setItem('hud_cfg', JSON.stringify(cfg)); } catch(e) {}
+}
+loadCfg();
+
+function applyStatLabels() {
+  STATS = STAT_DEFAULTS.map(function(s) {
+    return Object.assign({}, s, { label: cfg.statLabels[s.key] || s.defaultLabel });
+  });
+}
+applyStatLabels();
+
+// ── HISTORY ──────────────────────────────────────────────────────────────────
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem('hud_history') || '[]'); } catch(e) { return []; }
+}
+function saveHistory(h) {
+  try { localStorage.setItem('hud_history', JSON.stringify(h)); } catch(e) {}
+}
+
+// ── UTILS ────────────────────────────────────────────────────────────────────
+function getComment(stat, val) {
+  return val <= 25 ? stat.comments[0] : val < 50 ? stat.comments[1] : val === 50 ? stat.comments[2] : val <= 75 ? stat.comments[3] : stat.comments[4];
+}
+
+function checkDailyReset() {
+  if (!cfg.autoReset) return;
+  try {
+    var last = localStorage.getItem('hud_last_date'), today = new Date().toDateString();
+    if (last !== today) { localStorage.setItem('hud_last_date', today); Object.keys(values).forEach(function(k){ values[k]=50; moved[k]=false; }); }
+  } catch(e) {}
+}
+
+function checkOnboarding() {
+  try { if (!localStorage.getItem('hud_onboarded')) document.getElementById('onboarding-overlay').classList.add('open'); } catch(e) {}
+}
+function dismissOnboarding() {
+  document.getElementById('onboarding-overlay').classList.remove('open');
+  try { localStorage.setItem('hud_onboarded','1'); } catch(e) {}
+}
+
+function checkCacheWarning() {
+  try { if (!localStorage.getItem('hud_cw')) document.getElementById('cache-warn').style.display='block'; } catch(e) {}
+}
+function dismissCacheWarn() {
+  document.getElementById('cache-warn').style.display='none';
+  try { localStorage.setItem('hud_cw','1'); } catch(e) {}
+}
+
+// ── EASTER EGG ───────────────────────────────────────────────────────────────
+document.getElementById('app-banner').addEventListener('click', function() {
+  bannerTaps++;
+  clearTimeout(bannerTimer);
+  bannerTimer = setTimeout(function(){ bannerTaps=0; }, 1500);
+  if (bannerTaps >= 7) {
+    bannerTaps = 0;
+    document.getElementById('ace-overlay').classList.add('open');
+    try { navigator.vibrate && navigator.vibrate([100,50,100,50,200]); } catch(e) {}
+  }
+});
+function closeAce() { document.getElementById('ace-overlay').classList.remove('open'); }
+
+/*
+ * ╔══════════════════════════════════════════════╗
+ * ║       BASELINE DRIFT — SECRET FEATURES       ║
+ * ║                  DEV ONLY                    ║
+ * ║    Code authored by Claudia (Anthropic AI)   ║
+ * ╠══════════════════════════════════════════════╣
+ * ║ EGG 1 — ACE                                 ║
+ * ║   Tap BASELINE DRIFT banner 7x rapidly       ║
+ * ║ EGG 2 — HYPERFOCUS                          ║
+ * ║   Type "HYPERFOCUS" as player name           ║
+ * ║ EGG 3 — SYSTEM GLITCH                       ║
+ * ║   Tap score total 5x rapidly                 ║
+ * ║ EGG 4 — DYSREGULATED AND BUILDING           ║
+ * ║   VITALITY=5, FOCUS=100, tap log button      ║
+ * ║ EGG 5 — 420                                 ║
+ * ║   Boost total score to exactly 420           ║
+ * ║ EGG 6 — STAT OVERFLOW                       ║
+ * ║   Boost total score to 425                   ║
+ * ║ BACK BURNER:                                 ║
+ * ║   THE ANSWER — all sliders at 42            ║
+ * ║   EFFECTIVE TEAM — open app 1:00-1:59am     ║
+ * ║   THIS IS FINE — TBD                        ║
+ * ║   MAGA — absolutely not                     ║
+ * ╚══════════════════════════════════════════════╝
+ */
+
+// ── BOOST ─────────────────────────────────────────────────────────────────────
+function activateBoost() {
+  STATS.forEach(function(s) {
+    if (locked[s.key]) return;
+    values[s.key] = Math.min(125, values[s.key] + 5);
+    moved[s.key] = true;
+    var r = document.getElementById('range-' + s.key);
+    if (r) r.value = Math.min(100, values[s.key]);
+    updateStat(s.key); updateHeart(s.key);
+  });
+  updateCondition(); updateLogBtn(); updateBoostBtn();
+  var total = Object.values(values).reduce(function(a,b){ return a+b; }, 0);
+  if (total >= 425) { showOverflow('overflow'); return; }
+  if (total === 420) { showOverflow('420'); }
+  try { navigator.vibrate && navigator.vibrate(50); } catch(e) {}
+}
+
+function updateBoostBtn() {
+  var btn = document.getElementById('boost-btn');
+  if (!btn) return;
+  var allCapped = STATS.every(function(s) { return locked[s.key] || values[s.key] >= 125; });
+  btn.disabled = allCapped;
+  btn.style.opacity = allCapped ? '0.3' : '1';
+  btn.style.cursor  = allCapped ? 'not-allowed' : 'pointer';
+}
+
+function showOverflow(type) {
+  var overlay = document.getElementById('overflow-overlay');
+  var cheat   = document.getElementById('overflow-cheat');
+  var msg     = document.getElementById('overflow-msg');
+  var ascii   = document.getElementById('overflow-ascii');
+  if (type === '420') {
+    cheat.textContent   = '// ACHIEVEMENT UNLOCKED';
+    ascii.textContent   = '/\\_/\\\n( \u25C9w\u25CE )\n > \u2665 <';
+    msg.innerHTML       = 'YOU KNOW WHAT THIS IS.';
+  } else {
+    cheat.textContent   = '// STAT OVERFLOW';
+    ascii.textContent   = '/\\_/\\\n( \u25C9_\u25CE )\n > \u221E <';
+    msg.innerHTML       = 'WARNING: STAT OVERFLOW.<br>YOU HAVE ENTERED HYPERFOCUS TERRITORY.<br>TIME IS NO LONGER A CONCEPT. HYDRATE.';
+  }
+  overlay.classList.add('open');
+  try { navigator.vibrate && navigator.vibrate([100,50,100,50,300]); } catch(e) {}
+}
+
+function closeOverflow() {
+  document.getElementById('overflow-overlay').classList.remove('open');
+}
+
+function updateBoostLabel() {
+  var btn = document.getElementById('boost-btn');
+  if (btn) btn.textContent = '\u2615 ' + (cfg.boostLabel || 'COFFEE') + ' +5 ALL STATS';
+}
+
+// EGG 2 — HYPERFOCUS
+function checkHyperfocus(name) {
+  if (name.toUpperCase() === 'HYPERFOCUS') {
+    values.focus = 100; moved.focus = true;
+    var r = document.getElementById('range-focus'); if (r) r.value = 100;
+    updateStat('focus'); updateHeart('focus'); updateCondition(); updateLogBtn();
+    showEasterEgg('hyperfocus',
+      '// WARNING: HYPERFOCUS DETECTED.',
+      'TIME IS NOW OPTIONAL.',
+      '/\\^\\_/\\\n( \u25C9_\u25C9 )\n > \u221E <'
+    );
+    return true;
+  }
+  return false;
+}
+
+// EGG 3 — SYSTEM GLITCH
+var glitchTaps = 0; var glitchTimer = null;
+function onScoreTotalTap() {
+  glitchTaps++;
+  clearTimeout(glitchTimer);
+  glitchTimer = setTimeout(function(){ glitchTaps=0; }, 1500);
+  if (glitchTaps >= 5) {
+    glitchTaps = 0;
+    document.body.style.filter = 'invert(1)';
+    setTimeout(function(){ document.body.style.filter = ''; }, 600);
+    showEasterEgg('glitch',
+      '// SYSTEM GLITCH.',
+      'THIS IS FINE.',
+      '/\\^\\_/\\\n( \u25A0.\u25A0 )\n > ! <'
+    );
+  }
+}
+
+// EGG 4 — DYSREGULATED AND BUILDING
+function checkDysregulatedAndBuilding() {
+  if (values.vitality === 5 && values.focus === 100) {
+    showEasterEgg('dysreg',
+      '// DYSREGULATED AND STILL BUILDING THINGS.',
+      'RELATABLE.',
+      '/\\^\\_/\\\n( \u2665_\u25CE )\n > \u221E <'
+    );
+    return true;
+  }
+  return false;
+}
+
+// SHARED EGG DISPLAY
+function showEasterEgg(id, cheat, msg, ascii) {
+  var overlay = document.getElementById('ace-overlay');
+  overlay.querySelector('.ace-cheat').textContent = cheat;
+  overlay.querySelector('.ace-msg').textContent   = msg;
+  overlay.querySelector('.ace-ascii').textContent = ascii;
+  overlay.classList.add('open');
+  try { navigator.vibrate && navigator.vibrate([100,50,100,50,200]); } catch(e) {}
+}
+
+// ── HEARTS ───────────────────────────────────────────────────────────────────
+var heartsRow = document.getElementById('hearts-row');
+STATS.forEach(function(stat) {
+  var wrap = document.createElement('div');
+  wrap.className = 'heart-wrap';
+  wrap.innerHTML =
+    '<div class="heart-icon full stat-' + stat.key + '-colour" id="heart-' + stat.key + '" style="color:' + stat.color + '">' + stat.icon + '</div>' +
+    '<span class="heart-label" id="hlabel-' + stat.key + '" style="color:' + stat.color + '">' + stat.label + '</span>';
+  heartsRow.appendChild(wrap);
+});
+
+function updateHeart(key) {
+  var val = values[key];
+  var el  = document.getElementById('heart-' + key);
+  el.className = 'heart-icon stat-' + key + '-colour ' + (val >= 70 ? 'full' : val >= 40 ? 'half' : 'empty');
+}
+
+function updateHeartLabels() {
+  var show = cfg.showHeartLabels !== false;
+  STATS.forEach(function(s) {
+    var el = document.getElementById('hlabel-' + s.key);
+    if (el) { el.style.display = show ? '' : 'none'; el.textContent = cfg.statLabels[s.key] || s.defaultLabel; }
+  });
+}
+
+// ── STATS ────────────────────────────────────────────────────────────────────
+var container = document.getElementById('stats-container');
+STATS.forEach(function(stat) {
+  var div = document.createElement('div');
+  div.className = 'stat';
+  div.innerHTML =
+    '<div class="stat-header">' +
+      '<div class="stat-header-left">' +
+        '<span class="stat-icon stat-' + stat.key + '-colour" style="color:' + stat.color + ';filter:drop-shadow(0 0 6px ' + stat.glow + ')">' + stat.icon + '</span>' +
+        '<div class="stat-name-block">' +
+          '<span class="stat-name stat-' + stat.key + '-colour" id="sname-' + stat.key + '" style="color:' + stat.color + '">' + stat.label + '</span>' +
+          '<span class="stat-source" id="ssource-' + stat.key + '">[' + stat.source + ']</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="stat-header-right">' +
+        '<span class="stat-band" id="band-' + stat.key + '" style="color:' + BAND_COLORS[getBand(50)] + '">MID-LOW</span>' +
+        '<span class="stat-lock" id="lock-' + stat.key + '" onclick="toggleLock(\'' + stat.key + '\')">\uD83D\uDD13</span>' +
+        '<span class="stat-value stat-' + stat.key + '-colour" id="val-' + stat.key + '" style="color:' + stat.color + ';filter:drop-shadow(0 0 8px ' + stat.glow + ')">' + values[stat.key] + '</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="bar-track stat-' + stat.key + '-track" style="background:' + stat.track + '">' +
+      '<div class="bar-fill stat-' + stat.key + '-fill" id="fill-' + stat.key + '" style="width:' + values[stat.key] + '%;background:linear-gradient(90deg,' + stat.color + '88,' + stat.color + ');box-shadow:0 0 12px ' + stat.glow + '"></div>' +
+      '<div class="bar-tick" style="left:25%"></div><div class="bar-tick" style="left:50%"></div><div class="bar-tick" style="left:75%"></div>' +
+    '</div>' +
+    '<input type="range" min="0" max="100" step="' + cfg.increment + '" value="' + values[stat.key] + '" id="range-' + stat.key + '" style="accent-color:' + stat.color + '"/>' +
+    '<div class="stat-comment" id="comment-' + stat.key + '"></div>';
+  container.appendChild(div);
+
+  var range = div.querySelector('#range-' + stat.key);
+  var _startX, _startY, _decided, _isHoriz, _startVal;
+
+  range.addEventListener('touchstart', function(e) {
+    _startX  = e.touches[0].clientX;
+    _startY  = e.touches[0].clientY;
+    _decided = false;
+    _isHoriz = false;
+    _startVal = values[stat.key];
+  }, {passive: true});
+
+  range.addEventListener('touchmove', function(e) {
+    if (locked[stat.key]) return;
+    var dx = e.touches[0].clientX - _startX;
+    var dy = e.touches[0].clientY - _startY;
+    if (!_decided && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+      _isHoriz = Math.abs(dx) > Math.abs(dy);
+      _decided = true;
+    }
+    if (!_decided) return;
+    if (_isHoriz) {
+      e.preventDefault();
+      var rect = range.getBoundingClientRect();
+      var pct  = Math.max(0, Math.min(1, (e.touches[0].clientX - rect.left) / rect.width));
+      var step = parseInt(range.step) || cfg.increment;
+      var newVal = Math.round((pct * 100) / step) * step;
+      newVal = Math.max(0, Math.min(100, newVal));
+      if (newVal !== values[stat.key]) {
+        values[stat.key] = newVal;
+        moved[stat.key]  = true;
+        range.value = newVal;
+        updateStat(stat.key);
+        updateHeart(stat.key);
+        updateCondition();
+        updateLogBtn();
+      }
+    } else {
+      range.value = _startVal;
+    }
+  }, {passive: false});
+
+  range.addEventListener('input', function(e) {
+    if (locked[stat.key]) return;
+    values[stat.key] = Number(e.target.value);
+    moved[stat.key]  = true;
+    updateStat(stat.key);
+    updateHeart(stat.key);
+    updateCondition();
+    updateLogBtn();
+  });
+  updateStat(stat.key);
+  updateHeart(stat.key);
+});
+
+function toggleLock(key) {
+  locked[key] = !locked[key];
+  var el = document.getElementById('lock-' + key);
+  var r  = document.getElementById('range-' + key);
+  el.textContent = locked[key] ? '\uD83D\uDD12' : '\uD83D\uDD13';
+  el.classList.toggle('locked', locked[key]);
+  if (r) r.disabled = locked[key];
+}
+
+function updateStat(key) {
+  var stat  = STATS.find(function(s){ return s.key === key; });
+  var val   = values[key];
+  var band  = getBand(val);
+  document.getElementById('val-' + key).textContent     = val;
+  document.getElementById('fill-' + key).style.width    = val + '%';
+  document.getElementById('comment-' + key).textContent = '// ' + getComment(stat, val);
+  var bandEl = document.getElementById('band-' + key);
+  if (bandEl) { bandEl.textContent = BAND_LABELS[band]; bandEl.style.color = BAND_COLORS[band]; }
+}
+
+// ── LOG ──────────────────────────────────────────────────────────────────────
+function updateLogBtn() {
+  var btn = document.getElementById('log-btn');
+  var mc  = Object.values(moved).filter(Boolean).length;
+  if (btn.classList.contains('logged')) return;
+  var isReady = mc >= 1;
+  btn.classList.toggle('ready', isReady);
+  document.getElementById('log-note-wrap').classList.toggle('visible', isReady);
+}
+
+function logToday() {
+  var btn = document.getElementById('log-btn');
+  if (!btn.classList.contains('ready') || btn.classList.contains('logged')) return;
+  if (checkDysregulatedAndBuilding()) return;
+  var note = document.getElementById('log-note-input').value.trim();
+  saveReading(new Date(), -1, note);
+  try { navigator.vibrate && navigator.vibrate(100); } catch(e) {}
+  btn.textContent = '\u2713 READING LOGGED';
+  btn.classList.add('logged');
+  btn.classList.remove('ready');
+  document.getElementById('log-note-wrap').classList.remove('visible');
+  updateLastLogged();
+}
+
+function saveReading(date, existingIndex, note) {
+  if (existingIndex === undefined) existingIndex = -1;
+  if (note === undefined) note = '';
+  var dateStr = date.toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
+  var avg     = Math.round(Object.values(values).reduce(function(a,b){ return a+b; }, 0) / STATS.length);
+  var cond    = getConditionForAvg(avg);
+  var entry   = { date:date.toISOString(), dateStr:dateStr, vitality:values.vitality, stamina:values.stamina, affect:values.affect, focus:values.focus, condition:cond.label, note:note };
+  var history = loadHistory();
+  if (existingIndex >= 0) history[existingIndex] = entry;
+  else { history.push(entry); history.sort(function(a,b){ return new Date(a.date)-new Date(b.date); }); }
+  saveHistory(history);
+  try { localStorage.setItem('hud_last_date', date.toDateString()); } catch(e) {}
+}
+
+function getConditionForAvg(avg) {
+  var conditions = buildConditions(cfg.personalBaseline || 50);
+  for (var i = 0; i < conditions.length; i++) { if (avg >= conditions[i].min) return conditions[i]; }
+  return conditions[conditions.length - 1];
+}
+
+function isDysregulated() {
+  var vals = Object.values(values);
+  return Math.max.apply(null, vals) - Math.min.apply(null, vals) >= 60;
+}
+
+function resetSliders() {
+  STATS.forEach(function(s) {
+    if (locked[s.key]) return;
+    values[s.key] = 50; moved[s.key] = false;
+    var r = document.getElementById('range-' + s.key); if (r) r.value = 50;
+    updateStat(s.key); updateHeart(s.key);
+  });
+  var btn = document.getElementById('log-btn');
+  btn.textContent = '+ LOG TODAY\'S READING';
+  btn.classList.remove('ready','logged');
+  document.getElementById('log-note-wrap').classList.remove('visible');
+  document.getElementById('log-note-input').value = '';
+  document.getElementById('log-note-count').textContent = '200';
+  var qa = document.getElementById('quick-actions'); if (qa) qa.style.display = 'flex';
+  updateBoostBtn();
+  updateCondition();
+}
+
+function updateLastLogged() {
+  var el = document.getElementById('last-logged');
+  var history = loadHistory();
+  if (!history.length) { el.textContent = ''; return; }
+  var last = new Date(history[history.length-1].date);
+  var diff = Math.floor((new Date() - last) / (1000*60*60*24));
+  el.textContent = diff === 0 ? '// LAST LOGGED: TODAY' : diff === 1 ? '// LAST LOGGED: YESTERDAY' : '// LAST LOGGED: ' + diff + ' DAYS AGO';
+}
+
+function updateNoteToSelf() {
+  var el = document.getElementById('note-to-self');
+  if (cfg.noteToSelf && cfg.noteToSelf.trim()) { el.textContent = '// ' + cfg.noteToSelf.trim(); el.style.display = 'block'; }
+  else el.style.display = 'none';
+}
+
+// ── CONDITION ────────────────────────────────────────────────────────────────
+function updateCondition() {
+  var mc   = Object.values(moved).filter(Boolean).length;
+  var vals = Object.values(values);
+  var avg  = Math.round(vals.reduce(function(a,b){ return a+b; },0) / STATS.length);
+  var badge = document.getElementById('condition-badge');
+  var dot   = document.getElementById('condition-dot');
+  var lbl   = document.getElementById('condition-label');
+  var desc  = document.getElementById('condition-desc');
+
+  var qa = document.getElementById('quick-actions');
+  if (mc >= 3) {
+    if (qa) qa.style.display = 'none';
+    var dysr  = isDysregulated();
+    var cond  = dysr ? { label:'DYSREGULATED', color:'#c084fc', desc:'Split state. Body and mind out of sync.' } : getConditionForAvg(avg);
+
+    badge.style.border     = '1px solid ' + cond.color + '44';
+    badge.style.background = cond.color + '11';
+    dot.style.background   = cond.color;
+    dot.style.boxShadow    = '0 0 8px ' + cond.color;
+    lbl.style.color        = cond.color;
+    lbl.textContent        = cond.label;
+    desc.textContent       = '// ' + cond.desc;
+
+    // banners
+    setBanner('optimal',      !dysr && cond.label === 'OPTIMAL');
+    setBanner('dysregulated', dysr);
+    setBanner('critical',     !dysr && cond.label === 'CRITICAL');
+    if (!dysr && cond.label === 'CRITICAL') buildCritical();
+
+  } else {
+    if (qa) qa.style.display = 'flex';
+    badge.style.border     = '1px solid var(--border)';
+    badge.style.background = 'var(--surface-2)';
+    dot.style.background   = 'var(--text-lo)';
+    dot.style.boxShadow    = 'none';
+    lbl.style.color        = 'var(--text-lo)';
+    lbl.textContent        = 'SET YOUR STATS';
+    desc.textContent       = '// Adjust ' + (3-mc) + ' more slider' + (3-mc>1?'s':'') + ' to see your status.';
+    ['optimal','dysregulated','critical'].forEach(function(k){ setBanner(k, false); });
+  }
+  updateScore(avg, mc);
+}
+
+function setBanner(key, show) {
+  var el = document.getElementById('banner-' + key);
+  if (!el) return;
+  if (show && !bannerDismissed[key]) el.classList.add('visible');
+  else if (!show) { el.classList.remove('visible'); bannerDismissed[key] = false; }
+}
+
+function dismissBanner(key) {
+  bannerDismissed[key] = true;
+  var el = document.getElementById('banner-' + key);
+  if (el) el.classList.remove('visible');
+}
+
+function updateScore(avg, mc) {
+  var total = Object.values(values).reduce(function(a,b){ return a+b; },0);
+  var totalDisplay = total > 400 ? '<span style="color:var(--c-optimal)">' + total + '</span><span style="font-size:var(--t-xs);color:var(--text-lo)"> /400+</span>' : total + '<span style="font-size:var(--t-xs);color:var(--text-lo)"> /400</span>';
+  document.getElementById('score-total').innerHTML = totalDisplay;
+  document.getElementById('score-avg').textContent  = avg;
+  var ss = document.getElementById('score-status');
+  if (mc >= 3) {
+    var dysr = isDysregulated();
+    var cond = dysr ? { label:'DYSREG.', color:'#c084fc' } : getConditionForAvg(avg);
+    ss.textContent = cond.label; ss.style.color = cond.color;
+  } else { ss.textContent = '---'; ss.style.color = 'var(--text-lo)'; }
+}
+
+function buildCritical() {
+  var btns = document.getElementById('emergency-btns'); btns.innerHTML = '';
+  var parts = cfg.region.split('|'); var rn = parts[0]; var en = parts[1];
+  function makeBtn(primary, icon, label, href) {
+    var a = document.createElement('a'); a.className = 'em-btn' + (primary?' primary':'');
+    a.href = href; a.innerHTML = '<span>' + icon + '</span><span>' + label + '</span>'; btns.appendChild(a);
+  }
+  if (cfg.showServices) makeBtn(true, '\uD83D\uDEA8', 'CALL ' + en + ' \u2014 Emergency Services (' + rn + ')', 'tel:' + en);
+  if (cfg.showContact && cfg.contactNum) makeBtn(false, '\uD83D\uDCDE', 'CALL ' + (cfg.contactName||'Contact 1') + ' \u2014 ' + cfg.contactNum, 'tel:' + cfg.contactNum);
+  if (cfg.showContact2Alert && cfg.contact2Num) makeBtn(false, '\uD83D\uDCDE', 'CALL ' + (cfg.contact2Name||'Contact 2') + ' \u2014 ' + cfg.contact2Num, 'tel:' + cfg.contact2Num);
+  if (!btns.children.length) btns.innerHTML = '<span style="font-size:var(--t-xs);color:var(--text-mid);font-style:italic">// No contacts configured \u2014 open Settings</span>';
+}
+
+// ── EXPORT ───────────────────────────────────────────────────────────────────
+function openExport()  { document.getElementById('export-overlay').classList.add('open'); }
+function closeOverlay(id) { document.getElementById(id).classList.remove('open'); }
+function getNow() { return new Date().toLocaleDateString('en-AU', { weekday:'short', day:'numeric', month:'short', year:'numeric' }); }
+
+function exportCopy() {
+  var avg  = Math.round(Object.values(values).reduce(function(a,b){ return a+b; },0)/STATS.length);
+  var cond = isDysregulated() ? 'DYSREGULATED' : getConditionForAvg(avg).label;
+  var lines = ['BASELINE DRIFT STATUS HUD \u2014 ' + getNow(), '\u2500'.repeat(37)]
+    .concat(STATS.map(function(s){ return (cfg.statLabels[s.key]||s.defaultLabel).padEnd(10) + String(values[s.key]).padStart(3) + '  // ' + getComment(s, values[s.key]); }))
+    .concat(['\u2500'.repeat(37), 'STATUS: ' + cond, '', APP_URL]);
+  navigator.clipboard.writeText(lines.join('\n')).then(function() {
+    var el=document.querySelector('#export-overlay .overlay-title'), orig=el.textContent;
+    el.textContent='// COPIED \u2713'; setTimeout(function(){ el.textContent=orig; },2000);
+  });
+}
+
+function exportCSV() {
+  var history = loadHistory();
+  if (!history.length) { alert('No readings logged yet.'); return; }
+  var header = 'Date,' + STATS.map(function(s){ return cfg.statLabels[s.key]||s.defaultLabel; }).join(',') + ',Condition,Note';
+  var rows = [header].concat(history.map(function(e){ return e.dateStr+','+e.vitality+','+e.stamina+','+e.affect+','+e.focus+','+e.condition+','+(e.note||''); }));
+  download('baseline-drift-history.csv', rows.join('\n'), 'text/csv');
+}
+
+function exportPDF() {
+  var now=getNow(), avg=Math.round(Object.values(values).reduce(function(a,b){return a+b;},0)/STATS.length);
+  var cond=isDysregulated()?'DYSREGULATED':getConditionForAvg(avg).label;
+  var statRows=STATS.map(function(s){ return '<div class="stat"><div class="sn">'+(cfg.statLabels[s.key]||s.defaultLabel)+'</div><div class="sb" style="background:linear-gradient(90deg,'+s.color+'88,'+s.color+');width:'+values[s.key]+'%"></div><div class="sv">'+values[s.key]+' \u2014 '+getComment(s,values[s.key])+'</div></div>'; }).join('');
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>STATUS HUD</title><style>body{font-family:sans-serif;background:#080a0f;color:white;padding:40px;max-width:500px;margin:0 auto}h1{font-size:28px;letter-spacing:4px;color:#ff4d6d;margin:0}h2{font-size:12px;letter-spacing:4px;color:rgba(255,255,255,0.3);margin:4px 0 24px}.stat{margin-bottom:16px}.sn{font-size:13px;letter-spacing:3px;color:#fff}.sb{height:8px;border-radius:2px;margin:6px 0 4px}.sv{font-size:11px;color:rgba(255,255,255,0.4)}.st{margin-top:24px;padding:10px 16px;border:1px solid rgba(255,255,255,0.2);display:inline-block;font-size:12px;letter-spacing:3px}.ft{margin-top:32px;font-size:10px;color:rgba(255,255,255,0.2)}@media print{body{background:#080a0f!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><h1>BASELINE DRIFT</h1><h2>STATUS HUD v'+VERSION+'</h2><div style="font-size:12px;color:rgba(255,255,255,0.3);margin-bottom:24px">'+now+'</div>'+statRows+'<div class="st">'+cond+'</div><div class="ft">'+APP_URL+'</div></body></html>';
+  var win=window.open('','_blank'); win.document.write(html); win.document.close(); setTimeout(function(){win.print();},500);
+}
+
+function exportImage() {
+  var canvas = document.getElementById('export-canvas');
+  canvas.width = 700; canvas.height = 340;
+  var ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#080a0f'; ctx.fillRect(0,0,700,340);
+  // Left panel
+  ctx.font='bold 11px monospace'; ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.fillText('PLAYER STATUS',28,42);
+  ctx.font='bold 32px monospace'; ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.fillText('BASELINE',28,82);
+  ctx.fillStyle='#ff4d6d'; ctx.fillText('DRIFT',28,118);
+  ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.beginPath(); ctx.moveTo(28,132); ctx.lineTo(230,132); ctx.stroke();
+  ctx.font='bold 11px monospace'; ctx.fillStyle='rgba(255,255,255,0.3)';
+  ctx.fillText('Built for the kind of brain',28,152); ctx.fillText('that needs things externalised.',28,168);
+  var avg=Math.round(Object.values(values).reduce(function(a,b){return a+b;},0)/STATS.length);
+  var cond=isDysregulated()?{label:'DYSREGULATED',color:'#c084fc'}:getConditionForAvg(avg);
+  ctx.font='bold 10px monospace'; ctx.fillStyle=cond.color; ctx.fillText(cond.label,28,196);
+  ctx.font='bold 10px monospace'; ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.fillText(APP_URL,28,326);
+  // Right panel
+  var bx=260, bw=420;
+  STATS.forEach(function(s,i){
+    var y=16+i*78;
+    ctx.font='bold 13px monospace'; ctx.fillStyle=s.color;
+    ctx.fillText(cfg.statLabels[s.key]||s.defaultLabel,bx,y+16);
+    var vStr=String(values[s.key]); var vw=ctx.measureText(vStr).width;
+    ctx.fillText(vStr,bx+bw-vw,y+16);
+    ctx.fillStyle='rgba(255,255,255,0.08)'; ctx.fillRect(bx,y+24,bw,8);
+    ctx.fillStyle=s.color; ctx.fillRect(bx,y+24,bw*(values[s.key]/100),8);
+    ctx.font='bold 10px monospace'; ctx.fillStyle='rgba(255,255,255,0.35)';
+    ctx.fillText('// '+getComment(s,values[s.key]),bx,y+50);
+    ctx.fillStyle=BAND_COLORS[getBand(values[s.key])];
+    ctx.fillText(BAND_LABELS[getBand(values[s.key])],bx,y+66);
+  });
+  canvas.toBlob(function(blob){
+    var file=new File([blob],'status.png',{type:'image/png'});
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})) navigator.share({files:[file],title:'My Status HUD'}).catch(function(){});
+    else download('baseline-drift-status.png',canvas.toDataURL(),'image/png',true);
+  });
+}
+
+function backupData() {
+  download('baseline-drift-backup.json', JSON.stringify({version:VERSION,timestamp:new Date().toISOString(),cfg:cfg,history:loadHistory()},null,2), 'application/json');
+}
+
+function restoreData(event) {
+  var file=event.target.files[0]; if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(e){ try{var d=JSON.parse(e.target.result);if(d.cfg){cfg=Object.assign({},cfg,d.cfg);saveCfg();}if(d.history)saveHistory(d.history);alert('Backup restored. Reloading...');location.reload();}catch(err){alert('Invalid backup file.');} };
+  reader.readAsText(file); event.target.value='';
+}
+
+function download(filename, data, type, isDataUrl) {
+  var a=document.createElement('a');
+  a.href=isDataUrl?data:URL.createObjectURL(new Blob([data],{type:type}));
+  a.download=filename; a.click();
+}
+
+// ── SHARE ────────────────────────────────────────────────────────────────────
+function shareApp() {
+  var d={title:'Baseline Drift \u2014 STATUS HUD',text:'A neurodivergent self-monitoring HUD.',url:APP_URL};
+  if(navigator.share) navigator.share(d).catch(function(){});
+  else navigator.clipboard.writeText(APP_URL).then(function(){
+    var b=document.querySelector('.footer-btn[onclick="shareApp()"]'),o=b.textContent;
+    b.textContent='\u2713 COPIED'; setTimeout(function(){b.textContent=o;},2000);
+  });
+}
+
+// ── GRAPH ────────────────────────────────────────────────────────────────────
+var FILTERS=[{label:'7D',days:7},{label:'30D',days:30},{label:'3M',days:90},{label:'6M',days:180},{label:'12M',days:365},{label:'ALL',days:99999}];
+
+function openGraph() {
+  var fe=document.getElementById('graph-filter');
+  fe.innerHTML=FILTERS.map(function(f){ return '<button class="gf-btn'+(f.days===graphFilter?' active':'')+'" onclick="setGraphFilter('+f.days+')">'+f.label+'</button>'; }).join('');
+  document.getElementById('past-date').max=new Date().toISOString().split('T')[0];
+  renderGraph(); buildHistoryList();
+  document.getElementById('graph-overlay').classList.add('open');
+}
+
+function setGraphFilter(days) {
+  graphFilter=days;
+  document.querySelectorAll('.gf-btn').forEach(function(b){ b.classList.toggle('active',parseInt(b.getAttribute('onclick').match(/\d+/)[0])===days); });
+  renderGraph();
+}
+
+function renderGraph() {
+  var allH=loadHistory(), cutoff=new Date(); cutoff.setDate(cutoff.getDate()-graphFilter);
+  var history=graphFilter>=99999?allH:allH.filter(function(e){return new Date(e.date)>=cutoff;});
+  var gc=document.getElementById('graph-content');
+  if(history.length<2){gc.innerHTML='<div class="graph-empty">// Not enough data for this range.</div>';return;}
+  var W=Math.min(460,window.innerWidth-80),H=220,PAD={t:16,r:16,b:36,l:36};
+  var iW=W-PAD.l-PAD.r,iH=H-PAD.t-PAD.b,n=history.length;
+  var toX=function(i){return PAD.l+(i/(n-1))*iW;},toY=function(v){return PAD.t+iH-(v/100)*iH;};
+  var isDark=!document.body.classList.contains('light-theme');
+  var gridC=isDark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.08)',textC=isDark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.4)',bgC=isDark?'#080a0f':'#f0f0f0';
+  var keys=[['vitality','#ff4d6d'],['stamina','#43d97b'],['affect','#a78bfa'],['focus','#fbbf24']];
+  var svg='<svg width="'+W+'" height="'+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%"><rect width="'+W+'" height="'+H+'" fill="'+bgC+'" rx="2"/>';
+  [0,25,50,75,100].forEach(function(v){var y=toY(v);svg+='<line x1="'+PAD.l+'" y1="'+y+'" x2="'+(W-PAD.r)+'" y2="'+y+'" stroke="'+gridC+'" stroke-width="1"/><text x="'+(PAD.l-4)+'" y="'+(y+4)+'" text-anchor="end" font-size="9" fill="'+textC+'" font-family="monospace">'+v+'</text>';});
+  if(n<=8) history.forEach(function(e,i){svg+='<text x="'+toX(i)+'" y="'+(H-PAD.b+14)+'" text-anchor="middle" font-size="8" fill="'+textC+'" font-family="monospace">'+e.dateStr.split(' ').slice(0,2).join(' ')+'</text>';});
+  else{svg+='<text x="'+toX(0)+'" y="'+(H-PAD.b+14)+'" text-anchor="middle" font-size="8" fill="'+textC+'" font-family="monospace">'+history[0].dateStr.split(' ').slice(0,2).join(' ')+'</text>';svg+='<text x="'+toX(n-1)+'" y="'+(H-PAD.b+14)+'" text-anchor="middle" font-size="8" fill="'+textC+'" font-family="monospace">'+history[n-1].dateStr.split(' ').slice(0,2).join(' ')+'</text>';}
+  keys.forEach(function(pair){var k=pair[0],c=pair[1];var pts=history.map(function(e,i){return toX(i)+','+toY(e[k]);});svg+='<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+c+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>';history.forEach(function(e,i){svg+='<circle cx="'+toX(i)+'" cy="'+toY(e[k])+'" r="3" fill="'+c+'" opacity="0.9"/>';});});
+  svg+='</svg>';
+  var labels=STATS.map(function(s){return cfg.statLabels[s.key]||s.defaultLabel;});
+  var legend='<div class="graph-legend">'+keys.map(function(p,i){return '<div class="legend-item"><div class="legend-dot" style="background:'+p[1]+'"></div><span>'+labels[i]+'</span></div>';}).join('')+'</div>';
+  gc.innerHTML=svg+legend;
+}
+
+function logPastDate() {
+  var di=document.getElementById('past-date'),dateVal=di.value;
+  if(!dateVal){alert('Please select a date.');return;}
+  var date=new Date(dateVal+'T12:00:00');
+  var dateStr=date.toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
+  var history=loadHistory(),eidx=history.findIndex(function(e){return e.dateStr===dateStr;});
+  if(eidx>=0){if(!confirm('Replace existing reading for '+dateStr+'?'))return;saveReading(date,eidx,'');}
+  else saveReading(date,-1,'');
+  di.value=''; renderGraph(); buildHistoryList();
+}
+
+function deleteReading(index) {
+  var history=loadHistory();
+  if(!confirm('Delete reading for '+history[index].dateStr+'?'))return;
+  history.splice(index,1); saveHistory(history);
+  renderGraph(); buildHistoryList(); updateLastLogged();
+}
+
+function editReading(index) {
+  var history=loadHistory(),entry=history[index];
+  values.vitality=entry.vitality;values.stamina=entry.stamina;values.affect=entry.affect;values.focus=entry.focus;
+  STATS.forEach(function(s){var r=document.getElementById('range-'+s.key);if(r)r.value=values[s.key];moved[s.key]=true;updateStat(s.key);updateHeart(s.key);});
+  document.getElementById('past-date').value=new Date(entry.date).toISOString().split('T')[0];
+  updateCondition();updateLogBtn();closeOverlay('graph-overlay');
+}
+
+function buildHistoryList() {
+  var history=loadHistory(),el=document.getElementById('history-list');
+  if(!history.length){el.innerHTML='';return;}
+  var isDark=!document.body.classList.contains('light-theme');
+  var borderC=isDark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.08)';
+  var textC=isDark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)';
+  var subC=isDark?'rgba(255,255,255,0.25)':'rgba(0,0,0,0.3)';
+  var html='<div style="font-size:var(--t-xs);letter-spacing:3px;color:'+subC+';margin-bottom:10px;font-weight:700">// LOGGED READINGS</div>';
+  history.slice().reverse().forEach(function(e,ri){
+    var i=history.length-1-ri;
+    var avg=Math.round((e.vitality+e.stamina+e.affect+e.focus)/4);
+    var cond=getConditionForAvg(avg);
+    html+='<div style="padding:var(--sp-3) 0;border-bottom:1px solid '+borderC+'">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center">' +
+        '<div style="flex:1;min-width:0">' +
+          '<div style="font-size:var(--t-xs);font-weight:700;color:'+textC+';letter-spacing:1px">'+e.dateStr+'</div>' +
+          '<div style="font-size:var(--t-xs);color:'+subC+';margin-top:2px;font-weight:700">V:'+e.vitality+' S:'+e.stamina+' M:'+e.affect+' F:'+e.focus+' \u2014 <span style="color:'+cond.color+'">'+e.condition+'</span></div>' +
+          (e.note?'<div style="font-size:var(--t-xs);color:'+subC+';margin-top:3px;font-style:italic;font-weight:700">// '+e.note+'</div>':'') +
+        '</div>' +
+        '<div style="display:flex;gap:var(--sp-2);flex-shrink:0;margin-left:var(--sp-3)">' +
+          '<button onclick="editReading('+i+')" style="background:none;border:1px solid rgba(251,191,36,0.2);border-radius:2px;color:rgba(251,191,36,0.5);font-family:inherit;font-size:var(--t-xs);cursor:pointer;padding:3px 7px;font-weight:700">EDIT</button>' +
+          '<button onclick="deleteReading('+i+')" style="background:none;border:1px solid rgba(255,77,109,0.2);border-radius:2px;color:rgba(255,77,109,0.4);font-family:inherit;font-size:var(--t-xs);cursor:pointer;padding:3px 7px;font-weight:700">DEL</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  });
+  el.innerHTML=html;
+}
+
+// ── FEEDBACK ─────────────────────────────────────────────────────────────────
+var FB_CONFIG={bug:{placeholder:'What happened? Describe the bug \u2014 steps to reproduce, what you expected vs what you got.',title:'// BUG REPORT'},general:{placeholder:'Share a suggestion, feature idea, or general thought. What would make this more useful for you?',title:'// FEEDBACK'}};
+function openFeedback(){document.getElementById('feedback-overlay').classList.add('open');}
+function setFbType(t){fbType=t;['bug','general'].forEach(function(k){document.getElementById('fb-'+k).classList.toggle('active',k===t);});document.getElementById('fb-text').placeholder=FB_CONFIG[t].placeholder;document.getElementById('feedback-title').textContent=FB_CONFIG[t].title;}
+function submitFeedback(){var text=document.getElementById('fb-text').value.trim();if(!text){alert('Please describe your feedback before sending.');return;}var tl={bug:'Bug Report',general:'Feedback'};var sub=encodeURIComponent('Baseline Drift '+tl[fbType]+' \u2014 v'+VERSION);var bod=encodeURIComponent('Type: '+tl[fbType]+'\n\n'+text+'\n\nVersion: '+VERSION);window.location.href='mailto:'+BUG_EMAIL+'?subject='+sub+'&body='+bod;}
+
+function recallLast() {
+  var history = loadHistory();
+  if (!history.length) { alert('No readings logged yet.'); return; }
+  var last = history[history.length - 1];
+  values.vitality = last.vitality; values.stamina = last.stamina; values.affect = last.affect; values.focus = last.focus;
+  STATS.forEach(function(s) {
+    if (locked[s.key]) return;
+    var r = document.getElementById('range-' + s.key); if (r) r.value = values[s.key];
+    moved[s.key] = true; updateStat(s.key); updateHeart(s.key);
+  });
+  updateCondition(); updateLogBtn(); updateBoostBtn();
+}
+
+function useAsIs() {
+  STATS.forEach(function(s) { moved[s.key] = true; });
+  updateCondition(); updateLogBtn();
+}
+
+function onConditionBadgeTap() {
+  var lbl = document.getElementById('condition-label');
+  if (lbl && lbl.textContent === 'SET YOUR STATS') {
+    document.getElementById('band-overlay').classList.add('open');
+  }
+}
+
+// ── CHANGELOG ────────────────────────────────────────────────────────────────
+function openChangelog() {
+  var el=document.getElementById('changelog-content');
+  el.innerHTML=CHANGELOG.map(function(entry){
+    return '<div class="changelog-entry"><div class="changelog-version">v'+entry.version+'</div><div class="changelog-date">'+entry.date+'</div>'+
+      entry.items.map(function(item){return '<div class="changelog-item">'+item+'</div>';}).join('')+'</div>';
+  }).join('');
+  document.getElementById('changelog-overlay').classList.add('open');
+}
+
+// ── SETTINGS ─────────────────────────────────────────────────────────────────
+function toggleSettings(){var p=document.getElementById('settings-panel');if(p.classList.toggle('open'))populateSettings();}
+function toggleSection(id){document.getElementById(id).classList.toggle('open');document.getElementById('arrow-'+id).classList.toggle('open');}
+
+function populateSettings() {
+  document.getElementById('cfg-name').value     = cfg.name==='YOUR NAME'?'':cfg.name;
+  document.getElementById('cfg-timezone').value = cfg.timezone||'Australia/Brisbane';
+  document.getElementById('cfg-baseline').value = cfg.personalBaseline||50;
+  document.getElementById('baseline-label').textContent = cfg.personalBaseline||50;
+  document.getElementById('cfg-boost').value    = cfg.boostLabel==='COFFEE'?'':cfg.boostLabel;
+  document.getElementById('cfg-note').value     = cfg.noteToSelf||'';
+  document.getElementById('note-count').textContent = 100-(cfg.noteToSelf||'').length;
+  document.getElementById('cfg-region').value   = cfg.region;
+  document.getElementById('cfg-contact-name').value  = cfg.contactName;
+  document.getElementById('cfg-contact-num').value   = cfg.contactNum;
+  document.getElementById('cfg-contact2-name').value = cfg.contact2Name;
+  document.getElementById('cfg-contact2-num').value  = cfg.contact2Num;
+  document.getElementById('cfg-increment').value = cfg.increment;
+  document.getElementById('increment-label').textContent = cfg.increment;
+  ['vitality','stamina','affect','focus'].forEach(function(k,i){
+    var def=['VITALITY','STAMINA','MOOD','FOCUS'][i];
+    document.getElementById('cfg-stat-'+k).value = cfg.statLabels[k]===def?'':cfg.statLabels[k];
+  });
+  var togMap={services:'showServices',contact:'showContact',contact2:'showContact2Alert',autoreset:'autoReset',heartlabels:'showHeartLabels',systemtheme:'useSystemTheme'};
+  Object.keys(togMap).forEach(function(k){
+    var val=k==='heartlabels'?cfg.showHeartLabels!==false:cfg[togMap[k]];
+    document.getElementById('tog-'+k).className='toggle'+(val?' on':'');
+  });
+  document.getElementById('tog-second').className='toggle'+(cfg.showContact2?' on':'');
+  document.getElementById('second-contact').className='second-contact'+(cfg.showContact2?' visible':'');
+  document.getElementById('tog-contact2-row').style.display=cfg.showContact2?'flex':'none';
+  try{
+    var t=localStorage.getItem('hud_theme')||'dark';
+    document.getElementById('btn-dark').classList.toggle('active',t==='dark');
+    document.getElementById('btn-light').classList.toggle('active',t==='light');
+    var ft=localStorage.getItem('hud_font_type')||'hyperlegible';
+    ['mono','hyperlegible','dyslexic'].forEach(function(f){document.getElementById('btn-font-'+f).classList.toggle('active',f===ft);});
+    var fs=parseFloat(localStorage.getItem('hud_fontsize')||'1');
+    document.getElementById('cfg-fontsize').value=fs;
+    var fl=document.getElementById('fontsize-label');if(fl)fl.textContent='\u25C9 '+Math.round(fs*100)+'%';
+    document.getElementById('tog-cb').className='toggle'+(localStorage.getItem('hud_cb')==='1'?' on':'');
+  }catch(e){}
+}
+
+function toggleSecond(){cfg.showContact2=!cfg.showContact2;document.getElementById('tog-second').className='toggle'+(cfg.showContact2?' on':'');document.getElementById('second-contact').className='second-contact'+(cfg.showContact2?' visible':'');document.getElementById('tog-contact2-row').style.display=cfg.showContact2?'flex':'none';}
+
+function toggleOpt(key){
+  var cfgMap={services:'showServices',contact:'showContact',contact2:'showContact2Alert',autoreset:'autoReset',heartlabels:'showHeartLabels',systemtheme:'useSystemTheme'};
+  if(key==='heartlabels') cfg.showHeartLabels=cfg.showHeartLabels===false?true:false;
+  else cfg[cfgMap[key]]=!cfg[cfgMap[key]];
+  var val=key==='heartlabels'?cfg.showHeartLabels!==false:cfg[cfgMap[key]];
+  document.getElementById('tog-'+key).className='toggle'+(val?' on':'');
+  if(key==='heartlabels') updateHeartLabels();
+  if(key==='systemtheme') applySystemTheme();
+}
+
+function saveSettings(){
+  cfg.name           = document.getElementById('cfg-name').value.trim().toUpperCase()||'YOUR NAME';
+  cfg.timezone       = document.getElementById('cfg-timezone').value;
+  cfg.personalBaseline = parseInt(document.getElementById('cfg-baseline').value)||50;
+  cfg.boostLabel     = document.getElementById('cfg-boost').value.trim().toUpperCase()||'COFFEE';
+  cfg.noteToSelf     = document.getElementById('cfg-note').value.trim();
+  cfg.region         = document.getElementById('cfg-region').value;
+  cfg.contactName    = document.getElementById('cfg-contact-name').value.trim();
+  cfg.contactNum     = document.getElementById('cfg-contact-num').value.trim();
+  cfg.contact2Name   = document.getElementById('cfg-contact2-name').value.trim();
+  cfg.contact2Num    = document.getElementById('cfg-contact2-num').value.trim();
+  cfg.increment      = parseInt(document.getElementById('cfg-increment').value)||5;
+  var keys=['vitality','stamina','affect','focus'],defs=['VITALITY','STAMINA','MOOD','FOCUS'];
+  keys.forEach(function(k,i){cfg.statLabels[k]=document.getElementById('cfg-stat-'+k).value.trim().toUpperCase()||defs[i];});
+  saveCfg(); applyStatLabels();
+  document.getElementById('player-name').textContent=cfg.name;
+  document.getElementById('footer-region').textContent=cfg.region.split('|')[0];
+  STATS.forEach(function(s){
+    var r=document.getElementById('range-'+s.key);if(r)r.step=cfg.increment;
+    var nm=document.getElementById('sname-'+s.key);if(nm)nm.textContent=cfg.statLabels[s.key]||s.defaultLabel;
+  });
+  updateHeartLabels(); updateNoteToSelf(); updateCondition(); updateBoostLabel();
+  document.getElementById('settings-panel').classList.remove('open');
+}
+
+// ── THEME / FONT ──────────────────────────────────────────────────────────────
+function setTheme(t){document.body.classList.toggle('light-theme',t==='light');document.getElementById('btn-dark').classList.toggle('active',t==='dark');document.getElementById('btn-light').classList.toggle('active',t==='light');try{localStorage.setItem('hud_theme',t);}catch(e){}}
+function applySystemTheme(){if(!cfg.useSystemTheme)return;setTheme(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');}
+function applyFontSize(v){document.documentElement.style.setProperty('--fs',v);try{localStorage.setItem('hud_fontsize',v);}catch(e){}}
+function updateFsLabel(v){var el=document.getElementById('fontsize-label');if(el)el.textContent='\u25C9 '+Math.round(v*100)+'%';}
+function setFontType(t){document.body.classList.remove('font-mono','font-dyslexic','font-hyperlegible');document.body.classList.add('font-'+t);['mono','hyperlegible','dyslexic'].forEach(function(f){document.getElementById('btn-font-'+f).classList.toggle('active',f===t);});try{localStorage.setItem('hud_font_type',t);}catch(e){}}
+function toggleCB(){var on=document.body.classList.toggle('cb-mode');document.getElementById('tog-cb').className='toggle'+(on?' on':'');try{localStorage.setItem('hud_cb',on?'1':'0');}catch(e){}}
+
+// ── INLINE EDITS ──────────────────────────────────────────────────────────────
+function editPlayerName(){
+  var el=document.getElementById('player-name'),current=el.textContent;
+  var input=document.createElement('input');input.type='text';input.className='player-name-input';input.value=current==='YOUR NAME'?'':current;input.maxLength=12;input.placeholder='YOUR NAME';
+  el.replaceWith(input);input.focus();input.select();
+  function commit(){
+    var val = input.value.trim().toUpperCase() || 'YOUR NAME';
+    if (checkHyperfocus(val)) { val = cfg.name; }
+    cfg.name = val; saveCfg();var div=document.createElement('div');div.className='player-name';div.id='player-name';div.textContent=val;div.onclick=editPlayerName;input.replaceWith(div);var cf=document.getElementById('cfg-name');if(cf)cf.value=val;}
+  input.addEventListener('blur',commit);
+  input.addEventListener('keydown',function(e){if(e.key==='Enter')input.blur();if(e.key==='Escape'){input.value=current;input.blur();}});
+}
+
+function editFontSize(){
+  var el=document.getElementById('fontsize-label');
+  var input=document.createElement('input');input.type='text';input.placeholder='80-140';
+  input.style.cssText='width:54px;background:transparent;border:none;border-bottom:1px solid var(--accent);color:var(--accent);font-family:inherit;font-size:var(--t-xs);font-weight:700;outline:none;text-align:right;letter-spacing:1px;padding:0';
+  el.replaceWith(input);input.focus();
+  function commit(){var val=parseFloat(input.value);if(isNaN(val))val=100;val=Math.min(140,Math.max(80,val));var fs=(val/100).toFixed(2);applyFontSize(fs);var slider=document.getElementById('cfg-fontsize');if(slider)slider.value=fs;var span=document.createElement('span');span.id='fontsize-label';span.onclick=editFontSize;span.title='Tap to type a value';span.style.cssText='font-size:var(--t-xs);color:var(--accent);font-weight:700;min-width:44px;text-align:right;letter-spacing:1px;cursor:pointer;border-bottom:1px dashed rgba(255,77,109,.3)';span.textContent='\u25C9 '+val+'%';input.replaceWith(span);}
+  input.addEventListener('blur',commit);
+  input.addEventListener('keydown',function(e){if(e.key==='Enter')input.blur();if(e.key==='Escape'){input.value='';input.blur();}});
+}
+
+// ── REMINDER ─────────────────────────────────────────────────────────────────
+function openReminder(){var now=new Date(),pad=function(n){return String(n).padStart(2,'0');},tomorrow=new Date(now);tomorrow.setDate(tomorrow.getDate()+1);var s=tomorrow.getFullYear()+pad(tomorrow.getMonth()+1)+pad(tomorrow.getDate())+'T090000',e=tomorrow.getFullYear()+pad(tomorrow.getMonth()+1)+pad(tomorrow.getDate())+'T090500';var t=encodeURIComponent('Baseline Drift \u2014 Daily Check-In'),d=encodeURIComponent('Time to log your daily reading.\n\n'+APP_URL);window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text='+t+'&details='+d+'&location='+encodeURIComponent(APP_URL)+'&dates='+s+'/'+e+'&recur=RRULE:FREQ=DAILY&sf=true&output=xml','_blank');}
+
+// ── CLOCK ────────────────────────────────────────────────────────────────────
+function updateClock(){
+  var now=new Date(),tz=cfg.timezone||'Australia/Brisbane';
+  try{document.getElementById('date-str').textContent=now.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short',timeZone:tz}).toUpperCase();document.getElementById('time-str').textContent=now.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:tz});}
+  catch(e){document.getElementById('date-str').textContent=now.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();document.getElementById('time-str').textContent=now.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+}
+updateClock(); setInterval(updateClock,1000);
+
+// ── RESTORE PREFS ─────────────────────────────────────────────────────────────
+try{var _t=localStorage.getItem('hud_theme');if(_t)setTheme(_t);}catch(e){}
+try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applySystemTheme);}catch(e){}
+try{var _ft=localStorage.getItem('hud_font_type')||'hyperlegible';setFontType(_ft);}catch(e){}
+try{var _fs=localStorage.getItem('hud_fontsize');if(_fs){applyFontSize(parseFloat(_fs));updateFsLabel(parseFloat(_fs));}}catch(e){}
+try{if(localStorage.getItem('hud_cb')==='1')document.body.classList.add('cb-mode');}catch(e){}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+checkDailyReset();
+checkOnboarding();
+checkCacheWarning();
+applySystemTheme();
+var _ov = document.getElementById('onboarding-version'); if (_ov) _ov.textContent = '// STATUS HUD v' + VERSION;
+document.getElementById('player-name').textContent = cfg.name;
+document.getElementById('footer-region').textContent = cfg.region.split('|')[0];
+STATS.forEach(function(s){var r=document.getElementById('range-'+s.key);if(r)r.step=cfg.increment;});
+updateHeartLabels();
+updateNoteToSelf();
+updateBoostLabel();
+updateBoostBtn();
+updateCondition();
+updateLastLogged();
+</script>
+</body>
+</html>
