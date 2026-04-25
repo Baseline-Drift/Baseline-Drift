@@ -190,16 +190,14 @@
     }
     .player-name {
       font-size: var(--t-xl);
-      letter-spacing: 4px;
+      letter-spacing: 2px;
       color: var(--text-hi);
       font-weight: 700;
       cursor: pointer;
       border-bottom: 1px dashed var(--border-2);
       display: inline-block;
       max-width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      word-break: break-all;
       transition: border-color .2s;
     }
     .player-name:hover { border-color: var(--text-mid); }
