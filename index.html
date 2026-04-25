@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-title" content="STATUS HUD"/>
-  <title>STATUS HUD // Baseline Drift v5.0</title>
+  <title>STATUS HUD // Baseline Drift v5.4</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23080a0f'/%3E%3Crect x='8' y='8' width='12' height='3' fill='%23ffffff22'/%3E%3Crect x='8' y='8' width='3' height='12' fill='%23ffffff22'/%3E%3Crect x='80' y='8' width='12' height='3' fill='%23ffffff22'/%3E%3Crect x='89' y='8' width='3' height='12' fill='%23ffffff22'/%3E%3Crect x='8' y='89' width='12' height='3' fill='%23ffffff22'/%3E%3Crect x='8' y='80' width='3' height='12' fill='%23ffffff22'/%3E%3Crect x='80' y='89' width='12' height='3' fill='%23ffffff22'/%3E%3Crect x='89' y='80' width='3' height='12' fill='%23ffffff22'/%3E%3Ctext x='50' y='44' font-family='monospace' font-size='22' fill='%23ff4d6d' text-anchor='middle' font-weight='bold'%3EBD%3C/text%3E%3Crect x='20' y='52' width='60' height='4' rx='2' fill='%23ff4d6d33'/%3E%3Crect x='20' y='52' width='38' height='4' rx='2' fill='%23ff4d6d'/%3E%3Crect x='20' y='62' width='60' height='4' rx='2' fill='%2343d97b33'/%3E%3Crect x='20' y='62' width='22' height='4' rx='2' fill='%2343d97b'/%3E%3Crect x='20' y='72' width='60' height='4' rx='2' fill='%23a78bfa33'/%3E%3Crect x='20' y='72' width='46' height='4' rx='2' fill='%23a78bfa'/%3E%3C/svg%3E"/>
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23080a0f'/%3E%3Ctext x='50' y='44' font-family='monospace' font-size='22' fill='%23ff4d6d' text-anchor='middle' font-weight='bold'%3EBD%3C/text%3E%3C/svg%3E"/>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet"/>
@@ -2454,6 +2454,7 @@ checkDailyReset();
 checkOnboarding();
 checkCacheWarning();
 applySystemTheme();
+document.title = 'STATUS HUD // Baseline Drift v' + VERSION;
 var _ov = document.getElementById('onboarding-version'); if (_ov) _ov.textContent = '// STATUS HUD v' + VERSION;
 document.getElementById('player-name').textContent = cfg.name;
 document.getElementById('footer-region').textContent = cfg.region.split('|')[0];
