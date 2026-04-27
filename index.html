@@ -235,13 +235,13 @@
       display: inline-flex;
       align-items: center;
       gap: var(--sp-3);
-      padding: 0 var(--sp-4);
+      padding: var(--sp-2) var(--sp-4);
       border-radius: 2px;
       border: 1px solid var(--border);
       background: var(--surface-2);
       transition: border-color .4s, background .4s;
-      white-space: nowrap;
-      overflow: hidden;
+      min-height: 40px;
+      flex: 1;
     }
     .condition-dot {
       width: 7px;
@@ -258,9 +258,7 @@
       font-weight: 700;
       text-transform: uppercase;
       transition: color .4s;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      word-break: break-word;
     }
     .condition-desc {
       font-size: var(--t-sm);
@@ -1108,11 +1106,11 @@
   </div>
 
   <div style="display:flex;gap:var(--sp-3);margin-top:var(--sp-4)">
-    <div class="condition-badge" id="condition-badge" onclick="onConditionBadgeTap()" style="cursor:pointer;flex:1;height:40px;align-items:center">
+    <div class="condition-badge" id="condition-badge" onclick="onConditionBadgeTap()" style="cursor:pointer">
       <div class="condition-dot" id="condition-dot"></div>
-      <span class="condition-label" id="condition-label" style="font-size:var(--t-xs)">SET YOUR STATS</span>
+      <span class="condition-label" id="condition-label">SET YOUR STATS</span>
     </div>
-    <button onclick="openBrainState()" style="height:40px;padding:0 var(--sp-4);background:var(--surface-2);border:1px solid var(--border);border-radius:2px;color:var(--text-lo);font-family:inherit;font-size:var(--t-xs);letter-spacing:2px;cursor:pointer;font-weight:700;white-space:nowrap;flex-shrink:0">◈ BRAIN STATE</button>
+    <button onclick="openBrainState()" style="min-height:40px;padding:var(--sp-2) var(--sp-4);background:var(--surface-2);border:1px solid var(--border);border-radius:2px;color:var(--text-lo);font-family:inherit;font-size:var(--t-xs);letter-spacing:1px;cursor:pointer;font-weight:700;flex-shrink:0;word-break:break-word;text-align:center;line-height:1.4">◈ BRAIN STATE</button>
   </div>
   <div class="condition-desc" id="condition-desc">// Adjust three or more sliders to see your status.</div>
   <div class="note-to-self" id="note-to-self"></div>
@@ -2843,7 +2841,17 @@ function resetToDefaults() {
     increment:5, autoReset:false, showHeartLabels:true, useSystemTheme:false,
     statLabels:{vitality:'VITALITY',stamina:'STAMINA',affect:'MOOD',focus:'FOCUS'}
   };
-  saveCfg(); applyStatLabels();
+  saveCfg();
+  try {
+    localStorage.removeItem('hud_theme');
+    localStorage.removeItem('hud_font_type');
+    localStorage.removeItem('hud_fontsize');
+    localStorage.removeItem('hud_cb');
+  } catch(e) {}
+  document.body.classList.remove('light-theme','font-mono','font-dyslexic','font-hyperlegible','cb-mode');
+  document.body.classList.add('font-hyperlegible');
+  document.documentElement.style.setProperty('--fs', '1.15');
+  applyStatLabels();
   document.getElementById('player-name').textContent = cfg.name;
   updateHeartLabels(); updateNoteToSelf(); updateBoostLabel(); updateBoostBtn(); updateRegionLabel(); updateCondition();
   populateSettings();
