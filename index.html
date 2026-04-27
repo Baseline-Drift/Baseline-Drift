@@ -2385,11 +2385,6 @@ function getConditionForAvg(avg) {
   return conditions[conditions.length - 1];
 }
 
-function isDysregulated() {
-  var vals = Object.values(values);
-  return Math.max.apply(null, vals) - Math.min.apply(null, vals) >= 60;
-}
-
 function resetSliders() {
   STATS.forEach(function(s) {
     if (locked[s.key]) return;
