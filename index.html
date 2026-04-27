@@ -1389,6 +1389,7 @@
     <button class="save-btn" onclick="saveSettings()">SAVE / CLOSE SETTINGS</button>
     <button class="reminder-btn" onclick="openReminder()">🔔 SET CHECK-IN REMINDER</button>
     <button class="reminder-btn" style="background:rgba(167,139,250,0.05);border-color:rgba(167,139,250,0.2);color:rgba(167,139,250,0.6);margin-top:var(--sp-2)" onclick="document.getElementById('settings-panel').classList.remove('open');document.getElementById('onboarding-overlay').classList.add('open')">◈ VIEW INTRO</button>
+    <button class="reminder-btn" style="background:rgba(255,77,109,0.05);border-color:rgba(255,77,109,0.15);color:rgba(255,77,109,0.4);margin-top:var(--sp-2)" onclick="resetToDefaults()">↺ RESET TO DEFAULTS</button>
     <div class="version-tap" id="version-tap" onclick="openChangelog()">BASELINE DRIFT // STATUS HUD v7.0 // TAP FOR CHANGELOG</div>
   </div>
 </div>
@@ -1666,7 +1667,36 @@ function classifyState(baseline) {
   };
 }
 
-// Legacy compatibility wrappers
+// Classify state from a specific history entry (not current sliders)
+function classifyStateFromEntry(entry, baseline) {
+  var b = baseline || cfg.personalBaseline || 50;
+  var v = entry.vitality, s = entry.stamina, a = entry.affect, f = entry.focus;
+  var total = v + s + a + f;
+  var avg   = Math.round(total / 4);
+
+  // Check dysregulation across all pairs
+  var keys = [v, s, a, f];
+  var dysreg = false;
+  for (var i = 0; i < keys.length; i++) {
+    for (var j = i+1; j < keys.length; j++) {
+      if (Math.abs(keys[i] - keys[j]) >= 40) { dysreg = true; break; }
+    }
+    if (dysreg) break;
+  }
+
+  if (v<=25 && s<=25 && a<=25 && f<=25)       return { label:'SHUTDOWN',             color:'#888888' };
+  if (dysreg && total < 250)                   return { label:'SEVERE DYSREGULATION', color:'#c084fc' };
+  if (f>=85 && v>=40 && !dysreg)               return { label:'FLOW STATE',           color:'#60a5fa' };
+  if (v>=45&&v<=65&&s>=45&&s<=65&&a>=45&&a<=65&&f>=45&&f<=65) return { label:'GROUNDED', color:'#34d399' };
+  if (f>=75 && v>=50 && s>=50 && a>=50)        return { label:'LOCKED IN',            color:'#43d97b' };
+  if (dysreg && total >= 250)                  return { label:'MILD DYSREGULATION',   color:'#a78bfa' };
+  if (avg >= b + 30)                           return { label:'OPTIMAL',              color:'#43d97b' };
+  if (avg >= b + 10)                           return { label:'FUNCTIONAL',           color:'#fbbf24' };
+  if (avg >= b - 10)                           return { label:'BASELINE',             color:'#fb923c' };
+  return                                              { label:'CRITICAL',             color:'#ff4d6d' };
+}
+
+
 function getConditionForAvg(avg) {
   var state = classifyState();
   return { label: state.label, color: state.color };
@@ -1986,8 +2016,7 @@ function loadSampleData() {
   var sampleHistory = SAMPLE_DATA.map(function(d) {
     var date = new Date(now);
     date.setDate(date.getDate() - d.daysAgo);
-    var avg  = Math.round((d.v + d.s + d.a + d.f) / 4);
-    var cond = getConditionForAvg(avg);
+    var cond = classifyStateFromEntry({vitality:d.v,stamina:d.s,affect:d.a,focus:d.f}, 50);
     return {
       date: date.toISOString(),
       dateStr: date.toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' }),
@@ -2334,7 +2363,8 @@ function saveReading(date, existingIndex, note) {
   var dateStr = date.toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
   var timeStr = cfg.logTime ? date.toLocaleTimeString('en-AU', { hour:'2-digit', minute:'2-digit', timeZone:tz }) : '';
   var avg  = Math.round(Object.values(values).reduce(function(a,b){ return a+b; }, 0) / STATS.length);
-  var cond = getConditionForAvg(avg);
+  var entryVals = { vitality:values.vitality, stamina:values.stamina, affect:values.affect, focus:values.focus };
+  var cond = classifyStateFromEntry(entryVals, cfg.personalBaseline || 50);
   var entry = { date:date.toISOString(), dateStr:dateStr, timeStr:timeStr, vitality:values.vitality, stamina:values.stamina, affect:values.affect, focus:values.focus, condition:cond.label, note:note };
   var history = loadHistory();
   if (existingIndex >= 0) history[existingIndex] = entry;
@@ -2485,7 +2515,7 @@ function getPlayerFilename() { return 'baseline-drift-' + (cfg.name === 'YOUR NA
 
 function exportCopy() {
   var avg  = Math.round(Object.values(values).reduce(function(a,b){ return a+b; },0)/STATS.length);
-  var cond = isDysregulated() ? 'DYSREGULATED' : getConditionForAvg(avg).label;
+  var cond = classifyState(cfg.personalBaseline || 50).label;
   var lines = ['BASELINE DRIFT STATUS HUD \u2014 ' + getNow(), '\u2500'.repeat(37)]
     .concat(STATS.map(function(s){ return (cfg.statLabels[s.key]||s.defaultLabel).padEnd(10) + String(values[s.key]).padStart(3) + '  // ' + getComment(s, values[s.key]); }))
     .concat(['\u2500'.repeat(37), 'STATUS: ' + cond, '', APP_URL]);
@@ -2506,7 +2536,7 @@ function exportCSV() {
 function exportPDF() {
   var now=getNow();
   var avg=Math.round(Object.values(values).reduce(function(a,b){return a+b;},0)/STATS.length);
-  var condObj=isDysregulated()?{label:'DYSREGULATED',color:'#c084fc'}:getConditionForAvg(avg);
+  var condObj=classifyState(cfg.personalBaseline || 50);
   var noteInput=document.getElementById('log-note-input');
   var currentNote=noteInput?noteInput.value.trim():'';
   var summaryRows=STATS.map(function(s){
@@ -2534,7 +2564,7 @@ function exportImage() {
   ctx.font='bold 11px monospace'; ctx.fillStyle='rgba(255,255,255,0.3)';
   ctx.fillText('Built for the kind of brain',28,152); ctx.fillText('that needs things externalised.',28,168);
   var avg=Math.round(Object.values(values).reduce(function(a,b){return a+b;},0)/STATS.length);
-  var cond=isDysregulated()?{label:'DYSREGULATED',color:'#c084fc'}:getConditionForAvg(avg);
+  var cond=classifyState(cfg.personalBaseline || 50);
   ctx.font='bold 10px monospace'; ctx.fillStyle=cond.color; ctx.fillText(cond.label,28,196);
   ctx.font='bold 10px monospace'; ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.fillText(APP_URL,28,326);
   // Right panel
@@ -2584,6 +2614,25 @@ function download(filename, data, type, isDataUrl) {
 }
 
 // ── SHARE ────────────────────────────────────────────────────────────────────
+function getTimezoneLabel() {
+  var tz = cfg.timezone || 'Australia/Brisbane';
+  var map = {
+    'Australia/Brisbane':'AU', 'Australia/Sydney':'AU', 'Australia/Melbourne':'AU',
+    'Australia/Adelaide':'AU', 'Australia/Darwin':'AU', 'Australia/Perth':'AU',
+    'Pacific/Auckland':'NZ', 'America/Los_Angeles':'US', 'America/Denver':'US',
+    'America/Chicago':'US', 'America/New_York':'US', 'America/Toronto':'CA',
+    'America/Vancouver':'CA', 'Europe/London':'UK', 'Europe/Paris':'EU',
+    'Europe/Berlin':'EU', 'Asia/Dubai':'AE', 'Asia/Kolkata':'IN',
+    'Asia/Singapore':'SG', 'Asia/Tokyo':'JP', 'Asia/Seoul':'KR'
+  };
+  return map[tz] || tz.split('/').pop().substring(0,3).toUpperCase();
+}
+
+function updateRegionLabel() {
+  var el = document.getElementById('footer-region');
+  if (el) el.textContent = getTimezoneLabel();
+}
+
 function openTimezoneSettings() {
   var p = document.getElementById('settings-panel');
   if (!p.classList.contains('open')) toggleSettings();
@@ -2705,7 +2754,7 @@ function buildHistoryList() {
   history.slice().reverse().forEach(function(e,ri){
     var i=history.length-1-ri;
     var avg=Math.round((e.vitality+e.stamina+e.affect+e.focus)/4);
-    var cond=getConditionForAvg(avg);
+    var cond=classifyStateFromEntry(e, cfg.personalBaseline || 50);
     html+='<div style="padding:var(--sp-3) 0;border-bottom:1px solid '+borderC+'">' +
       '<div style="display:flex;justify-content:space-between;align-items:center">' +
         '<div style="flex:1;min-width:0">' +
@@ -2777,6 +2826,24 @@ function openChangelog() {
 }
 
 // ── SETTINGS ─────────────────────────────────────────────────────────────────
+function resetToDefaults() {
+  if (!confirm('// Reset all settings to defaults? Your logged readings will not be affected.')) return;
+  cfg = {
+    name:'YOUR NAME', timezone:'Australia/Brisbane', noteToSelf:'',
+    personalBaseline:50, boostLabel:'COFFEE', logTime:true,
+    statBaselines:{vitality:50,stamina:50,affect:50,focus:50},
+    region:'AU|000', contactName:'', contactNum:'', contact2Name:'', contact2Num:'', showContact2:false,
+    showServices:true, showContact:true, showContact2Alert:true,
+    increment:5, autoReset:false, showHeartLabels:true, useSystemTheme:false,
+    statLabels:{vitality:'VITALITY',stamina:'STAMINA',affect:'MOOD',focus:'FOCUS'}
+  };
+  saveCfg(); applyStatLabels();
+  document.getElementById('player-name').textContent = cfg.name;
+  updateHeartLabels(); updateNoteToSelf(); updateBoostLabel(); updateBoostBtn(); updateRegionLabel(); updateCondition();
+  populateSettings();
+  alert('// Settings reset to defaults.');
+}
+
 function toggleSettings(){var p=document.getElementById('settings-panel');if(p.classList.toggle('open'))populateSettings();}
 function toggleSection(id){document.getElementById(id).classList.toggle('open');document.getElementById('arrow-'+id).classList.toggle('open');}
 
@@ -2849,7 +2916,7 @@ function saveSettings(){
   keys.forEach(function(k,i){cfg.statLabels[k]=document.getElementById('cfg-stat-'+k).value.trim().toUpperCase()||defs[i];});
   saveCfg(); applyStatLabels();
   document.getElementById('player-name').textContent=cfg.name;
-  document.getElementById('footer-region').textContent=cfg.region.split('|')[0];
+  updateRegionLabel();
   STATS.forEach(function(s){
     var r=document.getElementById('range-'+s.key);if(r)r.step=cfg.increment;
     var nm=document.getElementById('sname-'+s.key);if(nm)nm.textContent=cfg.statLabels[s.key]||s.defaultLabel;
@@ -2998,7 +3065,7 @@ applySystemTheme();
 document.title = 'STATUS HUD // Baseline Drift v' + VERSION;
 var _ov = document.getElementById('onboarding-version'); if (_ov) _ov.textContent = '// STATUS HUD v' + VERSION;
 document.getElementById('player-name').textContent = cfg.name;
-document.getElementById('footer-region').textContent = cfg.region.split('|')[0];
+updateRegionLabel();
 STATS.forEach(function(s){var r=document.getElementById('range-'+s.key);if(r)r.step=cfg.increment;});
 updateHeartLabels();
 updateNoteToSelf();
