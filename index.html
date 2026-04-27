@@ -1000,7 +1000,11 @@
       <div class="onboarding-band-row"><span class="onboarding-band-label" style="color:#43d97b">HIGH</span><span class="onboarding-band-desc">76–100 — strong capacity</span></div>
       <div style="font-size:9px;color:var(--text-dim);margin-top:10px;font-weight:700;letter-spacing:1px">Pick the band that fits. Don't overthink the number.</div>
     </div>
-    <button class="onboarding-btn" onclick="dismissOnboarding()">GET STARTED</button>
+    <div style="font-size:var(--t-xs);color:var(--text-dim);font-weight:700;letter-spacing:1px;line-height:calc(1.6 * var(--fs));margin-bottom:var(--sp-4);padding:var(--sp-3) var(--sp-4);background:var(--surface-2);border:1px solid var(--border);border-radius:2px;text-align:left">// Baseline Drift is a self-monitoring tool for personal awareness. It is not a clinical diagnostic tool and is not a substitute for professional mental health support. If you are in crisis, please reach out to a professional or emergency services.</div>
+    <div style="display:flex;flex-direction:column;gap:var(--sp-3)">
+      <button class="onboarding-btn" onclick="dismissOnboarding()">GET STARTED</button>
+      <button onclick="loadSampleData()" style="padding:var(--sp-2) var(--sp-6);background:transparent;border:1px solid var(--border);border-radius:2px;color:var(--text-lo);font-family:inherit;font-size:var(--t-xs);letter-spacing:3px;cursor:pointer;font-weight:700;text-transform:uppercase">LOAD SAMPLE DATA</button>
+    </div>
   </div>
 </div>
 
@@ -1083,6 +1087,14 @@
   <div class="condition-desc" id="condition-desc">// Adjust three or more sliders to see your status.</div>
   <div class="note-to-self" id="note-to-self"></div>
   <div class="last-logged" id="last-logged"></div>
+  <div id="drift-nudge" style="display:none;align-items:center;justify-content:space-between;margin-top:var(--sp-2);padding:var(--sp-2) var(--sp-4);background:rgba(192,132,252,0.07);border:1px solid rgba(192,132,252,0.25);border-radius:2px;gap:var(--sp-3);flex-wrap:wrap">
+    <span id="drift-msg" style="font-size:var(--t-xs);color:rgba(192,132,252,0.7);font-weight:700;letter-spacing:1px;flex:1"></span>
+    <div style="display:flex;gap:var(--sp-2);flex-shrink:0">
+      <button onclick="snoozeDrift(1)"  style="background:none;border:1px solid rgba(192,132,252,0.2);border-radius:2px;color:rgba(192,132,252,0.5);font-family:inherit;font-size:var(--t-xs);cursor:pointer;padding:3px 8px;font-weight:700">1H</button>
+      <button onclick="snoozeDrift(4)"  style="background:none;border:1px solid rgba(192,132,252,0.2);border-radius:2px;color:rgba(192,132,252,0.5);font-family:inherit;font-size:var(--t-xs);cursor:pointer;padding:3px 8px;font-weight:700">4H</button>
+      <button onclick="snoozeDrift(24)" style="background:none;border:1px solid rgba(192,132,252,0.2);border-radius:2px;color:rgba(192,132,252,0.5);font-family:inherit;font-size:var(--t-xs);cursor:pointer;padding:3px 8px;font-weight:700">TOMORROW</button>
+    </div>
+  </div>
   <div id="quick-actions" style="display:flex;gap:var(--sp-3);margin-top:var(--sp-3)">
     <button onclick="recallLast()" style="flex:1;padding:var(--sp-3);background:var(--surface-2);border:1px solid var(--border);border-radius:2px;color:var(--text-lo);font-family:inherit;font-size:var(--t-xs);letter-spacing:2px;cursor:pointer;font-weight:700;transition:all .2s" onmouseover="this.style.color='var(--text-mid)'" onmouseout="this.style.color='var(--text-lo)'">↩ RECALL LAST</button>
     <button onclick="useAsIs()" style="flex:1;padding:var(--sp-3);background:var(--surface-2);border:1px solid var(--border);border-radius:2px;color:var(--text-lo);font-family:inherit;font-size:var(--t-xs);letter-spacing:2px;cursor:pointer;font-weight:700;transition:all .2s" onmouseover="this.style.color='var(--text-mid)'" onmouseout="this.style.color='var(--text-lo)'">✓ USE AS-IS</button>
@@ -1147,6 +1159,7 @@
       <button class="footer-btn" onclick="openGraph()">GRAPH</button>
       <button class="footer-btn" onclick="openExport()">EXPORT</button>
       <button class="footer-btn" onclick="openFeedback()">FEEDBACK</button>
+      <button class="footer-btn" onclick="openBrainState()">BRAIN STATE</button>
       <button class="footer-btn" onclick="document.getElementById('licence-overlay').classList.add('open')">LICENCE</button>
       <button class="footer-btn" onclick="toggleSettings()">SETTINGS</button>
     </div>
@@ -1337,6 +1350,9 @@
           </div>
         </div>
         <div class="setting-group">
+          <div class="toggle-row"><span class="toggle-label">Log time with each reading</span><div class="toggle on" id="tog-logtime" onclick="toggleOpt('logtime')"></div></div>
+        </div>
+        <div class="setting-group">
           <div class="toggle-row"><span class="toggle-label">Auto-reset sliders to 50 on new day</span><div class="toggle" id="tog-autoreset" onclick="toggleOpt('autoreset')"></div></div>
         </div>
       </div>
@@ -1345,7 +1361,7 @@
     <button class="save-btn" onclick="saveSettings()">SAVE / CLOSE SETTINGS</button>
     <button class="reminder-btn" onclick="openReminder()">🔔 SET CHECK-IN REMINDER</button>
     <button class="reminder-btn" style="background:rgba(167,139,250,0.05);border-color:rgba(167,139,250,0.2);color:rgba(167,139,250,0.6);margin-top:var(--sp-2)" onclick="document.getElementById('settings-panel').classList.remove('open');document.getElementById('onboarding-overlay').classList.add('open')">◈ VIEW INTRO</button>
-    <div class="version-tap" id="version-tap" onclick="openChangelog()">BASELINE DRIFT // STATUS HUD v5.4 // TAP FOR CHANGELOG</div>
+    <div class="version-tap" id="version-tap" onclick="openChangelog()">BASELINE DRIFT // STATUS HUD v6.0 // TAP FOR CHANGELOG</div>
   </div>
 </div>
 
@@ -1375,6 +1391,7 @@
       <button class="overlay-close" onclick="closeOverlay('graph-overlay')">✕ CLOSE</button>
     </div>
     <div class="graph-filter" id="graph-filter"></div>
+    <div id="graph-stat-filter" style="display:flex;flex-wrap:wrap;gap:var(--sp-2);margin-bottom:var(--sp-4)"></div>
     <div id="graph-content"></div>
     <div style="display:flex;gap:var(--sp-3);margin:var(--sp-4) 0 var(--sp-2);align-items:center">
       <input type="date" id="past-date" style="flex:1;padding:var(--sp-3) var(--sp-4);background:var(--surface-2);border:1px solid var(--border);border-radius:2px;color:var(--text-mid);font-family:inherit;font-size:var(--t-xs);outline:none;font-weight:700"/>
@@ -1398,6 +1415,17 @@
     <textarea class="fb-textarea" id="fb-text" placeholder="What happened? Describe the bug — steps to reproduce, what you expected vs what you got."></textarea>
     <div style="font-size:var(--t-xs);color:var(--text-dim);margin-bottom:var(--sp-3);font-weight:700;font-style:italic">// Tapping Send will open your email app with your feedback pre-filled.</div>
     <button class="fb-submit" onclick="submitFeedback()">SEND FEEDBACK</button>
+  </div>
+</div>
+
+<!-- BRAIN STATE OVERLAY -->
+<div class="overlay" id="brainstate-overlay" onclick="closeOverlay('brainstate-overlay')">
+  <div class="overlay-panel" onclick="event.stopPropagation()" style="max-height:92vh">
+    <div class="overlay-header">
+      <div class="overlay-title" id="brainstate-title">// BRAIN STATE</div>
+      <button class="overlay-close" onclick="closeOverlay('brainstate-overlay')">✕ CLOSE</button>
+    </div>
+    <div id="brainstate-content"></div>
   </div>
 </div>
 
@@ -1481,7 +1509,7 @@
 'use strict';
 
 // ── CONSTANTS ────────────────────────────────────────────────────────────────
-var VERSION   = '5.4';
+var VERSION   = '6.0';
 var APP_URL   = 'https://baseline-drift.github.io/Baseline-Drift/';
 var BUG_EMAIL = 'baselinedrift5@gmail.com';
 
@@ -1515,6 +1543,21 @@ function buildConditions(baseline) {
 }
 
 var CHANGELOG = [
+  { version:'6.0', date:'27 Apr 2026', items:[
+    'Brain State — AuADHD diagnostic flow accessible from footer',
+    'Baseline drift detection — nudge on main HUD when stats drift from personal baseline; snooze 1h / 4h / tomorrow',
+    'Personal stat baselines — individual per-stat baseline, auto-calculated from 7-day history',
+    'Timestamp logging — time stored with each reading; toggle in Preferences',
+    'Graph stat filters — toggle individual stats on/off independently',
+    'Tap stat name on HUD to edit inline',
+    'Export filenames include player name',
+    'PDF overhaul — colour coded, summary header, band labels, notes included',
+    'Image export includes current log note',
+    'Onboarding safety disclaimer — self-monitoring tool, not clinical diagnosis',
+    'LOAD SAMPLE DATA on onboarding — 14-day realistic demo dataset',
+    'Sample data cleared by RESET; re-accessible via VIEW INTRO',
+    'Font size desktop layout fix — structural spacing decoupled from --fs'
+  ]},
   { version:'5.4', date:'26 Apr 2026', items:[
     'Migrated to GitHub Pages — https://baseline-drift.github.io/Baseline-Drift/',
     '? HELP button moved to main HUD — visible without opening settings',
@@ -1603,7 +1646,8 @@ var bannerTimer = null;
 // ── CONFIG ───────────────────────────────────────────────────────────────────
 var cfg = {
   name:'YOUR NAME', timezone:'Australia/Brisbane', noteToSelf:'',
-  personalBaseline: 50, boostLabel: 'COFFEE',
+  personalBaseline: 50, boostLabel: 'COFFEE', logTime: true,
+  statBaselines: { vitality:50, stamina:50, affect:50, focus:50 },
   region:'AU|000', contactName:'', contactNum:'', contact2Name:'', contact2Num:'', showContact2:false,
   showServices:true, showContact:true, showContact2Alert:true,
   increment:5, autoReset:false, showHeartLabels:true, useSystemTheme:false,
@@ -1701,7 +1745,108 @@ function closeAce() { document.getElementById('ace-overlay').classList.remove('o
  * ╚══════════════════════════════════════════════╝
  */
 
-// ── BOOST ─────────────────────────────────────────────────────────────────────
+// ── PERSONAL STAT BASELINES ──────────────────────────────────────────────────
+function checkStatBaselines() {
+  var history = loadHistory();
+  if (history.length < 7) return;
+  var last7 = history.slice(-7);
+  var keys = ['vitality','stamina','affect','focus'];
+  var proposed = {};
+  keys.forEach(function(k) {
+    proposed[k] = Math.round(last7.reduce(function(a,e){ return a + e[k]; }, 0) / 7);
+  });
+  var changed = keys.some(function(k){ return Math.abs(proposed[k] - (cfg.statBaselines[k] || 50)) >= 5; });
+  if (!changed) return;
+  try { localStorage.setItem('hud_proposed_baselines', JSON.stringify(proposed)); } catch(e) {}
+}
+
+function applyProposedBaselines() {
+  try {
+    var proposed = JSON.parse(localStorage.getItem('hud_proposed_baselines') || 'null');
+    if (!proposed) return;
+    cfg.statBaselines = proposed;
+    saveCfg();
+    localStorage.removeItem('hud_proposed_baselines');
+    alert('// Personal baselines updated from your last 7 readings.');
+  } catch(e) {}
+}
+
+// ── DRIFT DETECTION ──────────────────────────────────────────────────────────
+var snoozeUntil = 0;
+
+function checkDrift() {
+  if (Date.now() < snoozeUntil) return;
+  var keys = ['vitality','stamina','affect','focus'];
+  var drifting = keys.filter(function(k) {
+    return Math.abs(values[k] - (cfg.statBaselines[k] || 50)) >= 20;
+  });
+  var el = document.getElementById('drift-nudge');
+  if (!el) return;
+  if (drifting.length >= 2) {
+    var labels = drifting.map(function(k){ return cfg.statLabels[k] || k.toUpperCase(); });
+    document.getElementById('drift-msg').textContent = '// ' + labels.join(' + ') + ' drifting from your baseline.';
+    el.style.display = 'flex';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function snoozeDrift(hours) {
+  snoozeUntil = Date.now() + (hours * 60 * 60 * 1000);
+  document.getElementById('drift-nudge').style.display = 'none';
+}
+
+// ── SAMPLE DATA ──────────────────────────────────────────────────────────────
+var SAMPLE_DATA = [
+  { daysAgo:13, v:35, s:40, a:30, f:45, note:'Rough start to the week. Sleep was broken.' },
+  { daysAgo:12, v:50, s:55, a:45, f:50, note:'' },
+  { daysAgo:11, v:60, s:65, a:70, f:65, note:'Good day. Got a lot done.' },
+  { daysAgo:10, v:25, s:30, a:40, f:20, note:'Crashed hard. Could not focus at all.' },
+  { daysAgo:9,  v:45, s:50, a:55, f:50, note:'' },
+  { daysAgo:8,  v:70, s:60, a:65, f:75, note:'Productive morning. Coffee hit different.' },
+  { daysAgo:7,  v:55, s:70, a:50, f:60, note:'Decent. Went for a walk which helped stamina.' },
+  { daysAgo:6,  v:40, s:45, a:35, f:40, note:'Low mood day. Did the minimum.' },
+  { daysAgo:5,  v:65, s:60, a:70, f:65, note:'' },
+  { daysAgo:4,  v:75, s:80, a:75, f:70, note:'One of the better days. Felt almost normal.' },
+  { daysAgo:3,  v:50, s:55, a:60, f:50, note:'' },
+  { daysAgo:2,  v:30, s:35, a:25, f:30, note:'DYSREGULATED. Body crashed, brain still running.' },
+  { daysAgo:1,  v:55, s:60, a:65, f:55, note:'Recovery day. Slow but steadier.' },
+  { daysAgo:0,  v:65, s:65, a:70, f:60, note:'Sample data loaded. This is what your graph could look like.' }
+];
+
+function loadSampleData() {
+  var history = loadHistory();
+  if (history.length > 0) {
+    if (!confirm('// This will replace your existing data with sample readings. Continue?')) return;
+  }
+  var now = new Date();
+  var sampleHistory = SAMPLE_DATA.map(function(d) {
+    var date = new Date(now);
+    date.setDate(date.getDate() - d.daysAgo);
+    var avg  = Math.round((d.v + d.s + d.a + d.f) / 4);
+    var cond = getConditionForAvg(avg);
+    return {
+      date: date.toISOString(),
+      dateStr: date.toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' }),
+      timeStr: '09:00 am',
+      vitality: d.v, stamina: d.s, affect: d.a, focus: d.f,
+      condition: cond.label, note: d.note, isSample: true
+    };
+  });
+  saveHistory(sampleHistory);
+  try { localStorage.setItem('hud_sample_loaded', '1'); } catch(e) {}
+  dismissOnboarding();
+  alert('// Sample data loaded. Explore the graph to see your trends.');
+}
+
+function clearSampleData() {
+  var history = loadHistory();
+  var real = history.filter(function(e){ return !e.isSample; });
+  saveHistory(real);
+  try { localStorage.removeItem('hud_sample_loaded'); } catch(e) {}
+}
+
+
 function activateBoost() {
   STATS.forEach(function(s) {
     if (locked[s.key]) return;
@@ -1846,7 +1991,7 @@ STATS.forEach(function(stat) {
       '<div class="stat-header-left">' +
         '<span class="stat-icon stat-' + stat.key + '-colour" style="color:' + stat.color + ';filter:drop-shadow(0 0 6px ' + stat.glow + ')">' + stat.icon + '</span>' +
         '<div class="stat-name-block">' +
-          '<span class="stat-name stat-' + stat.key + '-colour" id="sname-' + stat.key + '" style="color:' + stat.color + '">' + stat.label + '</span>' +
+          '<span class="stat-name stat-' + stat.key + '-colour" id="sname-' + stat.key + '" style="color:' + stat.color + ';cursor:pointer;border-bottom:1px dashed ' + stat.color + '33" onclick="editStatName(\'' + stat.key + '\')" title="Tap to edit">' + stat.label + '</span>' +
           '<span class="stat-source" id="ssource-' + stat.key + '">[' + stat.source + ']</span>' +
         '</div>' +
       '</div>' +
@@ -1982,15 +2127,18 @@ function logToday() {
 function saveReading(date, existingIndex, note) {
   if (existingIndex === undefined) existingIndex = -1;
   if (note === undefined) note = '';
+  var tz = cfg.timezone || 'Australia/Brisbane';
   var dateStr = date.toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
-  var avg     = Math.round(Object.values(values).reduce(function(a,b){ return a+b; }, 0) / STATS.length);
-  var cond    = getConditionForAvg(avg);
-  var entry   = { date:date.toISOString(), dateStr:dateStr, vitality:values.vitality, stamina:values.stamina, affect:values.affect, focus:values.focus, condition:cond.label, note:note };
+  var timeStr = cfg.logTime ? date.toLocaleTimeString('en-AU', { hour:'2-digit', minute:'2-digit', timeZone:tz }) : '';
+  var avg  = Math.round(Object.values(values).reduce(function(a,b){ return a+b; }, 0) / STATS.length);
+  var cond = getConditionForAvg(avg);
+  var entry = { date:date.toISOString(), dateStr:dateStr, timeStr:timeStr, vitality:values.vitality, stamina:values.stamina, affect:values.affect, focus:values.focus, condition:cond.label, note:note };
   var history = loadHistory();
   if (existingIndex >= 0) history[existingIndex] = entry;
   else { history.push(entry); history.sort(function(a,b){ return new Date(a.date)-new Date(b.date); }); }
   saveHistory(history);
   try { localStorage.setItem('hud_last_date', date.toDateString()); } catch(e) {}
+  checkStatBaselines();
 }
 
 function getConditionForAvg(avg) {
@@ -2079,6 +2227,7 @@ function updateCondition() {
     ['optimal','dysregulated','critical'].forEach(function(k){ setBanner(k, false); });
   }
   updateScore(avg, mc);
+  checkDrift();
 }
 
 function setBanner(key, show) {
@@ -2125,6 +2274,8 @@ function openExport()  { document.getElementById('export-overlay').classList.add
 function closeOverlay(id) { document.getElementById(id).classList.remove('open'); }
 function getNow() { return new Date().toLocaleDateString('en-AU', { weekday:'short', day:'numeric', month:'short', year:'numeric' }); }
 
+function getPlayerFilename() { return 'baseline-drift-' + (cfg.name === 'YOUR NAME' ? 'player' : cfg.name.toLowerCase().replace(/[^a-z0-9]/g,'-')); }
+
 function exportCopy() {
   var avg  = Math.round(Object.values(values).reduce(function(a,b){ return a+b; },0)/STATS.length);
   var cond = isDysregulated() ? 'DYSREGULATED' : getConditionForAvg(avg).label;
@@ -2142,14 +2293,24 @@ function exportCSV() {
   if (!history.length) { alert('No readings logged yet.'); return; }
   var header = 'Date,' + STATS.map(function(s){ return cfg.statLabels[s.key]||s.defaultLabel; }).join(',') + ',Condition,Note';
   var rows = [header].concat(history.map(function(e){ return e.dateStr+','+e.vitality+','+e.stamina+','+e.affect+','+e.focus+','+e.condition+','+(e.note||''); }));
-  download('baseline-drift-history.csv', rows.join('\n'), 'text/csv');
+  download(getPlayerFilename()+'-history.csv', rows.join('\n'), 'text/csv');
 }
 
 function exportPDF() {
-  var now=getNow(), avg=Math.round(Object.values(values).reduce(function(a,b){return a+b;},0)/STATS.length);
-  var cond=isDysregulated()?'DYSREGULATED':getConditionForAvg(avg).label;
-  var statRows=STATS.map(function(s){ return '<div class="stat"><div class="sn">'+(cfg.statLabels[s.key]||s.defaultLabel)+'</div><div class="sb" style="background:linear-gradient(90deg,'+s.color+'88,'+s.color+');width:'+values[s.key]+'%"></div><div class="sv">'+values[s.key]+' \u2014 '+getComment(s,values[s.key])+'</div></div>'; }).join('');
-  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>STATUS HUD</title><style>body{font-family:sans-serif;background:#080a0f;color:white;padding:40px;max-width:500px;margin:0 auto}h1{font-size:28px;letter-spacing:4px;color:#ff4d6d;margin:0}h2{font-size:12px;letter-spacing:4px;color:rgba(255,255,255,0.3);margin:4px 0 24px}.stat{margin-bottom:16px}.sn{font-size:13px;letter-spacing:3px;color:#fff}.sb{height:8px;border-radius:2px;margin:6px 0 4px}.sv{font-size:11px;color:rgba(255,255,255,0.4)}.st{margin-top:24px;padding:10px 16px;border:1px solid rgba(255,255,255,0.2);display:inline-block;font-size:12px;letter-spacing:3px}.ft{margin-top:32px;font-size:10px;color:rgba(255,255,255,0.2)}@media print{body{background:#080a0f!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><h1>BASELINE DRIFT</h1><h2>STATUS HUD v'+VERSION+'</h2><div style="font-size:12px;color:rgba(255,255,255,0.3);margin-bottom:24px">'+now+'</div>'+statRows+'<div class="st">'+cond+'</div><div class="ft">'+APP_URL+'</div></body></html>';
+  var now=getNow();
+  var avg=Math.round(Object.values(values).reduce(function(a,b){return a+b;},0)/STATS.length);
+  var condObj=isDysregulated()?{label:'DYSREGULATED',color:'#c084fc'}:getConditionForAvg(avg);
+  var noteInput=document.getElementById('log-note-input');
+  var currentNote=noteInput?noteInput.value.trim():'';
+  var summaryRows=STATS.map(function(s){
+    var band=BAND_LABELS[getBand(values[s.key])];
+    return '<div class="sumrow"><span style="color:'+s.color+';font-weight:700;letter-spacing:2px;font-size:11px">'+(cfg.statLabels[s.key]||s.defaultLabel)+'</span><span style="color:rgba(255,255,255,0.5);font-size:11px">'+values[s.key]+' — '+band+'</span></div>';
+  }).join('');
+  var statRows=STATS.map(function(s){
+    var noteStr=currentNote?'<div class="snote">// '+currentNote+'</div>':'';
+    return '<div class="stat" style="border-left:3px solid '+s.color+';padding-left:12px"><div class="sn" style="color:'+s.color+'">'+(cfg.statLabels[s.key]||s.defaultLabel)+' <span style="color:rgba(255,255,255,0.3);font-size:10px">['+BAND_LABELS[getBand(values[s.key])]+']</span></div><div class="sb" style="background:linear-gradient(90deg,'+s.color+'44,'+s.color+');width:'+values[s.key]+'%"></div><div class="sv">'+values[s.key]+' — '+getComment(s,values[s.key])+'</div>'+noteStr+'</div>';
+  }).join('');
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Baseline Drift</title><style>body{font-family:monospace;background:#080a0f;color:white;padding:40px;max-width:520px;margin:0 auto}h1{font-size:22px;letter-spacing:4px;color:#ff4d6d;margin:0}h2{font-size:10px;letter-spacing:4px;color:rgba(255,255,255,0.3);margin:4px 0 20px}.summary{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:16px;margin-bottom:24px}.sumrow{display:flex;justify-content:space-between;margin-bottom:8px}.stat{margin-bottom:20px}.sn{font-size:12px;letter-spacing:3px;margin-bottom:6px}.sb{height:6px;border-radius:2px;margin:6px 0}.sv{font-size:11px;color:rgba(255,255,255,0.4)}.snote{font-size:10px;color:rgba(255,255,255,0.25);margin-top:4px;font-style:italic}.cond{margin-top:24px;padding:10px 16px;border-radius:2px;display:inline-block;font-size:11px;letter-spacing:3px}.ft{margin-top:32px;font-size:10px;color:rgba(255,255,255,0.2)}@media print{body{background:#080a0f!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><h1>BASELINE DRIFT</h1><h2>STATUS HUD v'+VERSION+' — '+cfg.name+'</h2><div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:20px">'+now+'</div><div class="summary"><div style="font-size:10px;letter-spacing:3px;color:rgba(255,255,255,0.2);margin-bottom:12px">// SUMMARY</div>'+summaryRows+'</div>'+statRows+'<div class="cond" style="border:1px solid '+condObj.color+'44;color:'+condObj.color+'">'+condObj.label+'</div><div class="ft">'+APP_URL+'</div></body></html>';
   var win=window.open('','_blank'); win.document.write(html); win.document.close(); setTimeout(function(){win.print();},500);
 }
 
@@ -2184,15 +2345,22 @@ function exportImage() {
     ctx.fillStyle=BAND_COLORS[getBand(values[s.key])];
     ctx.fillText(BAND_LABELS[getBand(values[s.key])],bx,y+66);
   });
+  var noteInput2 = document.getElementById('log-note-input');
+  var exportNote = noteInput2 ? noteInput2.value.trim() : '';
+  if (exportNote) {
+    ctx.font='bold 9px monospace'; ctx.fillStyle='rgba(255,255,255,0.18)';
+    ctx.fillText('// '+exportNote.substring(0,70)+(exportNote.length>70?'...':''), 28, 270);
+  }
+  ctx.font='bold 10px monospace'; ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.fillText(APP_URL,28,286);
   canvas.toBlob(function(blob){
     var file=new File([blob],'status.png',{type:'image/png'});
     if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})) navigator.share({files:[file],title:'My Status HUD'}).catch(function(){});
-    else download('baseline-drift-status.png',canvas.toDataURL(),'image/png',true);
+    else download(getPlayerFilename()+'-status.png',canvas.toDataURL(),'image/png',true);
   });
 }
 
 function backupData() {
-  download('baseline-drift-backup.json', JSON.stringify({version:VERSION,timestamp:new Date().toISOString(),cfg:cfg,history:loadHistory()},null,2), 'application/json');
+  download(getPlayerFilename()+'-backup.json', JSON.stringify({version:VERSION,timestamp:new Date().toISOString(),cfg:cfg,history:loadHistory()},null,2), 'application/json');
 }
 
 function restoreData(event) {
@@ -2221,12 +2389,37 @@ function shareApp() {
 // ── GRAPH ────────────────────────────────────────────────────────────────────
 var FILTERS=[{label:'7D',days:7},{label:'30D',days:30},{label:'3M',days:90},{label:'6M',days:180},{label:'12M',days:365},{label:'ALL',days:99999}];
 
+var graphStatFilters = { vitality:true, stamina:true, affect:true, focus:true };
+
 function openGraph() {
-  var fe=document.getElementById('graph-filter');
-  fe.innerHTML=FILTERS.map(function(f){ return '<button class="gf-btn'+(f.days===graphFilter?' active':'')+'" onclick="setGraphFilter('+f.days+')">'+f.label+'</button>'; }).join('');
-  document.getElementById('past-date').max=new Date().toISOString().split('T')[0];
+  var fe = document.getElementById('graph-filter');
+  fe.innerHTML = FILTERS.map(function(f) {
+    return '<button class="gf-btn' + (f.days===graphFilter?' active':'') + '" onclick="setGraphFilter(' + f.days + ')">' + f.label + '</button>';
+  }).join('');
+  var sf = document.getElementById('graph-stat-filter');
+  if (sf) sf.innerHTML = STATS.map(function(s) {
+    var active = graphStatFilters[s.key];
+    var btn = '<button onclick="toggleGraphStat(\'' + s.key + '\')" id="gsf-' + s.key + '"';
+    btn += ' style="font-size:var(--t-xs);padding:3px 10px;border-radius:2px;border:1px solid ' + s.color + '55;';
+    btn += 'background:' + (active ? s.color+'22' : 'transparent') + ';color:' + (active ? s.color : 'var(--text-dim)') + ';';
+    btn += 'cursor:pointer;font-family:inherit;font-weight:700;letter-spacing:1px">';
+    btn += (cfg.statLabels[s.key]||s.defaultLabel) + '</button>';
+    return btn;
+  }).join('');
+  document.getElementById('past-date').max = new Date().toISOString().split('T')[0];
   renderGraph(); buildHistoryList();
   document.getElementById('graph-overlay').classList.add('open');
+}
+
+function toggleGraphStat(key) {
+  graphStatFilters[key] = !graphStatFilters[key];
+  var btn = document.getElementById('gsf-'+key);
+  var stat = STATS.find(function(s){ return s.key===key; });
+  if (btn) {
+    btn.style.background = graphStatFilters[key] ? stat.color+'22' : 'transparent';
+    btn.style.color = graphStatFilters[key] ? stat.color : 'var(--text-dim)';
+  }
+  renderGraph();
 }
 
 function setGraphFilter(days) {
@@ -2245,7 +2438,7 @@ function renderGraph() {
   var toX=function(i){return PAD.l+(i/(n-1))*iW;},toY=function(v){return PAD.t+iH-(v/100)*iH;};
   var isDark=!document.body.classList.contains('light-theme');
   var gridC=isDark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.08)',textC=isDark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.4)',bgC=isDark?'#080a0f':'#f0f0f0';
-  var keys=[['vitality','#ff4d6d'],['stamina','#43d97b'],['affect','#a78bfa'],['focus','#fbbf24']];
+  var keys=[['vitality','#ff4d6d'],['stamina','#43d97b'],['affect','#a78bfa'],['focus','#fbbf24']].filter(function(p){ return graphStatFilters[p[0]] !== false; });
   var svg='<svg width="'+W+'" height="'+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%"><rect width="'+W+'" height="'+H+'" fill="'+bgC+'" rx="2"/>';
   [0,25,50,75,100].forEach(function(v){var y=toY(v);svg+='<line x1="'+PAD.l+'" y1="'+y+'" x2="'+(W-PAD.r)+'" y2="'+y+'" stroke="'+gridC+'" stroke-width="1"/><text x="'+(PAD.l-4)+'" y="'+(y+4)+'" text-anchor="end" font-size="9" fill="'+textC+'" font-family="monospace">'+v+'</text>';});
   if(n<=8) history.forEach(function(e,i){svg+='<text x="'+toX(i)+'" y="'+(H-PAD.b+14)+'" text-anchor="middle" font-size="8" fill="'+textC+'" font-family="monospace">'+e.dateStr.split(' ').slice(0,2).join(' ')+'</text>';});
@@ -2376,8 +2569,9 @@ function populateSettings() {
     var def=['VITALITY','STAMINA','MOOD','FOCUS'][i];
     document.getElementById('cfg-stat-'+k).value = cfg.statLabels[k]===def?'':cfg.statLabels[k];
   });
-  var togMap={services:'showServices',contact:'showContact',contact2:'showContact2Alert',autoreset:'autoReset',heartlabels:'showHeartLabels',systemtheme:'useSystemTheme'};
+  var togMap={services:'showServices',contact:'showContact',contact2:'showContact2Alert',autoreset:'autoReset',heartlabels:'showHeartLabels',systemtheme:'useSystemTheme',logtime:'logTime'};
   Object.keys(togMap).forEach(function(k){
+    if(k==='logtime'){document.getElementById('tog-logtime').className='toggle'+(cfg.logTime!==false?' on':'');return;}
     var val=k==='heartlabels'?cfg.showHeartLabels!==false:cfg[togMap[k]];
     document.getElementById('tog-'+k).className='toggle'+(val?' on':'');
   });
@@ -2400,7 +2594,7 @@ function populateSettings() {
 function toggleSecond(){cfg.showContact2=!cfg.showContact2;document.getElementById('tog-second').className='toggle'+(cfg.showContact2?' on':'');document.getElementById('second-contact').className='second-contact'+(cfg.showContact2?' visible':'');document.getElementById('tog-contact2-row').style.display=cfg.showContact2?'flex':'none';}
 
 function toggleOpt(key){
-  var cfgMap={services:'showServices',contact:'showContact',contact2:'showContact2Alert',autoreset:'autoReset',heartlabels:'showHeartLabels',systemtheme:'useSystemTheme'};
+  var cfgMap={services:'showServices',contact:'showContact',contact2:'showContact2Alert',autoreset:'autoReset',heartlabels:'showHeartLabels',systemtheme:'useSystemTheme',logtime:'logTime'};
   if(key==='heartlabels') cfg.showHeartLabels=cfg.showHeartLabels===false?true:false;
   else cfg[cfgMap[key]]=!cfg[cfgMap[key]];
   var val=key==='heartlabels'?cfg.showHeartLabels!==false:cfg[cfgMap[key]];
@@ -2441,6 +2635,89 @@ function applyFontSize(v){document.documentElement.style.setProperty('--fs',v);t
 function updateFsLabel(v){var el=document.getElementById('fontsize-label');if(el)el.textContent='\u25C9 '+Math.round(v*100)+'%';}
 function setFontType(t){document.body.classList.remove('font-mono','font-dyslexic','font-hyperlegible');document.body.classList.add('font-'+t);['mono','hyperlegible','dyslexic'].forEach(function(f){document.getElementById('btn-font-'+f).classList.toggle('active',f===t);});try{localStorage.setItem('hud_font_type',t);}catch(e){}}
 function toggleCB(){var on=document.body.classList.toggle('cb-mode');document.getElementById('tog-cb').className='toggle'+(on?' on':'');try{localStorage.setItem('hud_cb',on?'1':'0');}catch(e){}}
+
+// ── INLINE STAT NAME EDIT ────────────────────────────────────────────────────
+function editStatName(key) {
+  var el = document.getElementById('sname-' + key);
+  if (!el) return;
+  var stat = STATS.find(function(s){ return s.key === key; });
+  var current = cfg.statLabels[key] || stat.defaultLabel;
+  var input = document.createElement('input');
+  input.type = 'text'; input.value = current; input.maxLength = 12;
+  input.style.cssText = 'background:transparent;border:none;border-bottom:1px solid ' + stat.color + ';color:' + stat.color + ';font-family:inherit;font-size:13px;font-weight:700;outline:none;width:100px;letter-spacing:3px;padding:0;text-transform:uppercase';
+  el.replaceWith(input); input.focus(); input.select();
+  function commit() {
+    var val = input.value.trim().toUpperCase() || current;
+    cfg.statLabels[key] = val; saveCfg(); applyStatLabels();
+    var span = document.createElement('span');
+    span.className = 'stat-name stat-' + key + '-colour';
+    span.id = 'sname-' + key;
+    span.style.cssText = 'color:' + stat.color + ';cursor:pointer;border-bottom:1px dashed ' + stat.color + '33';
+    span.title = 'Tap to edit'; span.textContent = val;
+    span.onclick = function(){ editStatName(key); };
+    input.replaceWith(span);
+    updateHeartLabels();
+  }
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', function(e){ if(e.key==='Enter') input.blur(); if(e.key==='Escape'){input.value=current;input.blur();} });
+}
+
+// ── BRAIN STATE ──────────────────────────────────────────────────────────────
+var BS_QUESTIONS = [
+  { id:'q1', text:'What are you actually doing right now?', note:'be literal, not aspirational', options:[
+    { label:'The thing I\'m supposed to be doing', next:'aligned' },
+    { label:'Something else — and I\'m into it', next:'override' },
+    { label:'Nothing / scrolling / staring / bouncing between things', next:'q2' },
+    { label:'I just came off something I was fully into', next:'depletion' }
+  ]},
+  { id:'q2', text:'How long have you been in this state?', note:'not how long since you should have started — how long since you actually stopped moving', options:[
+    { label:'Not long. Under 20 minutes.', next:'friction' },
+    { label:'A while. 30 minutes or more.', next:'q3' }
+  ]},
+  { id:'q3', text:'Do you know what you\'re supposed to be doing?', note:'can you name the actual task', options:[
+    { label:'Yes. Clearly. I just... haven\'t.', next:'stuck' },
+    { label:'Sort of, but everything feels like resistance', next:'friction_deep' }
+  ]}
+];
+var BS_RESULTS = {
+  aligned:       { label:'ALIGNED',         color:'#43d97b', lines:['Both systems are pointing the same direction.','This is the state. You found it.','It won\'t last. That\'s not a problem right now.'], lever:'Protect it. Don\'t check your phone. Stay in it.' },
+  friction:      { label:'FRICTION',        color:'#b08020', lines:['The system is running but not moving.','Resource is draining in the background.','There\'s probably something underneath the resistance.'], lever:'Ask: what am I actually avoiding? Not the task — what\'s adjacent to it that feels heavy.' },
+  friction_deep: { label:'FRICTION (DEEP)', color:'#b08020', lines:['Diffuse resistance across everything.','This is often depletion presenting as friction.','Not a willpower problem.'], lever:'Check the basics: last meal, water, movement. What happened in the last 12 hours?' },
+  stuck:         { label:'STUCK / FROZEN',  color:'#585858', lines:['You\'re not confused about what to do.','The system is deadlocked — not broken, not lazy.','Override hasn\'t activated. Yet.'], lever:'Smallest possible unit. Not the whole task. Just the first step.' },
+  override:      { label:'OVERRIDE',        color:'#cc2020', lines:['A third force has taken the wheel.','Not your choice. Not conscious. Has its own agenda.','Your fuel is being spent somewhere else.'], lever:'Set a hard stop before you go back in. You probably won\'t want to. Set it anyway.' },
+  depletion:     { label:'DEPLETION',       color:'#6a5a9a', lines:['Override just ended. You\'re back at the table.','With less than you started with.','Trying to work now will cost more than it produces.'], lever:'Basic maintenance first. Eat, move, water. Not as preparation — just as the actual next thing.' }
+};
+var bsHistory = [], bsCurrent = 'q1', bsResult = null;
+
+function openBrainState() { bsHistory=[]; bsCurrent='q1'; bsResult=null; renderBrainState(); document.getElementById('brainstate-overlay').classList.add('open'); }
+
+function renderBrainState() {
+  var el = document.getElementById('brainstate-content');
+  var title = document.getElementById('brainstate-title');
+  if (bsResult) {
+    title.textContent = '// ' + bsResult.label;
+    el.innerHTML = '<div style="border:1px solid ' + bsResult.color + '33;background:' + bsResult.color + '08;border-radius:3px;padding:var(--sp-5);margin-bottom:var(--sp-5)">' +
+      '<div style="font-size:var(--t-sm);font-weight:700;letter-spacing:3px;color:' + bsResult.color + ';margin-bottom:var(--sp-4)">' + bsResult.label + '</div>' +
+      bsResult.lines.map(function(l){ return '<div style="font-size:var(--t-xs);color:var(--text-mid);font-weight:700;margin-bottom:var(--sp-2);line-height:1.6">' + l + '</div>'; }).join('') +
+      '<div style="border-top:1px solid var(--border);margin-top:var(--sp-4);padding-top:var(--sp-4);font-size:var(--t-xs);color:var(--text-lo);font-style:italic;font-weight:700;line-height:1.6">' + bsResult.lever + '</div></div>' +
+      '<div style="display:flex;gap:var(--sp-3)"><button onclick="bsBack()" style="background:none;border:none;color:var(--text-dim);font-family:inherit;font-size:var(--t-xs);cursor:pointer;letter-spacing:2px;font-weight:700;padding:0">\u2190 BACK</button>' +
+      '<button onclick="bsReset()" style="background:none;border:1px solid var(--border);color:var(--text-lo);font-family:inherit;font-size:var(--t-xs);cursor:pointer;letter-spacing:2px;font-weight:700;padding:var(--sp-2) var(--sp-4);border-radius:2px">RUN AGAIN</button></div>';
+    return;
+  }
+  var q = BS_QUESTIONS.find(function(x){ return x.id===bsCurrent; });
+  title.textContent = '// BRAIN STATE';
+  el.innerHTML = '<div style="display:flex;gap:6px;margin-bottom:var(--sp-5)">' +
+    ['q1','q2','q3'].map(function(id){ return '<div style="width:6px;height:6px;border-radius:50%;background:' + (bsHistory.includes(id)||bsCurrent===id?'var(--text-lo)':'var(--border)') + '"></div>'; }).join('') + '</div>' +
+    '<div style="font-size:var(--t-sm);font-weight:700;color:var(--text-mid);line-height:1.6;margin-bottom:var(--sp-2)">' + q.text + '</div>' +
+    '<div style="font-size:var(--t-xs);color:var(--text-lo);font-style:italic;margin-bottom:var(--sp-5);font-weight:700">' + q.note + '</div>' +
+    '<div style="display:flex;flex-direction:column;gap:var(--sp-3)">' +
+    q.options.map(function(opt){ return '<button onclick="bsChoose(\'' + opt.next + '\')" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text-mid);font-family:inherit;font-size:var(--t-xs);padding:var(--sp-4);text-align:left;cursor:pointer;border-radius:3px;line-height:1.5;font-weight:700">' + opt.label + '</button>'; }).join('') + '</div>' +
+    (bsHistory.length>0 ? '<button onclick="bsBack()" style="margin-top:var(--sp-5);background:none;border:none;color:var(--text-dim);font-family:inherit;font-size:var(--t-xs);cursor:pointer;letter-spacing:2px;font-weight:700;padding:0">\u2190 BACK</button>' : '');
+}
+
+function bsChoose(next) { bsHistory.push(bsCurrent); if(BS_RESULTS[next]){bsResult=BS_RESULTS[next];}else bsCurrent=next; renderBrainState(); }
+function bsBack()  { if(bsResult){bsResult=null;renderBrainState();return;} var h=bsHistory.slice();bsCurrent=h.pop();bsHistory=h;renderBrainState(); }
+function bsReset() { bsHistory=[];bsCurrent='q1';bsResult=null;renderBrainState(); }
 
 // ── INLINE EDITS ──────────────────────────────────────────────────────────────
 function editPlayerName(){
@@ -2499,6 +2776,17 @@ updateBoostLabel();
 updateBoostBtn();
 updateCondition();
 updateLastLogged();
+// Check for proposed baseline update
+try {
+  var _pb = localStorage.getItem('hud_proposed_baselines');
+  if (_pb) {
+    var _prop = JSON.parse(_pb);
+    var _keys = ['vitality','stamina','affect','focus'];
+    var _msg = '// Your 7-day averages suggest updated baselines:\n' + _keys.map(function(k){ return (cfg.statLabels[k]||k.toUpperCase()) + ': ' + _prop[k]; }).join('\n') + '\n\nApply as your personal baselines?';
+    if (confirm(_msg)) applyProposedBaselines();
+    else localStorage.removeItem('hud_proposed_baselines');
+  }
+} catch(e) {}
 </script>
 </body>
 </html>
