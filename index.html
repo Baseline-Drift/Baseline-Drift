@@ -16,7 +16,7 @@
     :root {
       --fs: 1.15;
 
-      /* font sizes — all scale with --fs */
+      /* font sizes — scale with --fs */
       --t-xs:  calc(9px  * var(--fs));
       --t-sm:  calc(11px * var(--fs));
       --t-md:  calc(13px * var(--fs));
@@ -24,14 +24,14 @@
       --t-xl:  calc(22px * var(--fs));
       --t-2xl: calc(28px * var(--fs));
 
-      /* spacing — scales with --fs */
-      --sp-1: calc(4px  * var(--fs));
-      --sp-2: calc(6px  * var(--fs));
-      --sp-3: calc(8px  * var(--fs));
-      --sp-4: calc(12px * var(--fs));
-      --sp-5: calc(16px * var(--fs));
-      --sp-6: calc(20px * var(--fs));
-      --sp-7: calc(24px * var(--fs));
+      /* spacing — FIXED, does not scale with --fs */
+      --sp-1: 4px;
+      --sp-2: 6px;
+      --sp-3: 8px;
+      --sp-4: 12px;
+      --sp-5: 16px;
+      --sp-6: 20px;
+      --sp-7: 24px;
 
       /* colour tokens — dark (default) */
       --bg:           #080a0f;
@@ -253,11 +253,14 @@
     }
     .condition-label {
       font-size: var(--t-sm);
-      letter-spacing: 3px;
+      letter-spacing: 2px;
       color: var(--text-lo);
       font-weight: 700;
       text-transform: uppercase;
       transition: color .4s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .condition-desc {
       font-size: var(--t-sm);
@@ -626,6 +629,25 @@
     .footer-btn:hover { color:var(--text-mid); }
 
     .donate-row { margin-top:var(--sp-4); display:flex; justify-content:center; }
+    .action-grid-btn {
+      padding: var(--sp-3) var(--sp-2);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--text-dim);
+      font-family: inherit;
+      font-size: var(--t-xs);
+      letter-spacing: 2px;
+      cursor: pointer;
+      font-weight: 700;
+      text-transform: uppercase;
+      transition: all .2s;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .action-grid-btn:hover { background:var(--surface-2); color:var(--text-mid); border-color:var(--border-2); }
     .donate-btn {
       display: inline-flex;
       align-items: center;
@@ -1000,8 +1022,9 @@
       <div class="onboarding-band-row"><span class="onboarding-band-label" style="color:#43d97b">ABOVE CTR</span><span class="onboarding-band-desc">51–75 — above your centre</span></div>
       <div class="onboarding-band-row"><span class="onboarding-band-label" style="color:#43d97b">HIGH</span><span class="onboarding-band-desc">76–100 — strong capacity</span></div>
       <div style="font-size:9px;color:var(--text-dim);margin-top:10px;font-weight:700;letter-spacing:1px">Pick the band that fits. Don't overthink the number.</div>
+      <div style="font-size:9px;color:var(--text-dim);margin-top:6px;font-weight:700;letter-spacing:1px">Set each slider to roughly where you feel right now. This is a snapshot, not a score.</div>
     </div>
-    <div style="font-size:var(--t-xs);color:var(--text-dim);font-weight:700;letter-spacing:1px;line-height:calc(1.6 * var(--fs));margin-bottom:var(--sp-4);padding:var(--sp-3) var(--sp-4);background:var(--surface-2);border:1px solid var(--border);border-radius:2px;text-align:left">// Baseline Drift is a self-monitoring tool for personal awareness. It is not a clinical diagnostic tool and is not a substitute for professional mental health support. If you are in crisis, please reach out to a professional or emergency services.</div>
+    <div style="font-size:var(--t-xs);color:var(--text-dim);font-weight:700;letter-spacing:1px;line-height:1.8;margin-bottom:var(--sp-4);padding:var(--sp-3) var(--sp-4);background:var(--surface-2);border:1px solid var(--border);border-radius:2px;text-align:left">For awareness only — not a clinical or diagnostic tool.<br>If you are in crisis, contact a professional or emergency services.</div>
     <div style="display:flex;flex-direction:column;gap:var(--sp-3)">
       <button class="onboarding-btn" onclick="dismissOnboarding()">GET STARTED</button>
       <button onclick="loadSampleData()" style="padding:var(--sp-2) var(--sp-6);background:transparent;border:1px solid var(--border);border-radius:2px;color:var(--text-lo);font-family:inherit;font-size:var(--t-xs);letter-spacing:3px;cursor:pointer;font-weight:700;text-transform:uppercase">LOAD SAMPLE DATA</button>
@@ -1107,12 +1130,12 @@
   <div class="divider"></div>
 
   <div class="banner banner-optimal" id="banner-optimal">
-    <div class="banner-title" style="color:var(--c-optimal)">✦ HIGH FUNCTIONING — Conditions are good.</div>
+    <div class="banner-title" style="color:var(--c-optimal)">✦ CONDITIONS GOOD — High capacity detected.</div>
     <button class="dismiss-btn" onclick="dismissBanner('optimal')">// DISMISS</button>
   </div>
   <div class="banner banner-dysregulated" id="banner-dysregulated">
-    <div class="banner-title" style="color:var(--c-dysregulated)">◈ SPLIT STATE — Body and mind out of sync.</div>
-    <div style="font-size:var(--t-xs);color:var(--text-mid);margin-bottom:var(--sp-3);font-weight:700;letter-spacing:1px">Your stats show high variance. This is a recognised state, not a failure.</div>
+    <div class="banner-title" style="color:var(--c-dysregulated)">◈ INTERNAL IMBALANCE — Body and mind out of sync.</div>
+    <div style="font-size:var(--t-xs);color:var(--text-mid);margin-bottom:var(--sp-3);font-weight:700;letter-spacing:1px">Your stats show significant variance. This is a recognised state, not a failure.</div>
     <button class="dismiss-btn" onclick="dismissBanner('dysregulated')">// DISMISS</button>
   </div>
   <div class="banner banner-critical" id="banner-critical">
@@ -1157,20 +1180,22 @@
   <div class="divider" style="margin-bottom:0"></div>
 
   <div class="footer">
-    <span class="footer-left" id="footer-region">AU</span>
+    <span class="footer-left" id="footer-region" onclick="openTimezoneSettings()" style="cursor:pointer" title="Tap to change timezone">AU</span>
     <div class="footer-right">
-      <button class="footer-btn" onclick="shareApp()">↗ SHARE</button>
-      <button class="footer-btn" onclick="openGraph()">GRAPH</button>
-      <button class="footer-btn" onclick="openExport()">EXPORT</button>
-      <button class="footer-btn" onclick="openFeedback()">FEEDBACK</button>
       <button class="footer-btn" onclick="document.getElementById('licence-overlay').classList.add('open')">LICENCE</button>
-      <button class="footer-btn" onclick="toggleSettings()">SETTINGS</button>
     </div>
   </div>
 
-  <div class="donate-row" style="gap:var(--sp-3)">
-    <button onclick="document.getElementById('help-overlay').classList.add('open')" style="display:inline-flex;align-items:center;gap:var(--sp-2);padding:7px 16px;border:1px solid var(--border);border-radius:2px;background:var(--surface);color:var(--text-dim);font-family:inherit;font-size:var(--t-xs);letter-spacing:2px;cursor:pointer;font-weight:700;transition:all .2s">? HELP</button>
-    <a class="donate-btn" href="https://ko-fi.com/rots5" target="_blank" rel="noopener"><span>☕</span><span>TIP VIA KO-FI</span></a>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:var(--sp-2);margin-top:var(--sp-3)">
+    <button class="action-grid-btn" onclick="openGraph()">GRAPH</button>
+    <button class="action-grid-btn" onclick="openExport()">EXPORT</button>
+    <button class="action-grid-btn" onclick="toggleSettings()">SETTINGS</button>
+    <button class="action-grid-btn" onclick="document.getElementById('help-overlay').classList.add('open')">? HELP</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--sp-2);margin-top:var(--sp-2)">
+    <button class="action-grid-btn" onclick="shareApp()">↗ SHARE</button>
+    <a class="action-grid-btn" href="https://ko-fi.com/rots5" target="_blank" rel="noopener" style="text-decoration:none;display:flex;align-items:center;justify-content:center">☕ TIP</a>
+    <button class="action-grid-btn" onclick="openFeedback()">FEEDBACK</button>
   </div>
 
   <div class="cache-warn" id="cache-warn">
@@ -1364,7 +1389,7 @@
     <button class="save-btn" onclick="saveSettings()">SAVE / CLOSE SETTINGS</button>
     <button class="reminder-btn" onclick="openReminder()">🔔 SET CHECK-IN REMINDER</button>
     <button class="reminder-btn" style="background:rgba(167,139,250,0.05);border-color:rgba(167,139,250,0.2);color:rgba(167,139,250,0.6);margin-top:var(--sp-2)" onclick="document.getElementById('settings-panel').classList.remove('open');document.getElementById('onboarding-overlay').classList.add('open')">◈ VIEW INTRO</button>
-    <div class="version-tap" id="version-tap" onclick="openChangelog()">BASELINE DRIFT // STATUS HUD v6.1 // TAP FOR CHANGELOG</div>
+    <div class="version-tap" id="version-tap" onclick="openChangelog()">BASELINE DRIFT // STATUS HUD v7.0 // TAP FOR CHANGELOG</div>
   </div>
 </div>
 
@@ -1459,44 +1484,49 @@
     </div>
     <div class="changelog-entry">
       <div class="changelog-version" style="color:var(--text-mid)">MAIN HUD</div>
-      <div class="changelog-item">Tap your <strong>player name</strong> to edit it inline — max 12 characters</div>
-      <div class="changelog-item">Tap <strong>SET YOUR STATS</strong> badge to see the band reference table</div>
-      <div class="changelog-item">Tap <strong>◈ BRAIN STATE</strong> next to the condition badge to open the AuADHD diagnostic flow — identifies your current cognitive state (Aligned, Friction, Override, Stuck, Depletion) and gives you a practical lever to work with</div>
+      <div class="changelog-item">Tap your <strong>player name</strong> to edit it inline (max 12 characters)</div>
+      <div class="changelog-item">Tap <strong>SET YOUR STATS</strong> to view the band reference table</div>
+      <div class="changelog-item">Tap <strong>◈ BRAIN STATE</strong> next to the condition badge to open the AuADHD flow<br>→ Identifies your current cognitive pattern (Aligned, Friction, Override, Stuck, Depletion) and suggests a practical lever</div>
       <div class="changelog-item"><strong>RECALL LAST</strong> loads your most recent logged reading into the sliders</div>
-      <div class="changelog-item"><strong>USE AS-IS</strong> confirms all sliders at their current position — no movement required</div>
-      <div class="changelog-item">Tap the <strong>lock icon 🔓</strong> on any stat to hold it — reset and recall won't change it</div>
+      <div class="changelog-item"><strong>USE AS-IS</strong> confirms current slider positions without movement</div>
+      <div class="changelog-item">Tap the <strong>lock icon 🔓</strong> on any stat to hold it<br>→ Locked stats are not affected by reset or recall</div>
       <div class="changelog-item">Add an optional <strong>note</strong> when logging to capture context behind the numbers</div>
-      <div class="changelog-item"><strong>DYSREGULATED</strong> condition fires when your stats show high variance — body and mind out of sync</div>
+      <div class="changelog-item"><strong>DYSREGULATED</strong> triggers when your stats show high variance<br>→ Body and mind out of sync — this is a recognised state, not a failure</div>
+      <div class="changelog-item">All values are self-rated and subjective. Focus on relative state, not exact numbers.</div>
     </div>
     <div class="changelog-entry">
-      <div class="changelog-version" style="color:var(--text-mid)">GRAPH & HISTORY</div>
-      <div class="changelog-item">Tap <strong>GRAPH</strong> in the footer to view your reading history with trend lines per stat</div>
-      <div class="changelog-item">Use <strong>date range filters</strong> (7D / 30D / 3M / 6M / 12M / ALL) to focus the graph</div>
-      <div class="changelog-item">Log a reading for a <strong>past date</strong> using the date picker at the bottom of the graph overlay</div>
-      <div class="changelog-item">Tap <strong>EDIT</strong> on any logged reading to reload its values into the sliders</div>
+      <div class="changelog-version" style="color:var(--text-mid)">GRAPH &amp; HISTORY</div>
+      <div class="changelog-item">Tap <strong>GRAPH</strong> in the footer to view your history with trend lines per stat</div>
+      <div class="changelog-item">Use <strong>date range filters</strong> (7D / 30D / 3M / 6M / 12M / ALL)</div>
+      <div class="changelog-item">Log a reading for a <strong>past date</strong> using the date picker</div>
+      <div class="changelog-item">Tap <strong>EDIT</strong> on a reading to reload its values into the sliders</div>
       <div class="changelog-item">Tap <strong>DEL</strong> to permanently delete a reading</div>
-      <div class="changelog-item">Past notes are shown under each reading in the history list</div>
+      <div class="changelog-item">Notes are shown under each entry in the history list</div>
+      <div class="changelog-item">Trends show patterns over time — not precise measurement.</div>
     </div>
     <div class="changelog-entry">
       <div class="changelog-version" style="color:var(--text-mid)">SETTINGS</div>
-      <div class="changelog-item">Set your <strong>personal baseline</strong> in Profile — condition thresholds shift relative to your centre, not a fixed scale</div>
-      <div class="changelog-item">Add a <strong>note to self</strong> in Profile — appears on the main HUD below your condition description</div>
-      <div class="changelog-item">Set your <strong>timezone</strong> in Profile — clock display updates to match</div>
-      <div class="changelog-item">Tap the <strong>◉ percentage</strong> next to the text size slider to type a value directly (80–140)</div>
-      <div class="changelog-item">Tap the <strong>version number</strong> at the bottom of settings to view the full changelog</div>
-      <div class="changelog-item">Set a <strong>Google Calendar reminder</strong> for your daily check-in via the reminder button</div>
-      <div class="changelog-item"><strong>Colourblind mode</strong> switches all stat colours to a high-contrast accessible palette</div>
+      <div class="changelog-item">Set your <strong>personal baseline</strong> in Profile<br>→ Condition thresholds adjust relative to your centre</div>
+      <div class="changelog-item">Add a <strong>note to self</strong><br>→ Displayed on the main HUD as a grounding anchor</div>
+      <div class="changelog-item">Set your <strong>timezone</strong><br>→ Updates the clock display</div>
+      <div class="changelog-item">Tap the <strong>◉ percentage</strong> next to text size to enter a value directly (80–140)</div>
+      <div class="changelog-item">Tap the <strong>version number</strong> to view the full changelog</div>
+      <div class="changelog-item">Set a <strong>daily check-in reminder</strong> via Google Calendar</div>
+      <div class="changelog-item">Enable <strong>Colourblind mode</strong> for a high-contrast palette</div>
+      <div class="changelog-item">Baseline is personal and does not represent a universal standard.</div>
     </div>
     <div class="changelog-entry">
       <div class="changelog-version" style="color:var(--text-mid)">EXPORT / RESTORE</div>
-      <div class="changelog-item">Use <strong>BACKUP ALL DATA</strong> to export your full history and settings as a JSON file</div>
-      <div class="changelog-item">Use <strong>RESTORE FROM BACKUP</strong> to import a previously saved backup — do this before updating versions</div>
-      <div class="changelog-item">Export as <strong>CSV</strong> to open your readings in Excel or Google Sheets</div>
-      <div class="changelog-item"><strong>SHARE AS IMAGE</strong> generates a visual snapshot of your current status</div>
+      <div class="changelog-item"><strong>BACKUP ALL DATA</strong> exports your full history and settings as JSON</div>
+      <div class="changelog-item"><strong>RESTORE FROM BACKUP</strong> imports a saved backup<br>→ Recommended before updating versions</div>
+      <div class="changelog-item">Export as <strong>CSV</strong> for use in Excel or Google Sheets</div>
+      <div class="changelog-item"><strong>SHARE AS IMAGE</strong> creates a visual snapshot of your current status</div>
+      <div class="changelog-item">All data is stored locally in your browser. Export regularly to avoid loss.</div>
     </div>
     <div class="changelog-entry" style="border-bottom:none;margin-bottom:0;padding-bottom:0">
       <div class="changelog-version" style="color:var(--text-mid)">SECRETS</div>
       <div class="changelog-item">There are hidden features in this app. Find them yourself. 🐱</div>
+      <div class="changelog-item" style="margin-top:var(--sp-4)">☕ If this tool helps you, support it via Ko-fi.</div>
     </div>
   </div>
 </div>
@@ -1516,7 +1546,7 @@
 'use strict';
 
 // ── CONSTANTS ────────────────────────────────────────────────────────────────
-var VERSION   = '6.1';
+var VERSION   = '7.0';
 var APP_URL   = 'https://baseline-drift.github.io/Baseline-Drift/';
 var BUG_EMAIL = 'baselinedrift5@gmail.com';
 
@@ -1540,16 +1570,137 @@ function getBand(val) {
 
 // Conditions are relative to personalBaseline
 // At default baseline=50: OPTIMAL>=80, FUNCTIONAL>=60, BASELINE>=40, CRITICAL<40
+// ── STATE SYSTEM v2.0 (4/2/4 model) ──────────────────────────────────────────
+// Priority: Shutdown → Severe Dysreg → Flow → Grounded → Locked In →
+//           Mild Dysreg → Optimal → Functional → Baseline → Critical
+
+function hasDysregulation() {
+  var keys = ['vitality','stamina','affect','focus'];
+  for (var i = 0; i < keys.length; i++) {
+    for (var j = i+1; j < keys.length; j++) {
+      if (Math.abs(values[keys[i]] - values[keys[j]]) >= 40) return true;
+    }
+  }
+  return false;
+}
+
+function getTotal() {
+  return Object.values(values).reduce(function(a,b){ return a+b; }, 0);
+}
+
+function classifyState(baseline) {
+  var b = baseline || cfg.personalBaseline || 50;
+  var avg = Math.round(getTotal() / 4);
+  var v = values.vitality, s = values.stamina, a = values.affect, f = values.focus;
+  var dysreg = hasDysregulation();
+  var total  = getTotal();
+
+  // 1. SHUTDOWN — all sliders ≤ 25
+  if (v<=25 && s<=25 && a<=25 && f<=25) return {
+    key:'shutdown', label:'SHUTDOWN', color:'#888888',
+    desc:'System collapse. Survival mode only.',
+    category:'negative'
+  };
+
+  // 2. SEVERE DYSREGULATION — mismatch + score < 250
+  if (dysreg && total < 250) return {
+    key:'severe_dysreg', label:'SEVERE DYSREGULATION', color:'#c084fc',
+    desc:'Significant internal imbalance. Body and mind pulling hard in different directions.',
+    category:'negative'
+  };
+
+  // 3. FLOW STATE — Focus ≥ 85, Vitality ≥ 40, not severe dysreg
+  if (f >= 85 && v >= 40 && !dysreg) return {
+    key:'flow', label:'FLOW STATE', color:'#60a5fa',
+    desc:'Stable high-attention dominance. Cognitive locking engaged.',
+    category:'positive'
+  };
+
+  // 4. GROUNDED — all sliders 45–65
+  if (v>=45&&v<=65 && s>=45&&s<=65 && a>=45&&a<=65 && f>=45&&f<=65) return {
+    key:'grounded', label:'GROUNDED', color:'#34d399',
+    desc:'Stable and centred. No peaks, no valleys. Coherent baseline functioning.',
+    category:'positive'
+  };
+
+  // 5. LOCKED IN — Focus ≥ 75, all sliders ≥ 50
+  if (f>=75 && v>=50 && s>=50 && a>=50) return {
+    key:'locked', label:'LOCKED IN', color:'#43d97b',
+    desc:'Full coherent functioning. All systems pointed the same direction.',
+    category:'positive'
+  };
+
+  // 6. MILD DYSREGULATION — mismatch + score ≥ 250
+  if (dysreg && total >= 250) return {
+    key:'mild_dysreg', label:'MILD DYSREGULATION', color:'#a78bfa',
+    desc:'Internal imbalance present but capacity is sufficient. Proceed with awareness.',
+    category:'negative'
+  };
+
+  // 7. OPTIMAL — avg ≥ baseline + 30
+  if (avg >= b + 30) return {
+    key:'optimal', label:'OPTIMAL', color:'#43d97b',
+    desc:'All systems nominal. High-load work is viable.',
+    category:'positive'
+  };
+
+  // 8. FUNCTIONAL — avg ≥ baseline + 10
+  if (avg >= b + 10) return {
+    key:'functional', label:'FUNCTIONAL', color:'#fbbf24',
+    desc:'Operational. Mind your limits.',
+    category:'neutral'
+  };
+
+  // 9. BASELINE — avg ≥ baseline - 10
+  if (avg >= b - 10) return {
+    key:'baseline', label:'BASELINE', color:'#fb923c',
+    desc:"You're here. That's enough.",
+    category:'neutral'
+  };
+
+  // 10. CRITICAL
+  return {
+    key:'critical', label:'CRITICAL', color:'#ff4d6d',
+    desc:'System stressed. Survive mode. No heroics.',
+    category:'negative'
+  };
+}
+
+// Legacy compatibility wrappers
+function getConditionForAvg(avg) {
+  var state = classifyState();
+  return { label: state.label, color: state.color };
+}
+
+function isDysregulated() {
+  var state = classifyState();
+  return state.key === 'severe_dysreg' || state.key === 'mild_dysreg';
+}
+
 function buildConditions(baseline) {
   return [
-    { key:'optimal',    label:'OPTIMAL',       color:'#43d97b', desc:'All systems nominal. High-load work is viable.',          min: baseline + 30 },
-    { key:'functional', label:'FUNCTIONAL',     color:'#fbbf24', desc:'Operational. Mind your limits.',                         min: baseline + 10 },
-    { key:'baseline',   label:'BASELINE',       color:'#fb923c', desc:"You're here, that's enough.",                           min: baseline - 10 },
-    { key:'critical',   label:'CRITICAL',       color:'#ff4d6d', desc:'System stressed. Survive mode. No heroics.',             min: -999 }
+    { key:'optimal',    label:'OPTIMAL',    color:'#43d97b', desc:'All systems nominal.',        min: (baseline||50) + 30 },
+    { key:'functional', label:'FUNCTIONAL', color:'#fbbf24', desc:'Operational.',                min: (baseline||50) + 10 },
+    { key:'baseline',   label:'BASELINE',   color:'#fb923c', desc:"You're here.",                min: (baseline||50) - 10 },
+    { key:'critical',   label:'CRITICAL',   color:'#ff4d6d', desc:'System stressed.',            min: -999 }
   ];
 }
 
+
+
 var CHANGELOG = [
+  { version:'7.0', date:'27 Apr 2026', items:[
+    'Full state system rebuild — 4 negative / 2 neutral / 4 positive states',
+    'New states: SHUTDOWN (all \u226425), SEVERE DYSREGULATION, MILD DYSREGULATION, FLOW STATE, GROUNDED, LOCKED IN',
+    'Dysregulation now detects any two-slider difference \u226540 (was max-min \u226560)',
+    'Footer redesigned — two rows, equal-sized grid buttons',
+    'AU region label taps to open timezone settings',
+    'Re-logging allowed without requiring reset first',
+    'Font scaling decoupled from structural spacing — layout no longer jumps at larger sizes',
+    'Onboarding — added snapshot framing line and reformatted disclaimer',
+    'Help section — full rewrite with clarifiers and design intent notes',
+    'EGG 4 now fires after condition is set, not before logging'
+  ]},
   { version:'6.1', date:'27 Apr 2026', items:[
     'Trend arrows per stat — \u2191 \u2193 \u2192 based on previous reading, shown on HUD and in history',
     'First real log prompts to clear sample data if loaded',
@@ -2143,8 +2294,11 @@ function updateStat(key) {
 function updateLogBtn() {
   var btn = document.getElementById('log-btn');
   var mc  = Object.values(moved).filter(Boolean).length;
-  if (btn.classList.contains('logged')) return;
   var isReady = mc >= 1;
+  if (btn.classList.contains('logged')) {
+    btn.classList.remove('logged');
+    btn.textContent = '+ LOG TODAY\'S READING';
+  }
   btn.classList.toggle('ready', isReady);
   document.getElementById('log-note-wrap').classList.toggle('visible', isReady);
 }
@@ -2152,7 +2306,6 @@ function updateLogBtn() {
 function logToday() {
   var btn = document.getElementById('log-btn');
   if (!btn.classList.contains('ready') || btn.classList.contains('logged')) return;
-  if (checkDysregulatedAndBuilding()) return;
   // Check if sample data exists and this is first real log
   try {
     if (localStorage.getItem('hud_sample_loaded') === '1') {
@@ -2170,6 +2323,8 @@ function logToday() {
   document.getElementById('log-note-wrap').classList.remove('visible');
   updateLastLogged();
   updateTrendArrows();
+  // EGG 4 — DYSREGULATED AND BUILDING (fires after log)
+  checkDysregulatedAndBuilding();
 }
 
 function saveReading(date, existingIndex, note) {
@@ -2235,33 +2390,31 @@ function updateNoteToSelf() {
 
 // ── CONDITION ────────────────────────────────────────────────────────────────
 function updateCondition() {
-  var mc   = Object.values(moved).filter(Boolean).length;
-  var vals = Object.values(values);
-  var avg  = Math.round(vals.reduce(function(a,b){ return a+b; },0) / STATS.length);
+  var mc    = Object.values(moved).filter(Boolean).length;
+  var avg   = Math.round(Object.values(values).reduce(function(a,b){ return a+b; },0) / STATS.length);
   var badge = document.getElementById('condition-badge');
   var dot   = document.getElementById('condition-dot');
   var lbl   = document.getElementById('condition-label');
   var desc  = document.getElementById('condition-desc');
+  var qa    = document.getElementById('quick-actions');
 
-  var qa = document.getElementById('quick-actions');
   if (mc >= 3) {
     if (qa) qa.style.display = 'none';
-    var dysr  = isDysregulated();
-    var cond  = dysr ? { label:'DYSREGULATED', color:'#c084fc', desc:'Split state. Body and mind out of sync.' } : getConditionForAvg(avg);
+    var state = classifyState(cfg.personalBaseline || 50);
 
-    badge.style.border     = '1px solid ' + cond.color + '44';
-    badge.style.background = cond.color + '11';
-    dot.style.background   = cond.color;
-    dot.style.boxShadow    = '0 0 8px ' + cond.color;
-    lbl.style.color        = cond.color;
-    lbl.textContent        = cond.label;
-    desc.textContent       = '// ' + cond.desc;
+    badge.style.border     = '1px solid ' + state.color + '44';
+    badge.style.background = state.color + '11';
+    dot.style.background   = state.color;
+    dot.style.boxShadow    = '0 0 8px ' + state.color;
+    lbl.style.color        = state.color;
+    lbl.textContent        = state.label;
+    desc.textContent       = '// ' + state.desc;
 
     // banners
-    setBanner('optimal',      !dysr && cond.label === 'OPTIMAL');
-    setBanner('dysregulated', dysr);
-    setBanner('critical',     !dysr && cond.label === 'CRITICAL');
-    if (!dysr && cond.label === 'CRITICAL') buildCritical();
+    setBanner('optimal',      state.key === 'optimal' || state.key === 'locked' || state.key === 'flow');
+    setBanner('dysregulated', state.key === 'severe_dysreg' || state.key === 'mild_dysreg' || state.key === 'shutdown');
+    setBanner('critical',     state.key === 'critical');
+    if (state.key === 'critical') buildCritical();
 
   } else {
     if (qa) qa.style.display = 'flex';
@@ -2298,9 +2451,9 @@ function updateScore(avg, mc) {
   document.getElementById('score-avg').textContent  = avg;
   var ss = document.getElementById('score-status');
   if (mc >= 3) {
-    var dysr = isDysregulated();
-    var cond = dysr ? { label:'DYSREG.', color:'#c084fc' } : getConditionForAvg(avg);
-    ss.textContent = cond.label; ss.style.color = cond.color;
+    var state = classifyState(cfg.personalBaseline || 50);
+    ss.textContent = state.label; ss.style.color = state.color;
+    ss.style.fontSize = state.label.length > 10 ? 'var(--t-xs)' : '';
   } else { ss.textContent = '---'; ss.style.color = 'var(--text-lo)'; }
 }
 
@@ -2431,6 +2584,17 @@ function download(filename, data, type, isDataUrl) {
 }
 
 // ── SHARE ────────────────────────────────────────────────────────────────────
+function openTimezoneSettings() {
+  var p = document.getElementById('settings-panel');
+  if (!p.classList.contains('open')) toggleSettings();
+  var sec = document.getElementById('sec-profile');
+  if (sec && !sec.classList.contains('open')) toggleSection('sec-profile');
+  setTimeout(function() {
+    var tz = document.getElementById('cfg-timezone');
+    if (tz) { tz.focus(); tz.scrollIntoView({ behavior:'smooth', block:'center' }); }
+  }, 300);
+}
+
 function shareApp() {
   var d={title:'Baseline Drift \u2014 STATUS HUD',text:'A neurodivergent self-monitoring HUD.',url:APP_URL};
   if(navigator.share) navigator.share(d).catch(function(){});
