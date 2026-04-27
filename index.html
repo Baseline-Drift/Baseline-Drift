@@ -1425,7 +1425,7 @@
       <button class="overlay-close" onclick="closeOverlay('graph-overlay')">✕ CLOSE</button>
     </div>
     <div class="graph-filter" id="graph-filter"></div>
-    <div id="graph-stat-filter" style="display:flex;flex-wrap:wrap;gap:var(--sp-2);margin-bottom:var(--sp-4)"></div>
+    <div id="graph-stat-filter" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:var(--sp-2);margin-bottom:var(--sp-4)"></div>
     <div id="graph-content"></div>
     <div style="display:flex;gap:var(--sp-3);margin:var(--sp-4) 0 var(--sp-2);align-items:center">
       <input type="date" id="past-date" style="flex:1;padding:var(--sp-3) var(--sp-4);background:var(--surface-2);border:1px solid var(--border);border-radius:2px;color:var(--text-mid);font-family:inherit;font-size:var(--t-xs);outline:none;font-weight:700"/>
@@ -2667,9 +2667,9 @@ function openGraph() {
   if (sf) sf.innerHTML = STATS.map(function(s) {
     var active = graphStatFilters[s.key];
     var btn = '<button onclick="toggleGraphStat(\'' + s.key + '\')" id="gsf-' + s.key + '"';
-    btn += ' style="font-size:var(--t-xs);padding:3px 10px;border-radius:2px;border:1px solid ' + s.color + '55;';
+    btn += ' style="font-size:var(--t-xs);padding:var(--sp-2) 0;border-radius:2px;border:1px solid ' + s.color + '55;';
     btn += 'background:' + (active ? s.color+'22' : 'transparent') + ';color:' + (active ? s.color : 'var(--text-dim)') + ';';
-    btn += 'cursor:pointer;font-family:inherit;font-weight:700;letter-spacing:1px">';
+    btn += 'cursor:pointer;font-family:inherit;font-weight:700;letter-spacing:1px;text-align:center;width:100%">';
     btn += (cfg.statLabels[s.key]||s.defaultLabel) + '</button>';
     return btn;
   }).join('');
