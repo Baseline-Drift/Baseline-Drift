@@ -1105,12 +1105,12 @@
     </div>
   </div>
 
-  <div style="display:flex;gap:var(--sp-3);margin-top:var(--sp-4)">
-    <div class="condition-badge" id="condition-badge" onclick="onConditionBadgeTap()" style="cursor:pointer">
+  <div style="display:flex;gap:var(--sp-3);margin-top:var(--sp-4);align-items:stretch">
+    <div class="condition-badge" id="condition-badge" onclick="onConditionBadgeTap()" style="cursor:pointer;flex:1">
       <div class="condition-dot" id="condition-dot"></div>
-      <span class="condition-label" id="condition-label">SET YOUR STATS</span>
+      <span class="condition-label" id="condition-label" style="font-size:var(--t-xs);letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">SET YOUR STATS</span>
     </div>
-    <button onclick="openBrainState()" style="min-height:40px;padding:var(--sp-2) var(--sp-4);background:var(--surface-2);border:1px solid var(--border);border-radius:2px;color:var(--text-lo);font-family:inherit;font-size:var(--t-xs);letter-spacing:1px;cursor:pointer;font-weight:700;flex-shrink:0;word-break:break-word;text-align:center;line-height:1.4">◈ BRAIN STATE</button>
+    <button onclick="openBrainState()" style="padding:var(--sp-2) var(--sp-3);background:var(--surface-2);border:1px solid var(--border);border-radius:2px;color:var(--text-lo);font-family:inherit;font-size:var(--t-xs);letter-spacing:1px;cursor:pointer;font-weight:700;flex-shrink:0;white-space:nowrap">◈ BRAIN STATE</button>
   </div>
   <div class="condition-desc" id="condition-desc">// Adjust three or more sliders to see your status.</div>
   <div class="note-to-self" id="note-to-self"></div>
@@ -1180,14 +1180,7 @@
 
   <div class="divider" style="margin-bottom:0"></div>
 
-  <div class="footer">
-    <span class="footer-left" id="footer-region" onclick="openTimezoneSettings()" style="cursor:pointer" title="Tap to change timezone">AU</span>
-    <div class="footer-right">
-      <button class="footer-btn" onclick="document.getElementById('licence-overlay').classList.add('open')">LICENCE</button>
-    </div>
-  </div>
-
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:var(--sp-2);margin-top:var(--sp-3)">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-2);margin-top:var(--sp-3)">
     <button class="action-grid-btn" onclick="openGraph()">GRAPH</button>
     <button class="action-grid-btn" onclick="openExport()">EXPORT</button>
     <button class="action-grid-btn" onclick="toggleSettings()">SETTINGS</button>
@@ -1197,6 +1190,13 @@
     <button class="action-grid-btn" onclick="shareApp()">↗ SHARE</button>
     <a class="action-grid-btn" href="https://ko-fi.com/rots5" target="_blank" rel="noopener" style="text-decoration:none;display:flex;align-items:center;justify-content:center">☕ TIP</a>
     <button class="action-grid-btn" onclick="openFeedback()">FEEDBACK</button>
+  </div>
+
+  <div class="footer" style="margin-top:var(--sp-3)">
+    <span class="footer-left" id="footer-region" onclick="openTimezoneSettings()" style="cursor:pointer" title="Tap to change timezone">AU</span>
+    <div class="footer-right">
+      <button class="footer-btn" onclick="document.getElementById('licence-overlay').classList.add('open')">LICENCE</button>
+    </div>
   </div>
 
   <div class="cache-warn" id="cache-warn">
