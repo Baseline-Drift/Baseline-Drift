@@ -1944,11 +1944,14 @@ function checkStatBaselines() {
   if (history.length < 7) return;
   var last7 = history.slice(-7);
   var keys = ['vitality','stamina','affect','focus'];
+  var step = cfg.increment || 5;
   var proposed = {};
   keys.forEach(function(k) {
-    proposed[k] = Math.round(last7.reduce(function(a,e){ return a + e[k]; }, 0) / 7);
+    var raw = last7.reduce(function(a,e){ return a + e[k]; }, 0) / 7;
+    proposed[k] = Math.round(raw / step) * step;
+    proposed[k] = Math.max(0, Math.min(100, proposed[k]));
   });
-  var changed = keys.some(function(k){ return Math.abs(proposed[k] - (cfg.statBaselines[k] || 50)) >= 5; });
+  var changed = keys.some(function(k){ return Math.abs(proposed[k] - (cfg.statBaselines[k] || 50)) >= step; });
   if (!changed) return;
   try { localStorage.setItem('hud_proposed_baselines', JSON.stringify(proposed)); } catch(e) {}
 }
