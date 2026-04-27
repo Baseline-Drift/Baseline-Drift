@@ -1361,7 +1361,7 @@
     <button class="save-btn" onclick="saveSettings()">SAVE / CLOSE SETTINGS</button>
     <button class="reminder-btn" onclick="openReminder()">🔔 SET CHECK-IN REMINDER</button>
     <button class="reminder-btn" style="background:rgba(167,139,250,0.05);border-color:rgba(167,139,250,0.2);color:rgba(167,139,250,0.6);margin-top:var(--sp-2)" onclick="document.getElementById('settings-panel').classList.remove('open');document.getElementById('onboarding-overlay').classList.add('open')">◈ VIEW INTRO</button>
-    <div class="version-tap" id="version-tap" onclick="openChangelog()">BASELINE DRIFT // STATUS HUD v6.0 // TAP FOR CHANGELOG</div>
+    <div class="version-tap" id="version-tap" onclick="openChangelog()">BASELINE DRIFT // STATUS HUD v6.1 // TAP FOR CHANGELOG</div>
   </div>
 </div>
 
@@ -1378,6 +1378,9 @@
     <div class="export-option" onclick="exportImage()"><span class="export-icon">🖼</span><div><div class="export-label">SHARE AS IMAGE CARD</div><div class="export-desc">Visual snapshot of current status</div></div></div>
     <div class="export-option" onclick="backupData()"><span class="export-icon">💾</span><div><div class="export-label">BACKUP ALL DATA</div><div class="export-desc">Export everything as JSON — restore anytime using the option below</div></div></div>
     <div class="export-option" onclick="document.getElementById('restore-input').click()"><span class="export-icon">📥</span><div><div class="export-label">RESTORE FROM BACKUP</div><div class="export-desc">Import a previously saved JSON backup</div></div></div>
+    <div id="clear-sample-wrap" style="display:none">
+      <div class="export-option" onclick="clearSampleData();document.getElementById('clear-sample-wrap').style.display='none';alert('// Sample data cleared.');" style="border-color:rgba(255,77,109,0.2)"><span class="export-icon">🗑</span><div><div class="export-label" style="color:rgba(255,77,109,0.7)">CLEAR SAMPLE DATA</div><div class="export-desc">Remove demo readings — start fresh with your own data</div></div></div>
+    </div>
     <input type="file" id="restore-input" accept=".json" style="display:none" onchange="restoreData(event)"/>
     <canvas id="export-canvas" style="display:none"></canvas>
   </div>
@@ -1509,7 +1512,7 @@
 'use strict';
 
 // ── CONSTANTS ────────────────────────────────────────────────────────────────
-var VERSION   = '6.0';
+var VERSION   = '6.1';
 var APP_URL   = 'https://baseline-drift.github.io/Baseline-Drift/';
 var BUG_EMAIL = 'baselinedrift5@gmail.com';
 
@@ -1543,6 +1546,11 @@ function buildConditions(baseline) {
 }
 
 var CHANGELOG = [
+  { version:'6.1', date:'27 Apr 2026', items:[
+    'Trend arrows per stat — \u2191 \u2193 \u2192 based on previous reading, shown on HUD and in history',
+    'First real log prompts to clear sample data if loaded',
+    'CLEAR SAMPLE DATA button in Export overlay — only visible while sample data is loaded'
+  ]},
   { version:'6.0', date:'27 Apr 2026', items:[
     'Brain State — AuADHD diagnostic flow accessible from footer',
     'Baseline drift detection — nudge on main HUD when stats drift from personal baseline; snooze 1h / 4h / tomorrow',
@@ -1847,6 +1855,32 @@ function clearSampleData() {
 }
 
 
+// ── TREND ARROWS ─────────────────────────────────────────────────────────────
+function getTrend(key) {
+  var history = loadHistory();
+  if (history.length < 2) return '';
+  var diff = history[history.length-1][key] - history[history.length-2][key];
+  if (diff > 5)  return '\u2191';
+  if (diff < -5) return '\u2193';
+  return '\u2192';
+}
+function getTrendColor(key) {
+  var history = loadHistory();
+  if (history.length < 2) return 'var(--text-dim)';
+  var diff = history[history.length-1][key] - history[history.length-2][key];
+  if (diff > 5)  return '#43d97b';
+  if (diff < -5) return '#ff4d6d';
+  return 'var(--text-dim)';
+}
+function updateTrendArrows() {
+  STATS.forEach(function(s) {
+    var el = document.getElementById('trend-' + s.key);
+    if (!el) return;
+    el.textContent = getTrend(s.key);
+    el.style.color = getTrendColor(s.key);
+  });
+}
+
 function activateBoost() {
   STATS.forEach(function(s) {
     if (locked[s.key]) return;
@@ -1998,6 +2032,7 @@ STATS.forEach(function(stat) {
       '<div class="stat-header-right">' +
         '<span class="stat-band" id="band-' + stat.key + '" style="color:' + BAND_COLORS[getBand(50)] + '">MID-LOW</span>' +
         '<span class="stat-lock" id="lock-' + stat.key + '" onclick="toggleLock(\'' + stat.key + '\')">\uD83D\uDD13</span>' +
+        '<span id="trend-' + stat.key + '" style="font-size:var(--t-sm);font-weight:700;min-width:14px;text-align:center;color:var(--text-dim)"></span>' +
         '<span class="stat-value stat-' + stat.key + '-colour" id="val-' + stat.key + '" style="color:' + stat.color + ';filter:drop-shadow(0 0 8px ' + stat.glow + ')">' + values[stat.key] + '</span>' +
       '</div>' +
     '</div>' +
@@ -2114,6 +2149,14 @@ function logToday() {
   var btn = document.getElementById('log-btn');
   if (!btn.classList.contains('ready') || btn.classList.contains('logged')) return;
   if (checkDysregulatedAndBuilding()) return;
+  // Check if sample data exists and this is first real log
+  try {
+    if (localStorage.getItem('hud_sample_loaded') === '1') {
+      if (confirm('// Sample data is loaded. Clear it and start fresh with your own readings?')) {
+        clearSampleData();
+      }
+    }
+  } catch(e) {}
   var note = document.getElementById('log-note-input').value.trim();
   saveReading(new Date(), -1, note);
   try { navigator.vibrate && navigator.vibrate(100); } catch(e) {}
@@ -2122,6 +2165,7 @@ function logToday() {
   btn.classList.remove('ready');
   document.getElementById('log-note-wrap').classList.remove('visible');
   updateLastLogged();
+  updateTrendArrows();
 }
 
 function saveReading(date, existingIndex, note) {
@@ -2270,7 +2314,13 @@ function buildCritical() {
 }
 
 // ── EXPORT ───────────────────────────────────────────────────────────────────
-function openExport()  { document.getElementById('export-overlay').classList.add('open'); }
+function openExport() {
+  document.getElementById('export-overlay').classList.add('open');
+  try {
+    var el = document.getElementById('clear-sample-wrap');
+    if (el) el.style.display = localStorage.getItem('hud_sample_loaded')==='1' ? 'block' : 'none';
+  } catch(e) {}
+}
 function closeOverlay(id) { document.getElementById(id).classList.remove('open'); }
 function getNow() { return new Date().toLocaleDateString('en-AU', { weekday:'short', day:'numeric', month:'short', year:'numeric' }); }
 
@@ -2492,7 +2542,19 @@ function buildHistoryList() {
       '<div style="display:flex;justify-content:space-between;align-items:center">' +
         '<div style="flex:1;min-width:0">' +
           '<div style="font-size:var(--t-xs);font-weight:700;color:'+textC+';letter-spacing:1px">'+e.dateStr+'</div>' +
-          '<div style="font-size:var(--t-xs);color:'+subC+';margin-top:2px;font-weight:700">V:'+e.vitality+' S:'+e.stamina+' M:'+e.affect+' F:'+e.focus+' \u2014 <span style="color:'+cond.color+'">'+e.condition+'</span></div>' +
+          (function(){
+        if (ri > 0) {
+          var prev2 = history[history.length-2-ri];
+          var ta = prev2 ? [
+            (e.vitality-prev2.vitality>5?'\u2191':e.vitality-prev2.vitality<-5?'\u2193':'\u2192'),
+            (e.stamina-prev2.stamina>5?'\u2191':e.stamina-prev2.stamina<-5?'\u2193':'\u2192'),
+            (e.affect-prev2.affect>5?'\u2191':e.affect-prev2.affect<-5?'\u2193':'\u2192'),
+            (e.focus-prev2.focus>5?'\u2191':e.focus-prev2.focus<-5?'\u2193':'\u2192')
+          ] : ['','','',''];
+          return '<div style="font-size:var(--t-xs);color:'+subC+';margin-top:2px;font-weight:700">V:'+e.vitality+ta[0]+' S:'+e.stamina+ta[1]+' M:'+e.affect+ta[2]+' F:'+e.focus+ta[3]+' \u2014 <span style="color:'+cond.color+'">'+e.condition+'</span></div>';
+        }
+        return '<div style="font-size:var(--t-xs);color:'+subC+';margin-top:2px;font-weight:700">V:'+e.vitality+' S:'+e.stamina+' M:'+e.affect+' F:'+e.focus+' \u2014 <span style="color:'+cond.color+'">'+e.condition+'</span></div>';
+      })() +
           (e.note?'<div style="font-size:var(--t-xs);color:'+subC+';margin-top:3px;font-style:italic;font-weight:700">// '+e.note+'</div>':'') +
         '</div>' +
         '<div style="display:flex;gap:var(--sp-2);flex-shrink:0;margin-left:var(--sp-3)">' +
@@ -2776,6 +2838,7 @@ updateBoostLabel();
 updateBoostBtn();
 updateCondition();
 updateLastLogged();
+updateTrendArrows();
 // Check for proposed baseline update
 try {
   var _pb = localStorage.getItem('hud_proposed_baselines');
