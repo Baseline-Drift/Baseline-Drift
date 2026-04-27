@@ -1160,7 +1160,7 @@
     <div class="score-divider"></div>
     <div class="score-item">
       <div class="score-label">STATUS</div>
-      <div class="score-value" id="score-status" style="font-size:var(--t-xs);letter-spacing:2px;color:var(--text-lo)">---</div>
+      <div class="score-value" id="score-status" style="font-size:var(--t-xs);letter-spacing:1px;color:var(--text-lo);word-break:break-word;line-height:1.3">---</div>
     </div>
   </div>
 
@@ -2482,8 +2482,18 @@ function updateScore(avg, mc) {
   var ss = document.getElementById('score-status');
   if (mc >= 3) {
     var state = classifyState(cfg.personalBaseline || 50);
-    ss.textContent = state.label; ss.style.color = state.color;
-    ss.style.fontSize = state.label.length > 10 ? 'var(--t-xs)' : '';
+    var shortLabels = {
+      'shutdown': 'SHUTDOWN', 'severe_dysreg': 'SEVERE DYSREG',
+      'mild_dysreg': 'MILD DYSREG', 'flow': 'FLOW', 'grounded': 'GROUNDED',
+      'locked': 'LOCKED IN', 'optimal': 'OPTIMAL', 'functional': 'FUNCTIONAL',
+      'baseline': 'BASELINE', 'critical': 'CRITICAL'
+    };
+    ss.textContent = shortLabels[state.key] || state.label;
+    ss.style.color = state.color;
+    ss.style.fontSize = 'var(--t-xs)';
+    ss.style.letterSpacing = '1px';
+    ss.style.lineHeight = '1.3';
+    ss.style.wordBreak = 'break-word';
   } else { ss.textContent = '---'; ss.style.color = 'var(--text-lo)'; }
 }
 
