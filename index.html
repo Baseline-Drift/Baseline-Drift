@@ -311,8 +311,8 @@
       border: 1px solid rgba(192,132,252,.3);
       animation: pulse-purple 2s ease-in-out infinite;
     }
-    @keyframes pulse-grey { 0%,100%{opacity:.5} 50%{opacity:1} }
-    .shutdown-pulse { animation: pulse-grey 2s ease-in-out infinite; }
+    @keyframes pulse-grey { 0%,100%{opacity:0.3} 50%{opacity:1} }
+    .shutdown-pulse { animation: pulse-grey 1.5s ease-in-out infinite; }
     @keyframes pulse-red     { 0%,100%{border-color:rgba(255,77,109,.3)}  50%{border-color:rgba(255,77,109,.7)}  }
     @keyframes pulse-purple  { 0%,100%{border-color:rgba(192,132,252,.3)} 50%{border-color:rgba(192,132,252,.7)} }
     .banner-title {
@@ -2441,6 +2441,8 @@ function updateCondition() {
     lbl.textContent        = state.label;
     desc.textContent       = '// ' + state.desc;
     badge.classList.toggle('shutdown-pulse', state.key === 'shutdown');
+    dot.classList.toggle('shutdown-pulse', state.key === 'shutdown');
+    lbl.classList.toggle('shutdown-pulse', state.key === 'shutdown');
 
     // banners
     setBanner('optimal',      state.key === 'optimal' || state.key === 'locked' || state.key === 'flow');
@@ -2458,6 +2460,8 @@ function updateCondition() {
     lbl.textContent        = 'SET YOUR STATS';
     desc.textContent       = '// Adjust ' + (3-mc) + ' more slider' + (3-mc>1?'s':'') + ' to see your status.';
     badge.classList.remove('shutdown-pulse');
+    dot.classList.remove('shutdown-pulse');
+    lbl.classList.remove('shutdown-pulse');
     ['optimal','dysregulated','critical'].forEach(function(k){ setBanner(k, false); });
   }
   updateScore(avg, mc);
