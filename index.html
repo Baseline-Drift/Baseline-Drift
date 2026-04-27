@@ -637,15 +637,18 @@
       color: var(--text-dim);
       font-family: inherit;
       font-size: var(--t-xs);
-      letter-spacing: 2px;
+      letter-spacing: 1px;
       cursor: pointer;
       font-weight: 700;
       text-transform: uppercase;
       transition: all .2s;
       text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      word-break: break-word;
+      line-height: calc(1.4 * var(--fs));
+      min-height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .action-grid-btn:hover { background:var(--surface-2); color:var(--text-mid); border-color:var(--border-2); }
     .donate-btn {
@@ -1404,7 +1407,7 @@
     <div class="export-option" onclick="exportCopy()"><span class="export-icon">📋</span><div><div class="export-label">COPY TO CLIPBOARD</div><div class="export-desc">Formatted text summary</div></div></div>
     <div class="export-option" onclick="exportCSV()"><span class="export-icon">📊</span><div><div class="export-label">SAVE AS CSV</div><div class="export-desc">All logged readings — Excel or Sheets</div></div></div>
     <div class="export-option" onclick="exportPDF()"><span class="export-icon">📄</span><div><div class="export-label">DOWNLOAD PDF SNAPSHOT</div><div class="export-desc">Today's reading as a printable record</div></div></div>
-    <div class="export-option" onclick="exportImage()"><span class="export-icon">🖼</span><div><div class="export-label">SHARE AS IMAGE CARD</div><div class="export-desc">Visual snapshot of current status</div></div></div>
+    <div class="export-option" onclick="exportImage()"><span class="export-icon">🖼</span><div><div class="export-label">↗ SHARE AS IMAGE CARD</div><div class="export-desc">Visual snapshot of current status</div></div></div>
     <div class="export-option" onclick="backupData()"><span class="export-icon">💾</span><div><div class="export-label">BACKUP ALL DATA</div><div class="export-desc">Export everything as JSON — restore anytime using the option below</div></div></div>
     <div class="export-option" onclick="document.getElementById('restore-input').click()"><span class="export-icon">📥</span><div><div class="export-label">RESTORE FROM BACKUP</div><div class="export-desc">Import a previously saved JSON backup</div></div></div>
     <div id="clear-sample-wrap" style="display:none">
@@ -1521,7 +1524,7 @@
       <div class="changelog-item"><strong>BACKUP ALL DATA</strong> exports your full history and settings as JSON</div>
       <div class="changelog-item"><strong>RESTORE FROM BACKUP</strong> imports a saved backup<br>→ Recommended before updating versions</div>
       <div class="changelog-item">Export as <strong>CSV</strong> for use in Excel or Google Sheets</div>
-      <div class="changelog-item"><strong>SHARE AS IMAGE</strong> creates a visual snapshot of your current status</div>
+      <div class="changelog-item"><strong>↗ SHARE AS IMAGE</strong> creates a visual snapshot of your current status</div>
       <div class="changelog-item">All data is stored locally in your browser. Export regularly to avoid loss.</div>
     </div>
     <div class="changelog-entry" style="border-bottom:none;margin-bottom:0;padding-bottom:0">
@@ -2167,7 +2170,7 @@ function checkDysregulatedAndBuilding() {
   return false;
 }
 
-// SHARED EGG DISPLAY
+// ↗ SHARED EGG DISPLAY
 function showEasterEgg(id, cheat, msg, ascii) {
   var overlay = document.getElementById('ace-overlay');
   overlay.querySelector('.ace-cheat').textContent = cheat;
@@ -2616,7 +2619,7 @@ function download(filename, data, type, isDataUrl) {
   a.download=filename; a.click();
 }
 
-// ── SHARE ────────────────────────────────────────────────────────────────────
+// ── ↗ SHARE ────────────────────────────────────────────────────────────────────
 function getTimezoneLabel() {
   var tz = cfg.timezone || 'Australia/Brisbane';
   var map = {
