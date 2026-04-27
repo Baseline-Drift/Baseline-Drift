@@ -1080,9 +1080,12 @@
     </div>
   </div>
 
-  <div class="condition-badge" id="condition-badge" onclick="onConditionBadgeTap()" style="cursor:pointer;width:100%">
-    <div class="condition-dot" id="condition-dot"></div>
-    <span class="condition-label" id="condition-label">SET YOUR STATS</span>
+  <div style="display:flex;gap:var(--sp-3);margin-top:var(--sp-4);align-items:stretch">
+    <div class="condition-badge" id="condition-badge" onclick="onConditionBadgeTap()" style="cursor:pointer;flex:1">
+      <div class="condition-dot" id="condition-dot"></div>
+      <span class="condition-label" id="condition-label">SET YOUR STATS</span>
+    </div>
+    <button onclick="openBrainState()" style="padding:var(--sp-2) var(--sp-4);background:var(--surface-2);border:1px solid var(--border);border-radius:2px;color:var(--text-lo);font-family:inherit;font-size:var(--t-xs);letter-spacing:2px;cursor:pointer;font-weight:700;white-space:nowrap;flex-shrink:0">◈ BRAIN STATE</button>
   </div>
   <div class="condition-desc" id="condition-desc">// Adjust three or more sliders to see your status.</div>
   <div class="note-to-self" id="note-to-self"></div>
@@ -1159,7 +1162,6 @@
       <button class="footer-btn" onclick="openGraph()">GRAPH</button>
       <button class="footer-btn" onclick="openExport()">EXPORT</button>
       <button class="footer-btn" onclick="openFeedback()">FEEDBACK</button>
-      <button class="footer-btn" onclick="openBrainState()">BRAIN STATE</button>
       <button class="footer-btn" onclick="document.getElementById('licence-overlay').classList.add('open')">LICENCE</button>
       <button class="footer-btn" onclick="toggleSettings()">SETTINGS</button>
     </div>
@@ -1458,6 +1460,7 @@
       <div class="changelog-version" style="color:var(--text-mid)">MAIN HUD</div>
       <div class="changelog-item">Tap your <strong>player name</strong> to edit it inline — max 12 characters</div>
       <div class="changelog-item">Tap <strong>SET YOUR STATS</strong> badge to see the band reference table</div>
+      <div class="changelog-item">Tap <strong>◈ BRAIN STATE</strong> next to the condition badge to open the AuADHD diagnostic flow — identifies your current cognitive state (Aligned, Friction, Override, Stuck, Depletion) and gives you a practical lever to work with</div>
       <div class="changelog-item"><strong>RECALL LAST</strong> loads your most recent logged reading into the sliders</div>
       <div class="changelog-item"><strong>USE AS-IS</strong> confirms all sliders at their current position — no movement required</div>
       <div class="changelog-item">Tap the <strong>lock icon 🔓</strong> on any stat to hold it — reset and recall won't change it</div>
