@@ -1964,9 +1964,15 @@ function applyProposedBaselines() {
     var proposed = JSON.parse(localStorage.getItem('hud_proposed_baselines') || 'null');
     if (!proposed) return;
     cfg.statBaselines = proposed;
+    // Also update the shared personalBaseline used by classifyState
+    var keys = ['vitality','stamina','affect','focus'];
+    var avg = Math.round(keys.reduce(function(a,k){ return a + proposed[k]; }, 0) / keys.length);
+    var step = cfg.increment || 5;
+    cfg.personalBaseline = Math.round(avg / step) * step;
     saveCfg();
     localStorage.removeItem('hud_proposed_baselines');
-    alert('// Personal baselines updated from your last 7 readings.');
+    updateCondition();
+    alert('// Personal baselines updated from your last 7 readings.\n// New centre: ' + cfg.personalBaseline);
   } catch(e) {}
 }
 
