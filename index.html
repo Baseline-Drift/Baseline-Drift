@@ -1013,7 +1013,7 @@
     <div class="onboarding-logo">Baseline Drift</div>
     <div class="onboarding-sub" id="onboarding-version">// STATUS HUD</div>
     <div class="onboarding-text">
-      A self-monitoring tool for neurodivergent brains.<br>
+      A self-monitoring tool for neurodivergent brains and alike.<br>
       Set your sliders. Log your day. See your patterns.
     </div>
     <div class="onboarding-band">
@@ -1114,6 +1114,7 @@
     <button onclick="openBrainState()" style="padding:var(--sp-2) var(--sp-3);background:var(--surface-2);border:1px solid var(--border);border-radius:2px;color:var(--text-lo);font-family:inherit;font-size:var(--t-xs);letter-spacing:1px;cursor:pointer;font-weight:700;flex-shrink:0;white-space:nowrap">◈ BRAIN STATE</button>
   </div>
   <div class="condition-desc" id="condition-desc">// Adjust three or more sliders to see your status.</div>
+  <div style="font-size:var(--t-xs);color:var(--text-dim);font-weight:700;letter-spacing:1px;margin-top:var(--sp-1)">// This is a snapshot, not a measure.</div>
   <div class="note-to-self" id="note-to-self"></div>
   <div class="last-logged" id="last-logged"></div>
   <div id="drift-nudge" style="display:none;align-items:center;justify-content:space-between;margin-top:var(--sp-2);padding:var(--sp-2) var(--sp-4);background:rgba(192,132,252,0.07);border:1px solid rgba(192,132,252,0.25);border-radius:2px;gap:var(--sp-3);flex-wrap:wrap">
@@ -1246,16 +1247,6 @@
           </select>
         </div>
         <div class="setting-group">
-          <label class="setting-label">MY BASELINE AVERAGE</label>
-          <div style="display:flex;align-items:center;gap:var(--sp-3)">
-            <span style="font-size:var(--t-xs);color:var(--text-lo);font-weight:700">20</span>
-            <input type="range" min="20" max="70" value="50" id="cfg-baseline" style="flex:1;accent-color:var(--accent)" oninput="document.getElementById('baseline-label').textContent=this.value"/>
-            <span style="font-size:var(--t-xs);color:var(--text-lo);font-weight:700">70</span>
-            <span id="baseline-label" style="font-size:var(--t-sm);color:var(--accent);font-weight:700;min-width:24px;text-align:right">50</span>
-          </div>
-          <div style="font-size:var(--t-xs);color:var(--text-dim);margin-top:var(--sp-2);font-weight:700;letter-spacing:1px">Condition labels shift relative to your centre. Default is 50.</div>
-        </div>
-        <div class="setting-group">
           <label class="setting-label">BOOST BUTTON LABEL (MAX 12)</label>
           <input class="setting-input" id="cfg-boost" type="text" placeholder="COFFEE" maxlength="12"/>
           <div style="font-size:var(--t-xs);color:var(--text-dim);margin-top:var(--sp-1);font-weight:700;letter-spacing:1px">+5 to all unlocked stats per tap</div>
@@ -1381,6 +1372,16 @@
           </div>
         </div>
         <div class="setting-group">
+          <label class="setting-label">MY BASELINE AVERAGE</label>
+          <div style="display:flex;align-items:center;gap:var(--sp-3)">
+            <span style="font-size:var(--t-xs);color:var(--text-lo);font-weight:700">20</span>
+            <input type="range" min="20" max="70" value="50" id="cfg-baseline" style="flex:1;accent-color:var(--accent)" oninput="document.getElementById('baseline-label').textContent=this.value"/>
+            <span style="font-size:var(--t-xs);color:var(--text-lo);font-weight:700">70</span>
+            <span id="baseline-label" style="font-size:var(--t-sm);color:var(--accent);font-weight:700;min-width:24px;text-align:right">50</span>
+          </div>
+          <div style="font-size:var(--t-xs);color:var(--text-dim);margin-top:var(--sp-2);font-weight:700;letter-spacing:1px">Condition labels shift relative to your centre. Default is 50.</div>
+        </div>
+        <div class="setting-group">
           <div class="toggle-row"><span class="toggle-label">Log time with each reading</span><div class="toggle on" id="tog-logtime" onclick="toggleOpt('logtime')"></div></div>
         </div>
         <div class="setting-group">
@@ -1393,7 +1394,7 @@
     <button class="reminder-btn" onclick="openReminder()">🔔 SET CHECK-IN REMINDER</button>
     <button class="reminder-btn" style="background:rgba(167,139,250,0.05);border-color:rgba(167,139,250,0.2);color:rgba(167,139,250,0.6);margin-top:var(--sp-2)" onclick="document.getElementById('settings-panel').classList.remove('open');document.getElementById('onboarding-overlay').classList.add('open')">◈ VIEW INTRO</button>
     <button class="reminder-btn" style="background:rgba(255,77,109,0.05);border-color:rgba(255,77,109,0.15);color:rgba(255,77,109,0.4);margin-top:var(--sp-2)" onclick="resetToDefaults()">↺ RESET TO DEFAULTS</button>
-    <div class="version-tap" id="version-tap" onclick="openChangelog()">BASELINE DRIFT // STATUS HUD v7.0 // TAP FOR CHANGELOG</div>
+    <div class="version-tap" id="version-tap" onclick="openChangelog()">BASELINE DRIFT // STATUS HUD v7.1 // TAP FOR CHANGELOG</div>
   </div>
 </div>
 
@@ -1425,6 +1426,7 @@
       <div class="overlay-title">// READING HISTORY</div>
       <button class="overlay-close" onclick="closeOverlay('graph-overlay')">✕ CLOSE</button>
     </div>
+    <div style="font-size:var(--t-xs);color:var(--text-dim);font-weight:700;letter-spacing:1px;margin-bottom:var(--sp-3)">// Look for patterns, not exact values.</div>
     <div class="graph-filter" id="graph-filter"></div>
     <div id="graph-stat-filter" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:var(--sp-2);margin-bottom:var(--sp-4)"></div>
     <div id="graph-content"></div>
@@ -1495,7 +1497,11 @@
       <div class="changelog-item"><strong>USE AS-IS</strong> confirms current slider positions without movement</div>
       <div class="changelog-item">Tap the <strong>lock icon 🔓</strong> on any stat to hold it<br>→ Locked stats are not affected by reset or recall</div>
       <div class="changelog-item">Add an optional <strong>note</strong> when logging to capture context behind the numbers</div>
-      <div class="changelog-item"><strong>DYSREGULATED</strong> triggers when your stats show high variance<br>→ Body and mind out of sync — this is a recognised state, not a failure</div>
+      <div class="changelog-item"><strong>DYSREGULATED</strong> (Mild or Severe) triggers when any two stats differ by ≥40 points<br>→ Body and mind out of sync — this is a recognised state, not a failure</div>
+      <div class="changelog-item"><strong>SHUTDOWN</strong> triggers when all sliders are ≤25 — system collapse, survival mode only</div>
+      <div class="changelog-item"><strong>FLOW STATE</strong> triggers when Focus ≥85 and Vitality ≥40 — stable high-attention dominance</div>
+      <div class="changelog-item"><strong>GROUNDED</strong> triggers when all stats are between 45–65 — stable and centred, no peaks or valleys</div>
+      <div class="changelog-item"><strong>LOCKED IN</strong> triggers when Focus ≥75 and all stats ≥50 — full coherent functioning</div>
       <div class="changelog-item">All values are self-rated and subjective. Focus on relative state, not exact numbers.</div>
     </div>
     <div class="changelog-entry">
@@ -1550,7 +1556,7 @@
 'use strict';
 
 // ── CONSTANTS ────────────────────────────────────────────────────────────────
-var VERSION   = '7.0';
+var VERSION   = '7.1';
 var APP_URL   = 'https://baseline-drift.github.io/Baseline-Drift/';
 var BUG_EMAIL = 'baselinedrift5@gmail.com';
 
@@ -1722,6 +1728,12 @@ function buildConditions(baseline) {
 
 
 var CHANGELOG = [
+  { version:'7.1', date:'30 Apr 2026', items:[
+    'Onboarding tagline updated — "and alike" added for broader inclusivity',
+    'Persistent snapshot reminder — "// This is a snapshot, not a measure." shown under condition',
+    'Graph overlay — "// Look for patterns, not exact values." added as context',
+    'Personal baseline moved from Profile to Preferences settings section'
+  ]},
   { version:'7.0', date:'27 Apr 2026', items:[
     'Full state system rebuild — 4 negative / 2 neutral / 4 positive states',
     'New states: SHUTDOWN (all \u226425), SEVERE DYSREGULATION, MILD DYSREGULATION, FLOW STATE, GROUNDED, LOCKED IN',
