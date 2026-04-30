@@ -1196,7 +1196,7 @@
 
   <div class="footer" style="margin-top:var(--sp-3)">
     <span class="footer-left" id="footer-region" onclick="openTimezoneSettings()" style="cursor:pointer" title="Tap to change timezone">AU</span>
-    <span class="footer-left" onclick="openChangelog()" style="cursor:pointer;color:var(--text-dim);letter-spacing:2px;font-size:var(--t-xs);font-weight:700" title="Tap for changelog">v7.0</span>
+    <span class="footer-left" onclick="openChangelog()" style="cursor:pointer;color:var(--text-dim);letter-spacing:2px;font-size:var(--t-xs);font-weight:700" title="Tap for changelog">v7.1</span>
     <div class="footer-right">
       <button class="footer-btn" onclick="document.getElementById('licence-overlay').classList.add('open')">LICENCE</button>
     </div>
@@ -2465,8 +2465,8 @@ function updateCondition() {
     // banners
     setBanner('optimal',      state.key === 'optimal' || state.key === 'locked' || state.key === 'flow');
     setBanner('dysregulated', state.key === 'severe_dysreg' || state.key === 'mild_dysreg' || state.key === 'shutdown');
-    setBanner('critical',     state.key === 'critical');
-    if (state.key === 'critical') buildCritical();
+    setBanner('critical',     state.key === 'critical' || state.key === 'shutdown');
+    if (state.key === 'critical' || state.key === 'shutdown') buildCritical();
 
   } else {
     if (qa) qa.style.display = 'flex';
