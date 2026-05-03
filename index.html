@@ -1149,20 +1149,28 @@
 
   <div id="stats-container"></div>
 
-  <div class="score-bar">
-    <div class="score-item">
-      <div class="score-label">TOTAL</div>
-      <div class="score-value" id="score-total" onclick="onScoreTotalTap()" style="cursor:default">200<span style="font-size:var(--t-xs);color:var(--text-lo)"> /400</span></div>
-    </div>
-    <div class="score-divider"></div>
-    <div class="score-item">
-      <div class="score-label">AVERAGE</div>
-      <div class="score-value" id="score-avg">50</div>
-    </div>
-    <div class="score-divider"></div>
-    <div class="score-item">
-      <div class="score-label">STATUS</div>
-      <div class="score-value" id="score-status" style="font-size:var(--t-xs);letter-spacing:1px;color:var(--text-lo);word-break:break-word;line-height:1.3">---</div>
+  <div style="margin-bottom:var(--sp-3)">
+    <button onclick="toggleScoreBar()" id="score-toggle" style="background:none;border:none;color:var(--text-dim);font-family:inherit;font-size:var(--t-xs);letter-spacing:2px;font-weight:700;cursor:pointer;padding:var(--sp-2) 0;display:flex;align-items:center;gap:var(--sp-2)">
+      <span id="score-toggle-arrow">▶</span> SCORE DATA
+    </button>
+    <div id="score-bar-wrap" style="display:none">
+      <div class="score-bar">
+        <div class="score-item">
+          <div class="score-label">TOTAL</div>
+          <div class="score-value" id="score-total" onclick="onScoreTotalTap()" style="cursor:default">200<span style="font-size:var(--t-xs);color:var(--text-lo)"> /400</span></div>
+        </div>
+        <div class="score-divider"></div>
+        <div class="score-item">
+          <div class="score-label">AVERAGE</div>
+          <div class="score-value" id="score-avg">50</div>
+        </div>
+        <div class="score-divider"></div>
+        <div class="score-item">
+          <div class="score-label">STATUS</div>
+          <div class="score-value" id="score-status" style="font-size:var(--t-xs);letter-spacing:1px;color:var(--text-lo);word-break:break-word;line-height:1.3">---</div>
+        </div>
+      </div>
+      <div style="font-size:var(--t-xs);color:var(--text-dim);font-weight:700;letter-spacing:1px;margin-top:var(--sp-2)">// Score is informational only. Do not optimise for this number.</div>
     </div>
   </div>
 
@@ -1503,6 +1511,7 @@
       <div class="changelog-item"><strong>GROUNDED</strong> triggers when all stats are between 45–65 — stable and centred, no peaks or valleys</div>
       <div class="changelog-item"><strong>LOCKED IN</strong> triggers when Focus ≥75 and all stats ≥50 — full coherent functioning</div>
       <div class="changelog-item">All values are self-rated and subjective. Focus on relative state, not exact numbers.</div>
+      <div class="changelog-item"><strong>Drift detection</strong> monitors your stats against your personal baselines — if two or more stats drift significantly, a nudge appears on the main HUD. Tap 1H, 4H, or TOMORROW to snooze it.</div>
     </div>
     <div class="changelog-entry">
       <div class="changelog-version" style="color:var(--text-mid)">GRAPH &amp; HISTORY</div>
@@ -1990,6 +1999,7 @@ function applyProposedBaselines() {
 
 // ── DRIFT DETECTION ──────────────────────────────────────────────────────────
 var snoozeUntil = 0;
+try { var _su = localStorage.getItem('hud_snooze_until'); if (_su) snoozeUntil = parseInt(_su) || 0; } catch(e) {}
 
 function checkDrift() {
   if (Date.now() < snoozeUntil) return;
@@ -2010,6 +2020,7 @@ function checkDrift() {
 
 function snoozeDrift(hours) {
   snoozeUntil = Date.now() + (hours * 60 * 60 * 1000);
+  try { localStorage.setItem('hud_snooze_until', snoozeUntil); } catch(e) {}
   document.getElementById('drift-nudge').style.display = 'none';
 }
 
@@ -2159,6 +2170,14 @@ function checkHyperfocus(name) {
 
 // EGG 3 — SYSTEM GLITCH
 var glitchTaps = 0; var glitchTimer = null;
+function toggleScoreBar() {
+  var wrap = document.getElementById('score-bar-wrap');
+  var arrow = document.getElementById('score-toggle-arrow');
+  var open = wrap.style.display === 'none';
+  wrap.style.display = open ? 'block' : 'none';
+  arrow.textContent = open ? '▼' : '▶';
+}
+
 function onScoreTotalTap() {
   glitchTaps++;
   clearTimeout(glitchTimer);
@@ -2602,7 +2621,6 @@ function exportImage() {
   var avg=Math.round(Object.values(values).reduce(function(a,b){return a+b;},0)/STATS.length);
   var cond=classifyState(cfg.personalBaseline || 50);
   ctx.font='bold 10px monospace'; ctx.fillStyle=cond.color; ctx.fillText(cond.label,28,196);
-  ctx.font='bold 10px monospace'; ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.fillText(APP_URL,28,326);
   // Right panel
   var bx=260, bw=420;
   STATS.forEach(function(s,i){
