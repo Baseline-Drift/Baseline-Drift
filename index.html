@@ -1154,6 +1154,12 @@
       <span id="score-toggle-arrow">▶</span> SNAPSHOT
     </button>
     <div id="score-bar-wrap" style="display:none">
+      <div style="display:flex;gap:var(--sp-2);margin-bottom:var(--sp-3);flex-wrap:wrap">
+        <span id="snap-v" style="font-size:var(--t-xs);font-weight:700;letter-spacing:1px;color:#ff4d6d">♡ --</span>
+        <span id="snap-s" style="font-size:var(--t-xs);font-weight:700;letter-spacing:1px;color:#43d97b">⚡ --</span>
+        <span id="snap-m" style="font-size:var(--t-xs);font-weight:700;letter-spacing:1px;color:#a78bfa">◈ --</span>
+        <span id="snap-f" style="font-size:var(--t-xs);font-weight:700;letter-spacing:1px;color:#fbbf24">⊙ --</span>
+      </div>
       <div class="score-bar">
         <div class="score-item">
           <div class="score-label">TOTAL</div>
@@ -1161,8 +1167,8 @@
         </div>
         <div class="score-divider"></div>
         <div class="score-item">
-          <div class="score-label">AVERAGE</div>
-          <div class="score-value" id="score-avg">50</div>
+          <div class="score-label">TREND</div>
+          <div class="score-value" id="score-avg" style="font-size:var(--t-lg)">→</div>
         </div>
         <div class="score-divider"></div>
         <div class="score-item">
@@ -1196,15 +1202,23 @@
     <button class="action-grid-btn" onclick="toggleSettings()">SETTINGS</button>
     <button class="action-grid-btn" onclick="document.getElementById('help-overlay').classList.add('open')">? HELP</button>
   </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--sp-2);margin-top:var(--sp-2)">
-    <button class="action-grid-btn" onclick="shareApp()">↗ SHARE</button>
-    <a class="action-grid-btn" href="https://ko-fi.com/rots5" target="_blank" rel="noopener" style="text-decoration:none;display:flex;align-items:center;justify-content:center">☕ TIP</a>
-    <button class="action-grid-btn" onclick="openFeedback()">FEEDBACK</button>
+
+  <div style="margin-top:var(--sp-2)">
+    <button onclick="toggleCommunity()" id="community-toggle" style="background:none;border:none;color:var(--text-dim);font-family:inherit;font-size:var(--t-xs);letter-spacing:2px;font-weight:700;cursor:pointer;padding:var(--sp-2) 0;display:flex;align-items:center;gap:var(--sp-2);width:100%">
+      <span id="community-arrow">▶</span> COMMUNITY
+    </button>
+    <div id="community-wrap" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--sp-2);margin-top:var(--sp-1)">
+        <button class="action-grid-btn" onclick="shareApp()">↗ SHARE</button>
+        <a class="action-grid-btn" href="https://ko-fi.com/rots5" target="_blank" rel="noopener" style="text-decoration:none;display:flex;align-items:center;justify-content:center">☕ TIP</a>
+        <button class="action-grid-btn" onclick="openFeedback()">FEEDBACK</button>
+      </div>
+    </div>
   </div>
 
   <div class="footer" style="margin-top:var(--sp-3)">
     <span class="footer-left" id="footer-region" onclick="openTimezoneSettings()" style="cursor:pointer" title="Tap to change timezone">AU</span>
-    <span class="footer-left" onclick="openChangelog()" style="cursor:pointer;color:var(--text-dim);letter-spacing:2px;font-size:var(--t-xs);font-weight:700" title="Tap for changelog">v7.1</span>
+    <span class="footer-left" onclick="openChangelog()" style="cursor:pointer;color:var(--text-dim);letter-spacing:2px;font-size:var(--t-xs);font-weight:700" title="Tap for changelog">v7.2</span>
     <div class="footer-right">
       <button class="footer-btn" onclick="document.getElementById('licence-overlay').classList.add('open')">LICENCE</button>
     </div>
@@ -1402,7 +1416,7 @@
     <button class="reminder-btn" onclick="openReminder()">🔔 SET CHECK-IN REMINDER</button>
     <button class="reminder-btn" style="background:rgba(167,139,250,0.05);border-color:rgba(167,139,250,0.2);color:rgba(167,139,250,0.6);margin-top:var(--sp-2)" onclick="document.getElementById('settings-panel').classList.remove('open');document.getElementById('onboarding-overlay').classList.add('open')">◈ VIEW INTRO</button>
     <button class="reminder-btn" style="background:rgba(255,77,109,0.05);border-color:rgba(255,77,109,0.15);color:rgba(255,77,109,0.4);margin-top:var(--sp-2)" onclick="resetToDefaults()">↺ RESET TO DEFAULTS</button>
-    <div class="version-tap" id="version-tap" onclick="openChangelog()">BASELINE DRIFT // STATUS HUD v7.1 // TAP FOR CHANGELOG</div>
+    <div class="version-tap" id="version-tap" onclick="openChangelog()">BASELINE DRIFT // STATUS HUD v7.2 // TAP FOR CHANGELOG</div>
   </div>
 </div>
 
@@ -1525,7 +1539,7 @@
     </div>
     <div class="changelog-entry">
       <div class="changelog-version" style="color:var(--text-mid)">SETTINGS</div>
-      <div class="changelog-item">Set your <strong>personal baseline</strong> in Profile<br>→ Condition thresholds adjust relative to your centre</div>
+      <div class="changelog-item">Set your <strong>personal baseline</strong> in Preferences<br>→ Condition thresholds adjust relative to your centre. Suggested baselines update condition thresholds and drift detection — they do not move your sliders.</div>
       <div class="changelog-item">Add a <strong>note to self</strong><br>→ Displayed on the main HUD as a grounding anchor</div>
       <div class="changelog-item">Set your <strong>timezone</strong><br>→ Updates the clock display</div>
       <div class="changelog-item">Tap the <strong>◉ percentage</strong> next to text size to enter a value directly (80–140)</div>
@@ -1565,7 +1579,7 @@
 'use strict';
 
 // ── CONSTANTS ────────────────────────────────────────────────────────────────
-var VERSION   = '7.1';
+var VERSION   = '7.2';
 var APP_URL   = 'https://baseline-drift.github.io/Baseline-Drift/';
 var BUG_EMAIL = 'baselinedrift5@gmail.com';
 
@@ -1737,6 +1751,15 @@ function buildConditions(baseline) {
 
 
 var CHANGELOG = [
+  { version:'7.2', date:'4 May 2026', items:[
+    'Baseline calculation now uses daily averages — multiple readings per day no longer skew the suggested baseline',
+    'Graph — 14D filter added between 7D and 30D',
+    'History list — shows last 7 entries by default, SHOW MORE for older readings',
+    'Footer — COMMUNITY expandable (SHARE, TIP, FEEDBACK) replaces third row',
+    'SNAPSHOT — compact stat summary row (V S M F) added for at-a-glance reading without scrolling',
+    'SNAPSHOT — AVERAGE replaced with TREND arrow (↑ ↓ →) comparing current to last logged reading',
+    'Help — clarified what suggested baselines update (condition thresholds and drift detection, not sliders)'
+  ]},
   { version:'7.1', date:'30 Apr 2026', items:[
     'Onboarding tagline updated — "and alike" added for broader inclusivity',
     'Persistent snapshot reminder — "// This is a snapshot, not a measure." shown under condition',
@@ -1966,15 +1989,31 @@ function closeAce() { document.getElementById('ace-overlay').classList.remove('o
 function checkStatBaselines() {
   var history = loadHistory();
   if (history.length < 7) return;
-  var last7 = history.slice(-7);
   var keys = ['vitality','stamina','affect','focus'];
   var step = cfg.increment || 5;
+
+  // Group readings by day and average each day
+  var byDay = {};
+  history.forEach(function(e) {
+    var day = e.date ? e.date.split('T')[0] : e.dateStr;
+    if (!byDay[day]) byDay[day] = [];
+    byDay[day].push(e);
+  });
+  var days = Object.keys(byDay).sort();
+  if (days.length < 7) return; // need 7 distinct days
+
+  var last7days = days.slice(-7);
   var proposed = {};
   keys.forEach(function(k) {
-    var raw = last7.reduce(function(a,e){ return a + e[k]; }, 0) / 7;
+    var dayAvgs = last7days.map(function(day) {
+      var entries = byDay[day];
+      return entries.reduce(function(a,e){ return a + e[k]; }, 0) / entries.length;
+    });
+    var raw = dayAvgs.reduce(function(a,b){ return a+b; }, 0) / 7;
     proposed[k] = Math.round(raw / step) * step;
     proposed[k] = Math.max(0, Math.min(100, proposed[k]));
   });
+
   var changed = keys.some(function(k){ return Math.abs(proposed[k] - (cfg.statBaselines[k] || 50)) >= step; });
   if (!changed) return;
   try { localStorage.setItem('hud_proposed_baselines', JSON.stringify(proposed)); } catch(e) {}
@@ -2170,6 +2209,15 @@ function checkHyperfocus(name) {
 
 // EGG 3 — SYSTEM GLITCH
 var glitchTaps = 0; var glitchTimer = null;
+function toggleCommunity() {
+  var wrap = document.getElementById('community-wrap');
+  var arrow = document.getElementById('community-arrow');
+  if (!wrap) return;
+  var open = wrap.style.display === 'none';
+  wrap.style.display = open ? 'block' : 'none';
+  arrow.textContent = open ? '▼' : '▶';
+}
+
 function toggleScoreBar() {
   var wrap = document.getElementById('score-bar-wrap');
   var arrow = document.getElementById('score-toggle-arrow');
@@ -2522,7 +2570,29 @@ function updateScore(avg, mc) {
   var total = Object.values(values).reduce(function(a,b){ return a+b; },0);
   var totalDisplay = total > 400 ? '<span style="color:var(--c-optimal)">' + total + '</span><span style="font-size:var(--t-xs);color:var(--text-lo)"> /400+</span>' : total + '<span style="font-size:var(--t-xs);color:var(--text-lo)"> /400</span>';
   document.getElementById('score-total').innerHTML = totalDisplay;
-  document.getElementById('score-avg').textContent  = avg;
+
+  // Trend arrow — compare average to last logged entry
+  var avgEl = document.getElementById('score-avg');
+  if (avgEl) {
+    var history = loadHistory();
+    if (mc >= 3 && history.length >= 1) {
+      var last = history[history.length - 1];
+      var lastAvg = Math.round((last.vitality + last.stamina + last.affect + last.focus) / 4);
+      var diff = avg - lastAvg;
+      if (diff > 5)       { avgEl.textContent = '↑'; avgEl.style.color = '#43d97b'; }
+      else if (diff < -5) { avgEl.textContent = '↓'; avgEl.style.color = '#ff4d6d'; }
+      else                { avgEl.textContent = '→'; avgEl.style.color = 'var(--text-dim)'; }
+    } else {
+      avgEl.textContent = '→'; avgEl.style.color = 'var(--text-dim)';
+    }
+  }
+
+  // Compact stat summary in SNAPSHOT
+  var snapKeys = {v:'vitality', s:'stamina', m:'affect', f:'focus'};
+  Object.keys(snapKeys).forEach(function(id) {
+    var el = document.getElementById('snap-' + id);
+    if (el) el.textContent = el.textContent.split(' ')[0] + ' ' + values[snapKeys[id]];
+  });
   var ss = document.getElementById('score-status');
   if (mc >= 3) {
     var state = classifyState(cfg.personalBaseline || 50);
@@ -2708,7 +2778,7 @@ function shareApp() {
 }
 
 // ── GRAPH ────────────────────────────────────────────────────────────────────
-var FILTERS=[{label:'7D',days:7},{label:'30D',days:30},{label:'3M',days:90},{label:'6M',days:180},{label:'12M',days:365},{label:'ALL',days:99999}];
+var FILTERS=[{label:'7D',days:7},{label:'14D',days:14},{label:'30D',days:30},{label:'3M',days:90},{label:'6M',days:180},{label:'12M',days:365},{label:'ALL',days:99999}];
 
 var graphStatFilters = { vitality:true, stamina:true, affect:true, focus:true };
 
@@ -2805,37 +2875,63 @@ function buildHistoryList() {
   var textC=isDark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)';
   var subC=isDark?'rgba(255,255,255,0.25)':'rgba(0,0,0,0.3)';
   var html='<div style="font-size:var(--t-xs);letter-spacing:3px;color:'+subC+';margin-bottom:10px;font-weight:700">// LOGGED READINGS</div>';
-  history.slice().reverse().forEach(function(e,ri){
-    var i=history.length-1-ri;
-    var avg=Math.round((e.vitality+e.stamina+e.affect+e.focus)/4);
-    var cond=classifyStateFromEntry(e, cfg.personalBaseline || 50);
-    html+='<div style="padding:var(--sp-3) 0;border-bottom:1px solid '+borderC+'">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center">' +
-        '<div style="flex:1;min-width:0">' +
-          '<div style="font-size:var(--t-xs);font-weight:700;color:'+textC+';letter-spacing:1px">'+e.dateStr+'</div>' +
-          (function(){
+  var SHOW_DEFAULT = 7;
+  var reversed = history.slice().reverse();
+  var visible = reversed.slice(0, SHOW_DEFAULT);
+  var hidden  = reversed.slice(SHOW_DEFAULT);
+
+  function renderEntries(entries, startRi) {
+    return entries.map(function(e, idx) {
+      var ri = startRi + idx;
+      var i  = history.length - 1 - ri;
+      var avg  = Math.round((e.vitality+e.stamina+e.affect+e.focus)/4);
+      var cond = classifyStateFromEntry(e, cfg.personalBaseline || 50);
+      var trendRow = (function(){
         if (ri > 0) {
           var prev2 = history[history.length-2-ri];
           var ta = prev2 ? [
-            (e.vitality-prev2.vitality>5?'\u2191':e.vitality-prev2.vitality<-5?'\u2193':'\u2192'),
-            (e.stamina-prev2.stamina>5?'\u2191':e.stamina-prev2.stamina<-5?'\u2193':'\u2192'),
-            (e.affect-prev2.affect>5?'\u2191':e.affect-prev2.affect<-5?'\u2193':'\u2192'),
-            (e.focus-prev2.focus>5?'\u2191':e.focus-prev2.focus<-5?'\u2193':'\u2192')
+            (e.vitality-prev2.vitality>5?'↑':e.vitality-prev2.vitality<-5?'↓':'→'),
+            (e.stamina-prev2.stamina>5?'↑':e.stamina-prev2.stamina<-5?'↓':'→'),
+            (e.affect-prev2.affect>5?'↑':e.affect-prev2.affect<-5?'↓':'→'),
+            (e.focus-prev2.focus>5?'↑':e.focus-prev2.focus<-5?'↓':'→')
           ] : ['','','',''];
-          return '<div style="font-size:var(--t-xs);color:'+subC+';margin-top:2px;font-weight:700">V:'+e.vitality+ta[0]+' S:'+e.stamina+ta[1]+' M:'+e.affect+ta[2]+' F:'+e.focus+ta[3]+' \u2014 <span style="color:'+cond.color+'">'+e.condition+'</span></div>';
+          return '<div style="font-size:var(--t-xs);color:'+subC+';margin-top:2px;font-weight:700">V:'+e.vitality+ta[0]+' S:'+e.stamina+ta[1]+' M:'+e.affect+ta[2]+' F:'+e.focus+ta[3]+' — <span style="color:'+cond.color+'">'+e.condition+'</span></div>';
         }
-        return '<div style="font-size:var(--t-xs);color:'+subC+';margin-top:2px;font-weight:700">V:'+e.vitality+' S:'+e.stamina+' M:'+e.affect+' F:'+e.focus+' \u2014 <span style="color:'+cond.color+'">'+e.condition+'</span></div>';
-      })() +
-          (e.note?'<div style="font-size:var(--t-xs);color:'+subC+';margin-top:3px;font-style:italic;font-weight:700">// '+e.note+'</div>':'') +
+        return '<div style="font-size:var(--t-xs);color:'+subC+';margin-top:2px;font-weight:700">V:'+e.vitality+' S:'+e.stamina+' M:'+e.affect+' F:'+e.focus+' — <span style="color:'+cond.color+'">'+e.condition+'</span></div>';
+      })();
+      return '<div style="padding:var(--sp-3) 0;border-bottom:1px solid '+borderC+'">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center">' +
+          '<div style="flex:1;min-width:0">' +
+            '<div style="font-size:var(--t-xs);font-weight:700;color:'+textC+';letter-spacing:1px">'+e.dateStr+'</div>' +
+            trendRow +
+            (e.note?'<div style="font-size:var(--t-xs);color:'+subC+';margin-top:3px;font-style:italic;font-weight:700">// '+e.note+'</div>':'') +
+          '</div>' +
+          '<div style="display:flex;gap:var(--sp-2);flex-shrink:0;margin-left:var(--sp-3)">' +
+            '<button onclick="editReading('+i+')" style="background:none;border:1px solid rgba(251,191,36,0.2);border-radius:2px;color:rgba(251,191,36,0.5);font-family:inherit;font-size:var(--t-xs);cursor:pointer;padding:3px 7px;font-weight:700">EDIT</button>' +
+            '<button onclick="deleteReading('+i+')" style="background:none;border:1px solid rgba(255,77,109,0.2);border-radius:2px;color:rgba(255,77,109,0.4);font-family:inherit;font-size:var(--t-xs);cursor:pointer;padding:3px 7px;font-weight:700">DEL</button>' +
+          '</div>' +
         '</div>' +
-        '<div style="display:flex;gap:var(--sp-2);flex-shrink:0;margin-left:var(--sp-3)">' +
-          '<button onclick="editReading('+i+')" style="background:none;border:1px solid rgba(251,191,36,0.2);border-radius:2px;color:rgba(251,191,36,0.5);font-family:inherit;font-size:var(--t-xs);cursor:pointer;padding:3px 7px;font-weight:700">EDIT</button>' +
-          '<button onclick="deleteReading('+i+')" style="background:none;border:1px solid rgba(255,77,109,0.2);border-radius:2px;color:rgba(255,77,109,0.4);font-family:inherit;font-size:var(--t-xs);cursor:pointer;padding:3px 7px;font-weight:700">DEL</button>' +
-        '</div>' +
-      '</div>' +
-    '</div>';
-  });
+      '</div>';
+    }).join('');
+  }
+
+  html += renderEntries(visible, 0);
+  if (hidden.length > 0) {
+    html += '<div id="history-more" style="display:none">' + renderEntries(hidden, SHOW_DEFAULT) + '</div>';
+    html += '<button onclick="toggleHistoryMore()" id="history-show-btn" data-more-label="// SHOW ' + hidden.length + ' MORE" style="margin-top:var(--sp-3);background:none;border:1px solid var(--border);border-radius:2px;color:var(--text-dim);font-family:inherit;font-size:var(--t-xs);cursor:pointer;padding:var(--sp-2) var(--sp-4);font-weight:700;letter-spacing:2px;width:100%">// SHOW ' + hidden.length + ' MORE</button>';
+  }
+
+
   el.innerHTML=html;
+}
+
+function toggleHistoryMore() {
+  var m = document.getElementById('history-more');
+  var b = document.getElementById('history-show-btn');
+  if (!m || !b) return;
+  var isHidden = m.style.display === 'none';
+  m.style.display = isHidden ? 'block' : 'none';
+  b.textContent = isHidden ? '// SHOW LESS' : b.getAttribute('data-more-label');
 }
 
 // ── FEEDBACK ─────────────────────────────────────────────────────────────────
