@@ -730,7 +730,8 @@
     .graph-legend { display:flex; flex-wrap:wrap; gap:var(--sp-3); margin-top:var(--sp-4); }
     .legend-item  { display:flex; align-items:center; gap:var(--sp-2); font-size:var(--t-xs); color:var(--text-mid); font-weight:700; }
     .legend-dot   { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-    .graph-filter { display:flex; flex-wrap:wrap; gap:var(--sp-2); margin-bottom:var(--sp-4); }
+    .graph-filter { display:flex; flex-wrap:nowrap; overflow-x:auto; gap:var(--sp-2); margin-bottom:var(--sp-4); -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+    .graph-filter::-webkit-scrollbar { display:none; }
     .gf-btn {
       font-size: var(--t-xs);
       padding: var(--sp-1) var(--sp-3);
