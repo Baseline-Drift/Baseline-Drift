@@ -2594,11 +2594,13 @@ function updateScore(avg, mc) {
     }
   }
 
-  // Compact stat summary in SNAPSHOT
-  var snapKeys = {v:'vitality', s:'stamina', m:'affect', f:'focus'};
-  Object.keys(snapKeys).forEach(function(id) {
+  // Compact stat summary in SNAPSHOT — icons from STATS array
+  var snapMap = {v:'vitality', s:'stamina', m:'affect', f:'focus'};
+  Object.keys(snapMap).forEach(function(id) {
+    var key = snapMap[id];
+    var stat = STATS.find(function(s){ return s.key === key; });
     var el = document.getElementById('snap-' + id);
-    if (el) el.textContent = el.textContent.split(' ')[0] + ' ' + values[snapKeys[id]];
+    if (el && stat) el.textContent = stat.icon + ' ' + values[key];
   });
   var ss = document.getElementById('score-status');
   if (mc >= 3) {
