@@ -1219,7 +1219,7 @@
 
   <div class="footer" style="margin-top:var(--sp-3)">
     <span class="footer-left" id="footer-region" onclick="openTimezoneSettings()" style="cursor:pointer" title="Tap to change timezone">AU</span>
-    <span class="footer-left" onclick="openChangelog()" style="cursor:pointer;color:var(--text-dim);letter-spacing:2px;font-size:var(--t-xs);font-weight:700" title="Tap for changelog">v7.2</span>
+    <span class="footer-left" onclick="openChangelog()" style="cursor:pointer;color:var(--text-dim);letter-spacing:2px;font-size:var(--t-xs);font-weight:700" title="Tap for changelog">v7.3</span>
     <div class="footer-right">
       <button class="footer-btn" onclick="document.getElementById('licence-overlay').classList.add('open')">LICENCE</button>
     </div>
@@ -1232,6 +1232,11 @@
 
   <!-- SETTINGS PANEL -->
   <div class="settings-panel" id="settings-panel">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-4);padding-bottom:var(--sp-3);border-bottom:1px solid var(--border)">
+      <span style="font-size:var(--t-xs);font-weight:700;letter-spacing:2px;color:var(--text-lo)">ADVANCED MODE</span>
+      <div class="toggle" id="tog-advanced" onclick="toggleAdvancedMode()" style="flex-shrink:0"></div>
+    </div>
 
     <div class="settings-section">
       <div class="settings-section-header" onclick="toggleSection('sec-profile')">
@@ -1283,7 +1288,7 @@
     </div>
 
     <div class="settings-section">
-      <div class="settings-section-header" onclick="toggleSection('sec-stats')">
+      <div id="adv-stats-header" class="settings-section-header" onclick="toggleSection('sec-stats')">
         <span class="settings-section-title">📊 STAT NAMES</span>
         <span class="settings-section-arrow" id="arrow-sec-stats">▼</span>
       </div>
@@ -1385,7 +1390,7 @@
         <span class="settings-section-arrow" id="arrow-sec-prefs">▼</span>
       </div>
       <div class="settings-section-body" id="sec-prefs">
-        <div class="setting-group">
+        <div class="setting-group" id="adv-increment">
           <label class="setting-label">SLIDER INCREMENT</label>
           <div style="display:flex;align-items:center;gap:var(--sp-3)">
             <span style="font-size:var(--t-xs);color:var(--text-lo);font-weight:700">1</span>
@@ -1404,7 +1409,7 @@
           </div>
           <div style="font-size:var(--t-xs);color:var(--text-dim);margin-top:var(--sp-2);font-weight:700;letter-spacing:1px">Condition labels shift relative to your centre. Default is 50.</div>
         </div>
-        <div class="setting-group">
+        <div class="setting-group" id="adv-logtime">
           <div class="toggle-row"><span class="toggle-label">Log time with each reading</span><div class="toggle on" id="tog-logtime" onclick="toggleOpt('logtime')"></div></div>
         </div>
         <div class="setting-group">
@@ -1417,7 +1422,7 @@
     <button class="reminder-btn" onclick="openReminder()">🔔 SET CHECK-IN REMINDER</button>
     <button class="reminder-btn" style="background:rgba(167,139,250,0.05);border-color:rgba(167,139,250,0.2);color:rgba(167,139,250,0.6);margin-top:var(--sp-2)" onclick="document.getElementById('settings-panel').classList.remove('open');document.getElementById('onboarding-overlay').classList.add('open')">◈ VIEW INTRO</button>
     <button class="reminder-btn" style="background:rgba(255,77,109,0.05);border-color:rgba(255,77,109,0.15);color:rgba(255,77,109,0.4);margin-top:var(--sp-2)" onclick="resetToDefaults()">↺ RESET TO DEFAULTS</button>
-    <div class="version-tap" id="version-tap" onclick="openChangelog()">BASELINE DRIFT // STATUS HUD v7.2 // TAP FOR CHANGELOG</div>
+    <div class="version-tap" id="version-tap" onclick="openChangelog()">BASELINE DRIFT // STATUS HUD v7.3 // TAP FOR CHANGELOG</div>
   </div>
 </div>
 
@@ -1546,9 +1551,10 @@
     </div>
     <div class="changelog-entry">
       <div class="changelog-version" style="color:var(--text-mid)">SETTINGS</div>
+      <div class="changelog-item">Toggle <strong>ADVANCED MODE</strong> at the top of settings to access additional options<br>→ Simple mode shows the essentials. Advanced unlocks stat names, slider increment, and log time settings.</div>
       <div class="changelog-item">Set your <strong>personal baseline</strong> in Preferences<br>→ Condition thresholds adjust relative to your centre. Suggested baselines update condition thresholds and drift detection — they do not move your sliders.</div>
       <div class="changelog-item">Add a <strong>note to self</strong><br>→ Displayed on the main HUD as a grounding anchor</div>
-      <div class="changelog-item">Set your <strong>timezone</strong><br>→ Updates the clock display</div>
+      <div class="changelog-item">Set your <strong>timezone</strong> — tap AU in the footer to open directly<br>→ Updates the clock display</div>
       <div class="changelog-item">Tap the <strong>◉ percentage</strong> next to text size to enter a value directly (80–140)</div>
       <div class="changelog-item">Tap the <strong>version number</strong> to view the full changelog</div>
       <div class="changelog-item">Set a <strong>daily check-in reminder</strong> via Google Calendar</div>
@@ -1578,6 +1584,7 @@
       <div class="overlay-title">// CHANGELOG</div>
       <button class="overlay-close" onclick="closeOverlay('changelog-overlay')">✕ CLOSE</button>
     </div>
+    <button onclick="exportPatchNotes()" style="margin-bottom:var(--sp-4);background:none;border:1px solid var(--border);border-radius:2px;color:var(--text-dim);font-family:inherit;font-size:var(--t-xs);cursor:pointer;padding:var(--sp-2) var(--sp-4);font-weight:700;letter-spacing:2px">↓ EXPORT PATCH NOTES</button>
     <div id="changelog-content"></div>
   </div>
 </div>
@@ -1586,7 +1593,7 @@
 'use strict';
 
 // ── CONSTANTS ────────────────────────────────────────────────────────────────
-var VERSION   = '7.2';
+var VERSION   = '7.3';
 var APP_URL   = 'https://baseline-drift.github.io/Baseline-Drift/';
 var BUG_EMAIL = 'baselinedrift5@gmail.com';
 
@@ -1758,6 +1765,13 @@ function buildConditions(baseline) {
 
 
 var CHANGELOG = [
+  { version:'7.3', date:'18 May 2026', items:[
+    'Slider scroll sensitivity — increased movement threshold to reduce accidental slider changes while scrolling',
+    'Settings — Simple/Advanced mode toggle. Advanced unlocks stat names, slider increment, and log time settings',
+    'Graph — dynamic default filter based on data age (7D → 14D → 30D as your dataset grows). User selection is remembered',
+    'Help — updated to reflect simple/advanced settings and AU timezone shortcut',
+    'Patch notes — exportable as .txt from the changelog overlay'
+  ]},
   { version:'7.2', date:'4 May 2026', items:[
     'Baseline calculation now uses daily averages — multiple readings per day no longer skew the suggested baseline',
     'Graph — 14D filter added between 7D and 30D',
@@ -1886,7 +1900,23 @@ var locked  = { vitality:false, stamina:false, affect:false, focus:false };
 var STATS   = STAT_DEFAULTS.map(function(s){ return Object.assign({}, s, { label:s.defaultLabel }); });
 var bannerDismissed = { optimal:false, dysregulated:false, critical:false };
 var fbType = 'bug';
-var graphFilter = 30;
+var graphFilter = 7; // will be set dynamically on open
+
+function getDefaultGraphFilter() {
+  var history = loadHistory();
+  if (history.length < 2) return 7;
+  var first = new Date(history[0].date);
+  var last  = new Date(history[history.length-1].date);
+  var days  = Math.round((last - first) / (1000 * 60 * 60 * 24));
+  // User override in localStorage takes priority
+  try {
+    var saved = localStorage.getItem('hud_graph_filter');
+    if (saved) return parseInt(saved);
+  } catch(e) {}
+  if (days >= 30) return 30;
+  if (days >= 14) return 14;
+  return 7;
+}
 var bannerTaps = 0;
 var bannerTimer = null;
 
@@ -2342,8 +2372,8 @@ STATS.forEach(function(stat) {
     var dy = e.touches[0].clientY - _sy;
     var adx = Math.abs(dx);
     var ady = Math.abs(dy);
-    if (!_decided && (adx > 8 || ady > 8)) {
-      _isHoriz = adx > ady * 1.5;
+    if (!_decided && (adx > 12 || ady > 12)) {
+      _isHoriz = adx > ady * 2.5;
       _decided = true;
     }
     if (!_decided) return;
@@ -2792,6 +2822,7 @@ var FILTERS=[{label:'7D',days:7},{label:'14D',days:14},{label:'30D',days:30},{la
 var graphStatFilters = { vitality:true, stamina:true, affect:true, focus:true };
 
 function openGraph() {
+  graphFilter = getDefaultGraphFilter();
   var fe = document.getElementById('graph-filter');
   fe.innerHTML = FILTERS.map(function(f) {
     return '<button class="gf-btn' + (f.days===graphFilter?' active':'') + '" onclick="setGraphFilter(' + f.days + ')">' + f.label + '</button>';
@@ -2824,6 +2855,7 @@ function toggleGraphStat(key) {
 
 function setGraphFilter(days) {
   graphFilter=days;
+  try { localStorage.setItem('hud_graph_filter', days); } catch(e) {}
   document.querySelectorAll('.gf-btn').forEach(function(b){ b.classList.toggle('active',parseInt(b.getAttribute('onclick').match(/\d+/)[0])===days); });
   renderGraph();
 }
@@ -2976,12 +3008,26 @@ function onConditionBadgeTap() {
 
 // ── CHANGELOG ────────────────────────────────────────────────────────────────
 function openChangelog() {
-  var el=document.getElementById('changelog-content');
-  el.innerHTML=CHANGELOG.map(function(entry){
-    return '<div class="changelog-entry"><div class="changelog-version">v'+entry.version+'</div><div class="changelog-date">'+entry.date+'</div>'+
-      entry.items.map(function(item){return '<div class="changelog-item">'+item+'</div>';}).join('')+'</div>';
+  var el = document.getElementById('changelog-content');
+  el.innerHTML = CHANGELOG.map(function(entry) {
+    return '<div class="changelog-entry"><div class="changelog-version">v' + entry.version + '</div>' +
+      '<div class="changelog-date">' + entry.date + '</div>' +
+      entry.items.map(function(item){ return '<div class="changelog-item">' + item + '</div>'; }).join('') +
+      '</div>';
   }).join('');
   document.getElementById('changelog-overlay').classList.add('open');
+}
+
+function exportPatchNotes() {
+  var txt = CHANGELOG.map(function(entry) {
+    return 'v' + entry.version + ' — ' + entry.date + '\n' +
+      entry.items.map(function(item){ return '  • ' + item; }).join('\n');
+  }).join('\n\n');
+  var blob = new Blob([txt], { type:'text/plain' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'baseline-drift-patch-notes.txt';
+  a.click();
 }
 
 // ── SETTINGS ─────────────────────────────────────────────────────────────────
@@ -3013,7 +3059,37 @@ function resetToDefaults() {
   alert('// Settings reset to defaults.');
 }
 
-function toggleSettings(){var p=document.getElementById('settings-panel');if(p.classList.toggle('open'))populateSettings();}
+function toggleSettings(){
+  var p=document.getElementById('settings-panel');
+  if(p.classList.toggle('open')){
+    populateSettings();
+    var tog = document.getElementById('tog-advanced');
+    if (tog) tog.className = 'toggle' + (advancedMode ? ' on' : '');
+    applyAdvancedMode();
+  }
+}
+var advancedMode = false;
+try { advancedMode = localStorage.getItem('hud_advanced_mode') === '1'; } catch(e) {}
+
+function toggleAdvancedMode() {
+  advancedMode = !advancedMode;
+  try { localStorage.setItem('hud_advanced_mode', advancedMode ? '1' : '0'); } catch(e) {}
+  applyAdvancedMode();
+  var tog = document.getElementById('tog-advanced');
+  if (tog) tog.className = 'toggle' + (advancedMode ? ' on' : '');
+}
+
+function applyAdvancedMode() {
+  var advancedSections = ['sec-stats', 'adv-increment', 'adv-logtime'];
+  advancedSections.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = advancedMode ? '' : 'none';
+  });
+  // Also hide the stat names section header
+  var statHeader = document.getElementById('adv-stats-header');
+  if (statHeader) statHeader.style.display = advancedMode ? '' : 'none';
+}
+
 function toggleSection(id){document.getElementById(id).classList.toggle('open');document.getElementById('arrow-'+id).classList.toggle('open');}
 
 function populateSettings() {
