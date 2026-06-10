@@ -2053,6 +2053,8 @@ function closeAce() { document.getElementById('ace-overlay').classList.remove('o
  * ║   Boost total score to exactly 420           ║
  * ║ EGG 6 — STAT OVERFLOW                       ║
  * ║   Boost total score to 425                   ║
+ * ║ EGG 7 — ACE CARES                           ║
+ * ║   Set all sliders to exactly 0               ║
  * ║ BACK BURNER:                                 ║
  * ║   THE ANSWER — all sliders at 42            ║
  * ║   EFFECTIVE TEAM — open app 1:00-1:59am     ║
@@ -2465,6 +2467,16 @@ STATS.forEach(function(stat) {
     updateHeart(stat.key);
     updateCondition();
     updateLogBtn();
+    // EGG 7 — ACE CARES: all sliders at exactly 0
+    if (Object.values(values).every(function(v){ return v === 0; })) {
+      var overlay = document.getElementById('ace-overlay');
+      var msg = overlay.querySelector('.ace-msg');
+      var cheat = overlay.querySelector('.ace-cheat');
+      if (msg) msg.textContent = 'ACE SEES YOU. YOU\'RE STILL HERE. THAT\'S ENOUGH.';
+      if (cheat) cheat.textContent = '// ZERO STATE DETECTED';
+      overlay.classList.add('open');
+      try { navigator.vibrate && navigator.vibrate([100,80,100,80,300]); } catch(e2) {}
+    }
   });
   updateStat(stat.key);
   updateHeart(stat.key);
