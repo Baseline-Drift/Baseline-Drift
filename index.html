@@ -1200,7 +1200,7 @@
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-2);margin-top:var(--sp-3)">
     <button class="action-grid-btn" onclick="openGraph()">GRAPH</button>
     <button class="action-grid-btn" onclick="openExport()">EXPORT</button>
-    <button class="action-grid-btn" onclick="toggleSettings()">SETTINGS</button>
+    <button class="action-grid-btn" id="settings-btn" onclick="toggleSettings()" style="position:relative">SETTINGS<span id="settings-nudge-dot" style="display:none;position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:#fbbf24"></span></button>
     <button class="action-grid-btn" onclick="document.getElementById('help-overlay').classList.add('open')">? HELP</button>
   </div>
 
@@ -1219,7 +1219,7 @@
 
   <div class="footer" style="margin-top:var(--sp-3)">
     <span class="footer-left" id="footer-region" onclick="openTimezoneSettings()" style="cursor:pointer" title="Tap to change timezone">AU</span>
-    <span class="footer-left" onclick="openChangelog()" style="cursor:pointer;color:var(--text-dim);letter-spacing:2px;font-size:var(--t-xs);font-weight:700" title="Tap for changelog">v7.3</span>
+    <span class="footer-left" onclick="openChangelog()" style="cursor:pointer;color:var(--text-dim);letter-spacing:2px;font-size:var(--t-xs);font-weight:700" title="Tap for changelog">v7.4</span>
     <div class="footer-right">
       <button class="footer-btn" onclick="document.getElementById('licence-overlay').classList.add('open')">LICENCE</button>
     </div>
@@ -1412,6 +1412,16 @@
         <div class="setting-group" id="adv-logtime">
           <div class="toggle-row"><span class="toggle-label">Log time with each reading</span><div class="toggle on" id="tog-logtime" onclick="toggleOpt('logtime')"></div></div>
         </div>
+        <div class="setting-group" id="adv-backup-nudge">
+          <label class="setting-label">BACKUP NUDGE THRESHOLD (READINGS)</label>
+          <div style="display:flex;align-items:center;gap:var(--sp-3)">
+            <span style="font-size:var(--t-xs);color:var(--text-lo);font-weight:700">5</span>
+            <input type="range" min="5" max="50" value="14" id="cfg-backup-nudge" style="flex:1;accent-color:var(--accent)" oninput="document.getElementById('backup-nudge-label').textContent=this.value"/>
+            <span style="font-size:var(--t-xs);color:var(--text-lo);font-weight:700">50</span>
+            <span id="backup-nudge-label" style="font-size:var(--t-sm);color:var(--text-mid);font-weight:700;min-width:24px;text-align:right">14</span>
+          </div>
+          <div style="font-size:var(--t-xs);color:var(--text-dim);margin-top:var(--sp-2);font-weight:700;letter-spacing:1px">Nudge appears on SETTINGS button after this many unbackedup readings. Default 14.</div>
+        </div>
         <div class="setting-group">
           <div class="toggle-row"><span class="toggle-label">Auto-reset sliders to 50 on new day</span><div class="toggle" id="tog-autoreset" onclick="toggleOpt('autoreset')"></div></div>
         </div>
@@ -1422,7 +1432,7 @@
     <button class="reminder-btn" onclick="openReminder()">🔔 SET CHECK-IN REMINDER</button>
     <button class="reminder-btn" style="background:rgba(167,139,250,0.05);border-color:rgba(167,139,250,0.2);color:rgba(167,139,250,0.6);margin-top:var(--sp-2)" onclick="document.getElementById('settings-panel').classList.remove('open');document.getElementById('onboarding-overlay').classList.add('open')">◈ VIEW INTRO</button>
     <button class="reminder-btn" style="background:rgba(255,77,109,0.05);border-color:rgba(255,77,109,0.15);color:rgba(255,77,109,0.4);margin-top:var(--sp-2)" onclick="resetToDefaults()">↺ RESET TO DEFAULTS</button>
-    <div class="version-tap" id="version-tap" onclick="openChangelog()">BASELINE DRIFT // STATUS HUD v7.3 // TAP FOR CHANGELOG</div>
+    <div class="version-tap" id="version-tap" onclick="openChangelog()">BASELINE DRIFT // STATUS HUD v7.4 // TAP FOR CHANGELOG</div>
   </div>
 </div>
 
@@ -1437,6 +1447,7 @@
     <div class="export-option" onclick="exportCSV()"><span class="export-icon">📊</span><div><div class="export-label">SAVE AS CSV</div><div class="export-desc">All logged readings — Excel or Sheets</div></div></div>
     <div class="export-option" onclick="exportPDF()"><span class="export-icon">📄</span><div><div class="export-label">DOWNLOAD PDF SNAPSHOT</div><div class="export-desc">Today's reading as a printable record</div></div></div>
     <div class="export-option" onclick="exportImage()"><span class="export-icon">🖼</span><div><div class="export-label">↗ SHARE AS IMAGE CARD</div><div class="export-desc">Visual snapshot of current status</div></div></div>
+    <div id="backup-nudge" style="display:none;margin-bottom:var(--sp-4);padding:var(--sp-3) var(--sp-4);background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.3);border-radius:2px;font-size:var(--t-xs);color:rgba(251,191,36,.8);font-weight:700;letter-spacing:1px"></div>
     <div class="export-option" onclick="backupData()"><span class="export-icon">💾</span><div><div class="export-label">BACKUP ALL DATA</div><div class="export-desc">Export everything as JSON — restore anytime using the option below</div></div></div>
     <div class="export-option" onclick="document.getElementById('restore-input').click()"><span class="export-icon">📥</span><div><div class="export-label">RESTORE FROM BACKUP</div><div class="export-desc">Import a previously saved JSON backup</div></div></div>
     <div id="clear-sample-wrap" style="display:none">
@@ -1452,7 +1463,10 @@
   <div class="overlay-panel" onclick="event.stopPropagation()">
     <div class="overlay-header">
       <div class="overlay-title">// READING HISTORY</div>
-      <button class="overlay-close" onclick="closeOverlay('graph-overlay')">✕ CLOSE</button>
+      <div style="display:flex;gap:var(--sp-3);align-items:center">
+        <button onclick="shareReadings()" style="background:none;border:1px solid var(--border);border-radius:2px;color:var(--text-dim);font-family:inherit;font-size:var(--t-xs);cursor:pointer;padding:var(--sp-1) var(--sp-3);font-weight:700;letter-spacing:2px">↗ SHARE</button>
+        <button class="overlay-close" onclick="closeOverlay('graph-overlay')">✕ CLOSE</button>
+      </div>
     </div>
     <div style="font-size:var(--t-xs);color:var(--text-dim);font-weight:700;letter-spacing:1px;margin-bottom:var(--sp-3)">// Look for patterns, not exact values.</div>
     <div class="graph-filter" id="graph-filter"></div>
@@ -1593,7 +1607,7 @@
 'use strict';
 
 // ── CONSTANTS ────────────────────────────────────────────────────────────────
-var VERSION   = '7.3';
+var VERSION   = '7.4';
 var APP_URL   = 'https://baseline-drift.github.io/Baseline-Drift/';
 var BUG_EMAIL = 'baselinedrift5@gmail.com';
 
@@ -1765,6 +1779,12 @@ function buildConditions(baseline) {
 
 
 var CHANGELOG = [
+  { version:'7.4', date:'9 Jun 2026', items:[
+    'Backup nudge — yellow dot appears on SETTINGS button after 14 unbackedup readings (configurable in Advanced settings). Clears on JSON export.',
+    'Shareable read-only page — tap ↗ SHARE in the graph overlay to generate a clean HTML file for the current date range. Includes trend graph, logged readings, and notes.',
+    'Share page includes Print / Save as PDF and CSV download options.',
+    'Share page is designed for medical appointments — no app chrome, clinical layout, self-reported disclaimer.'
+  ]},
   { version:'7.3', date:'18 May 2026', items:[
     'Slider scroll sensitivity — increased movement threshold to reduce accidental slider changes while scrolling',
     'Settings — Simple/Advanced mode toggle. Advanced unlocks stat names, slider increment, and log time settings',
@@ -2253,6 +2273,27 @@ function toggleCommunity() {
   var open = wrap.style.display === 'none';
   wrap.style.display = open ? 'block' : 'none';
   arrow.textContent = open ? '▼' : '▶';
+}
+
+function getBackupNudgeThreshold() {
+  return cfg.backupNudgeDays || 14;
+}
+
+function updateBackupNudge() {
+  var history = loadHistory();
+  var lastCount = 0;
+  try { lastCount = parseInt(localStorage.getItem('hud_last_backup_count') || '0'); } catch(e) {}
+  var unbackedUp = history.length - lastCount;
+  var threshold = getBackupNudgeThreshold();
+  var dot = document.getElementById('settings-nudge-dot');
+  var nudge = document.getElementById('backup-nudge');
+  if (unbackedUp >= threshold) {
+    if (dot) dot.style.display = 'block';
+    if (nudge) { nudge.style.display = 'block'; nudge.textContent = '// ' + unbackedUp + ' unbacked-up readings. Export JSON to clear this nudge.'; }
+  } else {
+    if (dot) dot.style.display = 'none';
+    if (nudge) nudge.style.display = 'none';
+  }
 }
 
 function toggleScoreBar() {
@@ -2761,6 +2802,8 @@ function exportImage() {
 
 function backupData() {
   download(getPlayerFilename()+'-backup.json', JSON.stringify({version:VERSION,timestamp:new Date().toISOString(),cfg:cfg,history:loadHistory()},null,2), 'application/json');
+  try { localStorage.setItem('hud_last_backup_count', loadHistory().length); } catch(e) {}
+  updateBackupNudge();
 }
 
 function restoreData(event) {
@@ -2966,6 +3009,78 @@ function buildHistoryList() {
   el.innerHTML=html;
 }
 
+function shareReadings() {
+  var allH = loadHistory();
+  var cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - graphFilter);
+  var history = graphFilter >= 99999 ? allH : allH.filter(function(e){ return new Date(e.date) >= cutoff; });
+  if (!history.length) { alert('No readings in this date range.'); return; }
+
+  var name = cfg.name && cfg.name !== 'YOUR NAME' ? cfg.name : 'Patient';
+  var dateFrom = history[0].dateStr;
+  var dateTo   = history[history.length-1].dateStr;
+  var filterLabel = FILTERS.find(function(f){ return f.days === graphFilter; });
+  filterLabel = filterLabel ? filterLabel.label : 'Custom';
+  var generated = new Date().toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
+
+  // Build SVG graph
+  var W = 560, H = 220, PAD = {t:16, r:16, b:36, l:36};
+  var iW = W-PAD.l-PAD.r, iH = H-PAD.t-PAD.b, n = history.length;
+  var toX = function(i){ return PAD.l + (i/(n-1))*iW; };
+  var toY = function(v){ return PAD.t + iH - (v/100)*iH; };
+  var keys = [['vitality','#ff4d6d'],['stamina','#43d97b'],['affect','#a78bfa'],['focus','#fbbf24']];
+  var labels = ['VITALITY','STAMINA','MOOD','FOCUS'];
+
+  var svg = '<svg width="'+W+'" height="'+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:'+W+'px">';
+  svg += '<rect width="'+W+'" height="'+H+'" fill="#0d0f16" rx="3"/>';
+  [0,25,50,75,100].forEach(function(v){
+    var y = toY(v);
+    svg += '<line x1="'+PAD.l+'" y1="'+y+'" x2="'+(W-PAD.r)+'" y2="'+y+'" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>';
+    svg += '<text x="'+(PAD.l-4)+'" y="'+(y+4)+'" text-anchor="end" font-size="9" fill="rgba(255,255,255,0.3)" font-family="monospace">'+v+'</text>';
+  });
+  if (n <= 8) {
+    history.forEach(function(e,i){ svg += '<text x="'+toX(i)+'" y="'+(H-PAD.b+14)+'" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.3)" font-family="monospace">'+e.dateStr.split(' ').slice(0,2).join(' ')+'</text>'; });
+  } else {
+    svg += '<text x="'+toX(0)+'" y="'+(H-PAD.b+14)+'" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.3)" font-family="monospace">'+history[0].dateStr.split(' ').slice(0,2).join(' ')+'</text>';
+    svg += '<text x="'+toX(n-1)+'" y="'+(H-PAD.b+14)+'" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.3)" font-family="monospace">'+history[n-1].dateStr.split(' ').slice(0,2).join(' ')+'</text>';
+  }
+  keys.forEach(function(pair){
+    var k = pair[0], c = pair[1];
+    var pts = history.map(function(e,i){ return toX(i)+','+toY(e[k]); });
+    svg += '<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+c+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>';
+    history.forEach(function(e,i){ svg += '<circle cx="'+toX(i)+'" cy="'+toY(e[k])+'" r="3" fill="'+c+'" opacity="0.9"/>'; });
+  });
+  svg += '</svg>';
+
+  // Build readings table
+  var rows = history.slice().reverse().map(function(e){
+    return '<tr><td>'+e.dateStr+'</td><td style="color:#ff4d6d">'+e.vitality+'</td><td style="color:#43d97b">'+e.stamina+'</td><td style="color:#a78bfa">'+e.affect+'</td><td style="color:#fbbf24">'+e.focus+'</td><td>'+e.condition+'</td><td style="font-style:italic;color:rgba(255,255,255,0.4)">'+(e.note||'')+'</td></tr>';
+  }).join('');
+
+  var html = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Baseline Drift — Shared Reading</title><style>*{box-sizing:border-box;margin:0;padding:0}body{background:#080a0f;color:rgba(255,255,255,0.85);font-family:"Atkinson Hyperlegible",sans-serif;padding:24px 16px 60px}@media print{body{background:#080a0f!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}.header{margin-bottom:24px}.app-name{font-size:10px;letter-spacing:5px;color:#ff4d6d;font-weight:700;margin-bottom:4px}.title{font-size:20px;font-weight:700;letter-spacing:2px;margin-bottom:4px}.meta{font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:1px;font-weight:700}.toolbar{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}.btn{padding:8px 16px;border:1px solid rgba(255,255,255,0.1);border-radius:2px;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.4);font-family:inherit;font-size:10px;letter-spacing:2px;cursor:pointer;font-weight:700}.section-title{font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.25);font-weight:700;margin:24px 0 12px}.legend{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0}.legend-item{display:flex;align-items:center;gap:6px;font-size:10px;color:rgba(255,255,255,0.4);font-weight:700}.legend-dot{width:8px;height:8px;border-radius:50%}table{width:100%;border-collapse:collapse;font-size:10px}th{text-align:left;padding:8px 6px;color:rgba(255,255,255,0.3);letter-spacing:2px;font-weight:700;border-bottom:1px solid rgba(255,255,255,0.07)}td{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);font-weight:700;vertical-align:top}.footer{margin-top:32px;font-size:9px;color:rgba(255,255,255,0.15);letter-spacing:1px;font-weight:700}@media print{.toolbar{display:none}}</style></head><body>';
+  html += '<div class="header"><div class="app-name">BASELINE DRIFT</div><div class="title">'+name+' — Shared Reading</div><div class="meta">'+dateFrom+' to '+dateTo+' &nbsp;·&nbsp; '+filterLabel+' range &nbsp;·&nbsp; '+history.length+' readings &nbsp;·&nbsp; Generated '+generated+'</div></div>';
+  html += '<div class="toolbar"><button class="btn" onclick="window.print()">🖨 PRINT / SAVE AS PDF</button><button class="btn" onclick="exportCSV()">↓ DOWNLOAD CSV</button></div>';
+  html += '<div class="section-title">// TREND GRAPH</div>';
+  html += svg;
+  html += '<div class="legend">';
+  keys.forEach(function(p,i){ html += '<div class="legend-item"><div class="legend-dot" style="background:'+p[1]+'"></div><span>'+labels[i]+'</span></div>'; });
+  html += '</div>';
+  html += '<div class="section-title">// LOGGED READINGS</div>';
+  html += '<table><thead><tr><th>DATE</th><th>V</th><th>S</th><th>M</th><th>F</th><th>CONDITION</th><th>NOTE</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  html += '<div class="footer">BASELINE DRIFT &nbsp;·&nbsp; baseline-drift.github.io/Baseline-Drift &nbsp;·&nbsp; Self-reported data. For clinical context only.</div>';
+
+  // CSV export function embedded in share page
+  var csvData = JSON.stringify(history);
+  html += '<script>function exportCSV(){var h='+csvData+';var rows=["Date,Vitality,Stamina,Mood,Focus,Condition,Note"].concat(h.map(function(e){return e.dateStr+","+e.vitality+","+e.stamina+","+e.affect+","+e.focus+","+e.condition+","+(e.note||"");}));var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([rows.join("\\n")],{type:"text/csv"}));a.download="baseline-drift-shared.csv";a.click();}<\/script>';
+  html += '</body></html>';
+
+  var blob = new Blob([html], { type: 'text/html' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (name !== 'Patient' ? name.toLowerCase() + '-' : '') + 'baseline-drift-' + filterLabel.toLowerCase() + '.html';
+  a.click();
+}
+
 function toggleHistoryMore() {
   var m = document.getElementById('history-more');
   var b = document.getElementById('history-show-btn');
@@ -3080,7 +3195,7 @@ function toggleAdvancedMode() {
 }
 
 function applyAdvancedMode() {
-  var advancedSections = ['sec-stats', 'adv-increment', 'adv-logtime'];
+  var advancedSections = ['sec-stats', 'adv-increment', 'adv-logtime', 'adv-backup-nudge'];
   advancedSections.forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.style.display = advancedMode ? '' : 'none';
@@ -3107,6 +3222,9 @@ function populateSettings() {
   document.getElementById('cfg-contact2-num').value  = cfg.contact2Num;
   document.getElementById('cfg-increment').value = cfg.increment;
   document.getElementById('increment-label').textContent = cfg.increment;
+  var bnt = cfg.backupNudgeDays || 14;
+  document.getElementById('cfg-backup-nudge').value = bnt;
+  document.getElementById('backup-nudge-label').textContent = bnt;
   ['vitality','stamina','affect','focus'].forEach(function(k,i){
     var def=['VITALITY','STAMINA','MOOD','FOCUS'][i];
     document.getElementById('cfg-stat-'+k).value = cfg.statLabels[k]===def?'':cfg.statLabels[k];
@@ -3157,6 +3275,7 @@ function saveSettings(){
   cfg.contact2Name   = document.getElementById('cfg-contact2-name').value.trim();
   cfg.contact2Num    = document.getElementById('cfg-contact2-num').value.trim();
   cfg.increment      = parseInt(document.getElementById('cfg-increment').value)||5;
+  cfg.backupNudgeDays = parseInt(document.getElementById('cfg-backup-nudge').value)||14;
   var keys=['vitality','stamina','affect','focus'],defs=['VITALITY','STAMINA','MOOD','FOCUS'];
   keys.forEach(function(k,i){cfg.statLabels[k]=document.getElementById('cfg-stat-'+k).value.trim().toUpperCase()||defs[i];});
   saveCfg(); applyStatLabels();
@@ -3318,6 +3437,7 @@ updateBoostLabel();
 updateBoostBtn();
 updateCondition();
 updateLastLogged();
+updateBackupNudge();
 updateTrendArrows();
 // Check for proposed baseline update
 try {
