@@ -197,7 +197,9 @@
       border-bottom: 1px dashed var(--border-2);
       display: inline-block;
       max-width: 100%;
-      word-break: break-all;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       transition: border-color .2s;
     }
     .player-name:hover { border-color: var(--text-mid); }
