@@ -2180,6 +2180,8 @@ function loadSampleData() {
   saveHistory(sampleHistory);
   try { localStorage.setItem('hud_sample_loaded', '1'); } catch(e) {}
   dismissOnboarding();
+  var sb = document.getElementById('banner-sample');
+  if (sb) sb.classList.add('visible');
   alert('// Sample data loaded. Explore the graph to see your trends.');
 }
 
