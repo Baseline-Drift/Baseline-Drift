@@ -1373,6 +1373,16 @@
           </div>
         </div>
         <div class="setting-group">
+          <label class="setting-label">TEXT BRIGHTNESS</label>
+          <div style="display:flex;align-items:center;gap:var(--sp-3)">
+            <span style="font-size:var(--t-xs);color:var(--text-lo);font-weight:700">DIM</span>
+            <input type="range" min="0" max="4" value="2" step="1" id="cfg-text-dimmer" style="flex:1;accent-color:var(--accent)" oninput="applyTextDimmer(this.value);document.getElementById('text-dimmer-label').textContent=['Dim','Low','Default','Bright','Max'][parseInt(this.value)]"/>
+            <span style="font-size:var(--t-xs);color:var(--text-lo);font-weight:700">MAX</span>
+            <span id="text-dimmer-label" style="font-size:var(--t-sm);color:var(--text-mid);font-weight:700;min-width:52px;text-align:right">Default</span>
+          </div>
+          <div style="font-size:var(--t-xs);color:var(--text-dim);margin-top:var(--sp-2);font-weight:700;letter-spacing:1px">Adjusts brightness of supporting text. Default is recommended.</div>
+        </div>
+        <div class="setting-group">
           <label class="setting-label">FONT TYPE</label>
           <div style="display:flex;gap:var(--sp-2);flex-wrap:wrap">
             <button class="qc-btn"        id="btn-font-hyperlegible" onclick="setFontType('hyperlegible')" style="flex:1;padding:var(--sp-3);min-width:80px">READABLE</button>
@@ -1390,16 +1400,6 @@
         <span class="settings-section-arrow" id="arrow-sec-prefs">▼</span>
       </div>
       <div class="settings-section-body" id="sec-prefs">
-        <div class="setting-group" id="adv-text-dimmer">
-          <label class="setting-label">TEXT BRIGHTNESS</label>
-          <div style="display:flex;align-items:center;gap:var(--sp-3)">
-            <span style="font-size:var(--t-xs);color:var(--text-lo);font-weight:700">DIM</span>
-            <input type="range" min="0" max="4" value="2" step="1" id="cfg-text-dimmer" style="flex:1;accent-color:var(--accent)" oninput="applyTextDimmer(this.value);document.getElementById('text-dimmer-label').textContent=['Dim','Low','Default','Bright','Max'][parseInt(this.value)]"/>
-            <span style="font-size:var(--t-xs);color:var(--text-lo);font-weight:700">MAX</span>
-            <span id="text-dimmer-label" style="font-size:var(--t-sm);color:var(--text-mid);font-weight:700;min-width:52px;text-align:right">Default</span>
-          </div>
-          <div style="font-size:var(--t-xs);color:var(--text-dim);margin-top:var(--sp-2);font-weight:700;letter-spacing:1px">Adjusts brightness of supporting text. Default is recommended.</div>
-        </div>
         <div class="setting-group" id="adv-increment">
           <label class="setting-label">SLIDER INCREMENT</label>
           <div style="display:flex;align-items:center;gap:var(--sp-3)">
@@ -3225,7 +3225,7 @@ function toggleAdvancedMode() {
 }
 
 function applyAdvancedMode() {
-  var advancedSections = ['sec-stats', 'adv-text-dimmer', 'adv-increment', 'adv-logtime', 'adv-backup-nudge'];
+  var advancedSections = ['sec-stats', 'adv-increment', 'adv-logtime', 'adv-backup-nudge'];
   advancedSections.forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.style.display = advancedMode ? '' : 'none';
