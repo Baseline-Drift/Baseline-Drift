@@ -1014,7 +1014,7 @@
     <div class="onboarding-logo">Baseline Drift</div>
     <div class="onboarding-sub" id="onboarding-version">// STATUS HUD</div>
     <div class="onboarding-text">
-      A self-monitoring tool for neurodivergent brains and alike.<br>
+      A translation layer for your internal state.<br>
       Set your sliders. Log your day. See your patterns.
     </div>
     <div class="onboarding-band">
@@ -1115,7 +1115,7 @@
     <button onclick="openBrainState()" style="padding:var(--sp-2) var(--sp-3);background:var(--surface-2);border:1px solid var(--border);border-radius:2px;color:var(--text-lo);font-family:inherit;font-size:var(--t-xs);letter-spacing:1px;cursor:pointer;font-weight:700;flex-shrink:0;white-space:nowrap">◈ BRAIN STATE</button>
   </div>
   <div class="condition-desc" id="condition-desc">// Adjust three or more sliders to see your status.</div>
-  <div style="font-size:var(--t-xs);color:var(--text-dim);font-weight:700;letter-spacing:1px;margin-top:var(--sp-1)">// This is a snapshot, not a measure.</div>
+  <div style="font-size:var(--t-xs);color:var(--text-dim);font-weight:700;letter-spacing:1px;margin-top:var(--sp-1)">// This is a snapshot, not a measure. You know yourself better than this app does.</div>
   <div class="note-to-self" id="note-to-self"></div>
   <div class="last-logged" id="last-logged"></div>
   <div id="drift-nudge" style="display:none;align-items:center;justify-content:space-between;margin-top:var(--sp-2);padding:var(--sp-2) var(--sp-4);background:rgba(192,132,252,0.07);border:1px solid rgba(192,132,252,0.25);border-radius:2px;gap:var(--sp-3);flex-wrap:wrap">
@@ -1468,7 +1468,7 @@
         <button class="overlay-close" onclick="closeOverlay('graph-overlay')">✕ CLOSE</button>
       </div>
     </div>
-    <div style="font-size:var(--t-xs);color:var(--text-dim);font-weight:700;letter-spacing:1px;margin-bottom:var(--sp-3)">// Look for patterns, not exact values.</div>
+    <div style="font-size:var(--t-xs);color:var(--text-dim);font-weight:700;letter-spacing:1px;margin-bottom:var(--sp-3)">// Look for patterns, not exact values. This app shows what you logged — it doesn't tell you what to think.</div>
     <div class="graph-filter" id="graph-filter"></div>
     <div id="graph-stat-filter" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:var(--sp-2);margin-bottom:var(--sp-4)"></div>
     <div id="graph-content"></div>
@@ -1532,6 +1532,7 @@
     </div>
     <div class="changelog-entry">
       <div class="changelog-version" style="color:var(--text-mid)">MAIN HUD</div>
+      <div class="changelog-item">Baseline Drift is a <strong>translation layer</strong> — it converts your internal state into something visible and trackable. Set sliders to where you actually are, not where you want to be. The app shows patterns. You interpret them.</div>
       <div class="changelog-item">Tap your <strong>player name</strong> to edit it inline (max 12 characters)</div>
       <div class="changelog-item">Tap <strong>SET YOUR STATS</strong> to view the band reference table</div>
       <div class="changelog-item">Tap <strong>◈ BRAIN STATE</strong> next to the condition badge to open the AuADHD flow<br>→ Identifies your current cognitive pattern (Aligned, Friction, Override, Stuck, Depletion) and suggests a practical lever</div>
@@ -1559,9 +1560,10 @@
       <div class="changelog-item">Log a reading for a <strong>past date</strong> using the date picker</div>
       <div class="changelog-item">Tap <strong>EDIT</strong> on a reading to reload its values into the sliders</div>
       <div class="changelog-item">Tap <strong>DEL</strong> to permanently delete a reading</div>
-      <div class="changelog-item">Notes are shown under each entry in the history list</div>
+      <div class="changelog-item">Notes are shown under each entry in the history list — over months, notes may become the most valuable part of the app. The graph shows <em>what</em>. The note shows <em>why</em>.</div>
       <div class="changelog-item">History shows the last 7 entries — tap <strong>SHOW MORE</strong> to see older readings</div>
-      <div class="changelog-item">Trends show patterns over time — not precise measurement.</div>
+      <div class="changelog-item">Tap <strong>↗ SHARE</strong> to generate a clean read-only page for the current date range — useful for medical appointments</div>
+      <div class="changelog-item">Trends show patterns over time — not precise measurement. This app shows what you logged. It doesn't tell you what to think.</div>
     </div>
     <div class="changelog-entry">
       <div class="changelog-version" style="color:var(--text-mid)">SETTINGS</div>
@@ -2851,7 +2853,7 @@ function openTimezoneSettings() {
 }
 
 function shareApp() {
-  var d={title:'Baseline Drift \u2014 STATUS HUD',text:'A neurodivergent self-monitoring HUD.',url:APP_URL};
+  var d={title:'Baseline Drift',text:'A translation layer for your internal state. Free, no account, runs in your browser.',url:APP_URL};
   if(navigator.share) navigator.share(d).catch(function(){});
   else navigator.clipboard.writeText(APP_URL).then(function(){
     var b=document.querySelector('.footer-btn[onclick="shareApp()"]'),o=b.textContent;
