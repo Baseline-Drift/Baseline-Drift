@@ -2178,10 +2178,15 @@ function loadSampleData() {
     };
   });
   saveHistory(sampleHistory);
-  try { localStorage.setItem('hud_sample_loaded', '1'); } catch(e) {}
+  try {
+    localStorage.setItem('hud_sample_loaded', '1');
+    // Set backup count to match so sample data doesn't trigger backup nudge
+    localStorage.setItem('hud_last_backup_count', sampleHistory.length);
+  } catch(e) {}
   dismissOnboarding();
   var sb = document.getElementById('banner-sample');
   if (sb) sb.classList.add('visible');
+  updateBackupNudge();
   alert('// Sample data loaded. Explore the graph to see your trends.');
 }
 
@@ -2189,7 +2194,12 @@ function clearSampleData() {
   var history = loadHistory();
   var real = history.filter(function(e){ return !e.isSample; });
   saveHistory(real);
-  try { localStorage.removeItem('hud_sample_loaded'); } catch(e) {}
+  try {
+    localStorage.removeItem('hud_sample_loaded');
+    // Reset backup count to real data length so nudge recalculates correctly
+    localStorage.setItem('hud_last_backup_count', real.length);
+  } catch(e) {}
+  updateBackupNudge();
 }
 
 
