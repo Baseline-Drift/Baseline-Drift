@@ -1440,7 +1440,7 @@
           <div style="font-size:var(--t-xs);color:var(--text-dim);margin-top:var(--sp-2);font-weight:700;letter-spacing:1px">Nudge appears on SETTINGS button after this many unbackedup readings. Default 14.</div>
         </div>
         <div class="setting-group">
-          <div class="toggle-row"><span class="toggle-label">Auto-reset sliders to 50 on new day</span><div class="toggle" id="tog-autoreset" onclick="toggleOpt('autoreset')"></div></div>
+          <div class="toggle-row"><span class="toggle-label">Auto-reset sliders to your baseline on new day</span><div class="toggle" id="tog-autoreset" onclick="toggleOpt('autoreset')"></div></div>
         </div>
       </div>
     </div>
@@ -2002,7 +2002,7 @@ function checkDailyReset() {
   if (!cfg.autoReset) return;
   try {
     var last = localStorage.getItem('hud_last_date'), today = new Date().toDateString();
-    if (last !== today) { localStorage.setItem('hud_last_date', today); Object.keys(values).forEach(function(k){ values[k]=50; moved[k]=false; }); }
+    if (last !== today) { localStorage.setItem('hud_last_date', today); var resetVal = cfg.personalBaseline || 50; Object.keys(values).forEach(function(k){ values[k]=resetVal; moved[k]=false; }); }
   } catch(e) {}
 }
 
