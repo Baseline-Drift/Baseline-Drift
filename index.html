@@ -1545,7 +1545,7 @@
       <div class="changelog-item">Baseline Drift is a <strong>translation layer</strong> — it converts your internal state into something visible and trackable. Set sliders to where you actually are, not where you want to be. The app shows patterns. You interpret them.</div>
       <div class="changelog-item">Tap your <strong>player name</strong> to edit it inline (max 12 characters)</div>
       <div class="changelog-item">Tap <strong>SET YOUR STATS</strong> to view the band reference table</div>
-      <div class="changelog-item">Tap <strong>◈ BRAIN STATE</strong> next to the condition badge to open the AuADHD flow<br>→ Identifies your current cognitive pattern (Aligned, Friction, Override, Stuck, Depletion) and suggests a practical lever</div>
+      <div class="changelog-item">Tap <strong>◈ BRAIN STATE</strong> next to the condition badge to open the Cognitive State flow<br>→ Identifies your current cognitive pattern (Aligned, Friction, Override, Stuck, Depletion) and suggests a practical lever</div>
       <div class="changelog-item"><strong>RECALL LAST</strong> loads your most recent logged reading into the sliders</div>
       <div class="changelog-item"><strong>USE AS-IS</strong> confirms current slider positions without movement</div>
       <div class="changelog-item">Tap the <strong>lock icon 🔓</strong> on any stat to hold it<br>→ Locked stats are not affected by reset or recall</div>
@@ -1837,7 +1837,7 @@ var CHANGELOG = [
     'CLEAR SAMPLE DATA button in Export overlay — only visible while sample data is loaded'
   ]},
   { version:'6.0', date:'27 Apr 2026', items:[
-    'Brain State — AuADHD diagnostic flow accessible from footer',
+    'Brain State — Cognitive State flow accessible from footer — identifies current pattern and suggests a practical next action',
     'Baseline drift detection — nudge on main HUD when stats drift from personal baseline; snooze 1h / 4h / tomorrow',
     'Personal stat baselines — individual per-stat baseline, auto-calculated from 7-day history',
     'Timestamp logging — time stored with each reading; toggle in Preferences',
@@ -3079,7 +3079,7 @@ function shareReadings() {
   html += '</div>';
   html += '<div class="section-title">// LOGGED READINGS</div>';
   html += '<table><thead><tr><th>DATE</th><th>V</th><th>S</th><th>M</th><th>F</th><th>CONDITION</th><th>NOTE</th></tr></thead><tbody>'+rows+'</tbody></table>';
-  html += '<div class="footer">BASELINE DRIFT &nbsp;·&nbsp; baseline-drift.github.io/Baseline-Drift &nbsp;·&nbsp; Self-reported data. For clinical context only.</div>';
+  html += '<div class="footer">BASELINE DRIFT &nbsp;·&nbsp; baseline-drift.github.io/Baseline-Drift &nbsp;·&nbsp; Self-reported data. Shared for context and discussion.</div>';
 
   // CSV export function embedded in share page
   var csvData = JSON.stringify(history);
