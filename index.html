@@ -1135,6 +1135,11 @@
 
   <div class="divider"></div>
 
+  <div class="banner" id="banner-sample" style="background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.3)">
+    <div class="banner-title" style="color:rgba(251,191,36,.8)">// SAMPLE DATA LOADED — this is demo data, not yours.</div>
+    <div style="font-size:var(--t-xs);color:var(--text-mid);margin-bottom:var(--sp-3);font-weight:700;letter-spacing:1px">Tap EXPORT to find the option to clear it and start fresh.</div>
+    <button class="dismiss-btn" onclick="clearSampleData();document.getElementById('banner-sample').classList.remove('visible')">// CLEAR SAMPLE DATA</button>
+  </div>
   <div class="banner banner-optimal" id="banner-optimal">
     <div class="banner-title" style="color:var(--c-optimal)">✦ CONDITIONS GOOD — High capacity detected.</div>
     <button class="dismiss-btn" onclick="dismissBanner('optimal')">// DISMISS</button>
@@ -3484,6 +3489,8 @@ updateCondition();
 updateLastLogged();
 updateBackupNudge();
 updateTrendArrows();
+// Show sample data banner if sample is loaded
+try { var _sb = document.getElementById('banner-sample'); if (_sb && localStorage.getItem('hud_sample_loaded')==='1') _sb.classList.add('visible'); } catch(e) {}
 // Restore text dimmer
 try { var _td = localStorage.getItem('hud_text_dimmer'); if (_td !== null) applyTextDimmer(parseInt(_td)); } catch(e) {}
 // Check for proposed baseline update
