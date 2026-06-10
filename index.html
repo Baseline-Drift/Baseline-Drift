@@ -3327,26 +3327,33 @@ function editStatName(key) {
 var BS_QUESTIONS = [
   { id:'q1', text:'What are you actually doing right now?', note:'be literal, not aspirational', options:[
     { label:'The thing I\'m supposed to be doing', next:'aligned' },
-    { label:'Something else — and I\'m into it', next:'override' },
-    { label:'Nothing / scrolling / staring / bouncing between things', next:'q2' },
-    { label:'I just came off something I was fully into', next:'depletion' }
+    { label:'Something else — and I can\'t pull away', next:'q_override' },
+    { label:'Nothing / drifting / can\'t land on anything', next:'q2' },
+    { label:'I just came off something I was fully absorbed in', next:'depletion' }
+  ]},
+  { id:'q_override', text:'Did this start as avoidance, or did it just take hold?', note:'be honest — you usually know', options:[
+    { label:'I know what I should be doing. This is avoiding it.', next:'override_defensive' },
+    { label:'I didn\'t choose this. It just activated. I\'m genuinely absorbed.', next:'override_hyperfocus' },
+    { label:'I\'m not sure — it might be both', next:'override_collusion' }
   ]},
   { id:'q2', text:'How long have you been in this state?', note:'not how long since you should have started — how long since you actually stopped moving', options:[
     { label:'Not long. Under 20 minutes.', next:'friction' },
     { label:'A while. 30 minutes or more.', next:'q3' }
   ]},
-  { id:'q3', text:'Do you know what you\'re supposed to be doing?', note:'can you name the actual task', options:[
+  { id:'q3', text:'Can you name what you\'re supposed to be doing?', note:'can you name the actual task', options:[
     { label:'Yes. Clearly. I just... haven\'t.', next:'stuck' },
     { label:'Sort of, but everything feels like resistance', next:'friction_deep' }
   ]}
 ];
 var BS_RESULTS = {
-  aligned:       { label:'ALIGNED',         color:'#43d97b', lines:['Both systems are pointing the same direction.','This is the state. You found it.','It won\'t last. That\'s not a problem right now.'], lever:'Protect it. Don\'t check your phone. Stay in it.' },
-  friction:      { label:'FRICTION',        color:'#b08020', lines:['The system is running but not moving.','Resource is draining in the background.','There\'s probably something underneath the resistance.'], lever:'Ask: what am I actually avoiding? Not the task — what\'s adjacent to it that feels heavy.' },
-  friction_deep: { label:'FRICTION (DEEP)', color:'#b08020', lines:['Diffuse resistance across everything.','This is often depletion presenting as friction.','Not a willpower problem.'], lever:'Check the basics: last meal, water, movement. What happened in the last 12 hours?' },
-  stuck:         { label:'STUCK / FROZEN',  color:'#585858', lines:['You\'re not confused about what to do.','The system is deadlocked — not broken, not lazy.','Override hasn\'t activated. Yet.'], lever:'Smallest possible unit. Not the whole task. Just the first step.' },
-  override:      { label:'OVERRIDE',        color:'#cc2020', lines:['A third force has taken the wheel.','Not your choice. Not conscious. Has its own agenda.','Your fuel is being spent somewhere else.'], lever:'Set a hard stop before you go back in. You probably won\'t want to. Set it anyway.' },
-  depletion:     { label:'DEPLETION',       color:'#6a5a9a', lines:['Override just ended. You\'re back at the table.','With less than you started with.','Trying to work now will cost more than it produces.'], lever:'Basic maintenance first. Eat, move, water. Not as preparation — just as the actual next thing.' }
+  aligned:             { label:'ALIGNED',                color:'#43d97b', lines:['Both systems are pointing the same direction.','This is the state. You found it.','It won\'t last. That\'s not a problem right now.'], lever:'Protect it. Don\'t check your phone. Stay in it.' },
+  friction:            { label:'FRICTION',               color:'#b08020', lines:['The system is running but not moving.','Resource is draining in the background.','There\'s probably something underneath the resistance.'], lever:'Ask: what am I actually avoiding? Not the task — what\'s adjacent to it that feels heavy.' },
+  friction_deep:       { label:'FRICTION (DEEP)',        color:'#b08020', lines:['Diffuse resistance across everything.','This is often depletion presenting as friction.','Not a willpower problem.'], lever:'Check the basics: last meal, water, movement. What happened in the last 12 hours?' },
+  stuck:               { label:'STUCK / FROZEN',         color:'#585858', lines:['You\'re not confused about what to do.','The system is deadlocked — not broken, not lazy.','Override hasn\'t activated. Yet.'], lever:'Smallest possible unit. Not the whole task. Just the first step.' },
+  override_defensive:  { label:'OVERRIDE — DEFENSIVE',  color:'#cc2020', lines:['The installed layer has activated.','Not hyperfocus. Avoidance.','Knows what it\'s avoiding and running the other direction.'], lever:'Name the thing you\'re avoiding — not the task, what\'s underneath it that feels threatening.' },
+  override_hyperfocus: { label:'OVERRIDE — HYPERFOCUS', color:'#f97316', lines:['A third force, but native.','The brain doing what it\'s built for.','Not chosen, not avoidance — just activated.'], lever:'Set a hard stop before going back in. You won\'t want to. Set it anyway.' },
+  override_collusion:  { label:'OVERRIDE — COLLUSION',  color:'#dc2626', lines:['The hyperfocus and defensive layers have merged.','Can\'t tell which is driving.','Most depleting state — fuel spent in two directions at once.'], lever:'Hard stop. Rest. Don\'t try to solve which Override is running. Just stop.' },
+  depletion:           { label:'DEPLETION',              color:'#6a5a9a', lines:['Override just ended. You\'re back at the table.','With less than you started with.','Trying to work now will cost more than it produces.'], lever:'Basic maintenance first. Eat, move, water. Not as preparation — just as the actual next thing.' }
 };
 var bsHistory = [], bsCurrent = 'q1', bsResult = null;
 
@@ -3368,7 +3375,7 @@ function renderBrainState() {
   var q = BS_QUESTIONS.find(function(x){ return x.id===bsCurrent; });
   title.textContent = '// BRAIN STATE';
   el.innerHTML = '<div style="display:flex;gap:6px;margin-bottom:var(--sp-5)">' +
-    ['q1','q2','q3'].map(function(id){ return '<div style="width:6px;height:6px;border-radius:50%;background:' + (bsHistory.includes(id)||bsCurrent===id?'var(--text-lo)':'var(--border)') + '"></div>'; }).join('') + '</div>' +
+    ['q1','q_override','q2','q3'].map(function(id){ return '<div style="width:6px;height:6px;border-radius:50%;background:' + (bsHistory.includes(id)||bsCurrent===id?'var(--text-lo)':'var(--border)') + '"></div>'; }).join('') + '</div>' +
     '<div style="font-size:var(--t-sm);font-weight:700;color:var(--text-mid);line-height:1.6;margin-bottom:var(--sp-2)">' + q.text + '</div>' +
     '<div style="font-size:var(--t-xs);color:var(--text-lo);font-style:italic;margin-bottom:var(--sp-5);font-weight:700">' + q.note + '</div>' +
     '<div style="display:flex;flex-direction:column;gap:var(--sp-3)">' +
