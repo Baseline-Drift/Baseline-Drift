@@ -1199,8 +1199,8 @@
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-2);margin-top:var(--sp-3)">
     <button class="action-grid-btn" onclick="openGraph()">GRAPH</button>
-    <button class="action-grid-btn" onclick="openExport()">EXPORT</button>
-    <button class="action-grid-btn" id="settings-btn" onclick="toggleSettings()" style="position:relative">SETTINGS<span id="settings-nudge-dot" style="display:none;position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:#fbbf24"></span></button>
+    <button class="action-grid-btn" id="export-btn" onclick="openExport()" style="position:relative">EXPORT<span id="settings-nudge-dot" style="display:none;position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:#fbbf24"></span></button>
+    <button class="action-grid-btn" onclick="toggleSettings()">SETTINGS</button>
     <button class="action-grid-btn" onclick="document.getElementById('help-overlay').classList.add('open')">? HELP</button>
   </div>
 
