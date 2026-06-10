@@ -39,11 +39,11 @@
       --surface-2:    rgba(255,255,255,0.04);
       --border:       rgba(255,255,255,0.07);
       --border-2:     rgba(255,255,255,0.12);
-      --text-hi:      rgba(255,255,255,0.90);
-      --text-mid:     rgba(255,255,255,0.50);
-      --text-lo:      rgba(255,255,255,0.30);
-      --text-dim:     rgba(255,255,255,0.18);
-      --text-ghost:   rgba(255,255,255,0.08);
+      --text-hi:      rgba(255,255,255,0.92);
+      --text-mid:     rgba(255,255,255,0.65);
+      --text-lo:      rgba(255,255,255,0.42);
+      --text-dim:     rgba(255,255,255,0.28);
+      --text-ghost:   rgba(255,255,255,0.10);
       --track-bg:     rgba(255,255,255,0.06);
       --tick-bg:      rgba(255,255,255,0.08);
       --overlay-bg:   #0d0f16;
@@ -927,7 +927,7 @@
     .onboarding-panel { width:100%; max-width:440px; text-align:center; padding:var(--sp-4); }
     .onboarding-logo  { font-size:calc(24px * var(--fs)); letter-spacing:6px; color:var(--accent); font-weight:700; margin-bottom:var(--sp-1); text-transform:uppercase; }
     .onboarding-sub   { font-size:var(--t-xs); letter-spacing:4px; color:var(--text-lo); margin-bottom:var(--sp-4); font-weight:700; }
-    .onboarding-text  { font-size:var(--t-sm); color:var(--text-mid); line-height:calc(1.7 * var(--fs)); margin-bottom:var(--sp-4); font-weight:700; font-style:italic; }
+    .onboarding-text  { font-size:var(--t-sm); color:var(--text-hi); line-height:calc(1.7 * var(--fs)); margin-bottom:var(--sp-4); font-weight:700; font-style:italic; }
     .onboarding-band  { background:var(--surface-2); border:1px solid var(--border); border-radius:2px; padding:var(--sp-4) var(--sp-5); margin-bottom:var(--sp-4); text-align:left; }
     .onboarding-band-title { font-size:var(--t-xs); letter-spacing:3px; color:var(--text-lo); font-weight:700; margin-bottom:var(--sp-3); text-transform:uppercase; }
     .onboarding-band-row   { display:flex; gap:var(--sp-3); margin-bottom:var(--sp-2); align-items:center; }
@@ -1390,6 +1390,16 @@
         <span class="settings-section-arrow" id="arrow-sec-prefs">▼</span>
       </div>
       <div class="settings-section-body" id="sec-prefs">
+        <div class="setting-group" id="adv-text-dimmer">
+          <label class="setting-label">TEXT BRIGHTNESS</label>
+          <div style="display:flex;align-items:center;gap:var(--sp-3)">
+            <span style="font-size:var(--t-xs);color:var(--text-lo);font-weight:700">DIM</span>
+            <input type="range" min="0" max="4" value="2" step="1" id="cfg-text-dimmer" style="flex:1;accent-color:var(--accent)" oninput="applyTextDimmer(this.value);document.getElementById('text-dimmer-label').textContent=['Dim','Low','Default','Bright','Max'][parseInt(this.value)]"/>
+            <span style="font-size:var(--t-xs);color:var(--text-lo);font-weight:700">MAX</span>
+            <span id="text-dimmer-label" style="font-size:var(--t-sm);color:var(--text-mid);font-weight:700;min-width:52px;text-align:right">Default</span>
+          </div>
+          <div style="font-size:var(--t-xs);color:var(--text-dim);margin-top:var(--sp-2);font-weight:700;letter-spacing:1px">Adjusts brightness of supporting text. Default is recommended.</div>
+        </div>
         <div class="setting-group" id="adv-increment">
           <label class="setting-label">SLIDER INCREMENT</label>
           <div style="display:flex;align-items:center;gap:var(--sp-3)">
@@ -3188,6 +3198,24 @@ function toggleSettings(){
 var advancedMode = false;
 try { advancedMode = localStorage.getItem('hud_advanced_mode') === '1'; } catch(e) {}
 
+var TEXT_DIMMER_LEVELS = [
+  { mid:0.40, lo:0.22, dim:0.14, ghost:0.07 }, // Dim
+  { mid:0.52, lo:0.32, dim:0.20, ghost:0.09 }, // Low
+  { mid:0.65, lo:0.42, dim:0.28, ghost:0.10 }, // Default
+  { mid:0.75, lo:0.55, dim:0.38, ghost:0.13 }, // Bright
+  { mid:0.88, lo:0.68, dim:0.50, ghost:0.16 }  // Max
+];
+
+function applyTextDimmer(level) {
+  var l = TEXT_DIMMER_LEVELS[parseInt(level)] || TEXT_DIMMER_LEVELS[2];
+  var r = document.documentElement;
+  r.style.setProperty('--text-mid',  'rgba(255,255,255,' + l.mid + ')');
+  r.style.setProperty('--text-lo',   'rgba(255,255,255,' + l.lo + ')');
+  r.style.setProperty('--text-dim',  'rgba(255,255,255,' + l.dim + ')');
+  r.style.setProperty('--text-ghost','rgba(255,255,255,' + l.ghost + ')');
+  try { localStorage.setItem('hud_text_dimmer', level); } catch(e) {}
+}
+
 function toggleAdvancedMode() {
   advancedMode = !advancedMode;
   try { localStorage.setItem('hud_advanced_mode', advancedMode ? '1' : '0'); } catch(e) {}
@@ -3197,7 +3225,7 @@ function toggleAdvancedMode() {
 }
 
 function applyAdvancedMode() {
-  var advancedSections = ['sec-stats', 'adv-increment', 'adv-logtime', 'adv-backup-nudge'];
+  var advancedSections = ['sec-stats', 'adv-text-dimmer', 'adv-increment', 'adv-logtime', 'adv-backup-nudge'];
   advancedSections.forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.style.display = advancedMode ? '' : 'none';
@@ -3227,6 +3255,12 @@ function populateSettings() {
   var bnt = cfg.backupNudgeDays || 14;
   document.getElementById('cfg-backup-nudge').value = bnt;
   document.getElementById('backup-nudge-label').textContent = bnt;
+  var tdLevel = 2;
+  try { tdLevel = parseInt(localStorage.getItem('hud_text_dimmer') || '2'); } catch(e) {}
+  var tdEl = document.getElementById('cfg-text-dimmer');
+  var tdLabel = document.getElementById('text-dimmer-label');
+  if (tdEl) tdEl.value = tdLevel;
+  if (tdLabel) tdLabel.textContent = ['Dim','Low','Default','Bright','Max'][tdLevel];
   ['vitality','stamina','affect','focus'].forEach(function(k,i){
     var def=['VITALITY','STAMINA','MOOD','FOCUS'][i];
     document.getElementById('cfg-stat-'+k).value = cfg.statLabels[k]===def?'':cfg.statLabels[k];
@@ -3448,6 +3482,8 @@ updateCondition();
 updateLastLogged();
 updateBackupNudge();
 updateTrendArrows();
+// Restore text dimmer
+try { var _td = localStorage.getItem('hud_text_dimmer'); if (_td !== null) applyTextDimmer(parseInt(_td)); } catch(e) {}
 // Check for proposed baseline update
 try {
   var _pb = localStorage.getItem('hud_proposed_baselines');
