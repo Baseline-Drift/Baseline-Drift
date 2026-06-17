@@ -3057,6 +3057,8 @@ function shareReadings() {
   var cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - graphFilter);
   var history = graphFilter >= 99999 ? allH : allH.filter(function(e){ return new Date(e.date) >= cutoff; });
+  // Ensure chronological order for graph rendering
+  history = history.slice().sort(function(a,b){ return new Date(a.date) - new Date(b.date); });
   if (!history.length) { alert('No readings in this date range.'); return; }
 
   var name = cfg.name && cfg.name !== 'YOUR NAME' ? cfg.name : 'Patient';
