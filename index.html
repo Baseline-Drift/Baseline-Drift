@@ -2540,9 +2540,10 @@ function updateStat(key) {
   var stat  = STATS.find(function(s){ return s.key === key; });
   var val   = values[key];
   var band  = getBand(val);
+  var isMoved = moved[key] === true;
   document.getElementById('val-' + key).textContent     = val;
   document.getElementById('fill-' + key).style.width    = val + '%';
-  document.getElementById('comment-' + key).textContent = '// ' + getComment(stat, val);
+  document.getElementById('comment-' + key).textContent = isMoved ? '// ' + getComment(stat, val) : '';
   var bandEl = document.getElementById('band-' + key);
   if (bandEl) { bandEl.textContent = BAND_LABELS[band]; bandEl.style.color = BAND_COLORS[band]; }
 
@@ -2562,6 +2563,7 @@ function updateStat(key) {
     tick.style.left = bv + '%';
   }
   if (delta) {
+    if (!isMoved) { delta.textContent = ''; return; }
     var diff = val - bv;
     if (diff === 0) {
       delta.textContent = '// at baseline';
