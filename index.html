@@ -431,8 +431,7 @@
       position: relative;
       height: 10px;
       border-radius: 2px;
-      margin-bottom: var(--sp-3);
-      overflow: hidden;
+      margin-bottom: var(--sp-1);
       border: 1px solid var(--border);
       background: var(--track-bg);
     }
@@ -1226,7 +1225,7 @@
 
   <div class="footer" style="margin-top:var(--sp-3)">
     <span class="footer-left" id="footer-region" onclick="openTimezoneSettings()" style="cursor:pointer" title="Tap to change timezone">AU</span>
-    <span class="footer-left" onclick="openChangelog()" style="cursor:pointer;color:var(--text-dim);letter-spacing:2px;font-size:var(--t-xs);font-weight:700" title="Tap for changelog">v7.4</span>
+    <span class="footer-left" onclick="openChangelog()" style="cursor:pointer;color:var(--text-dim);letter-spacing:2px;font-size:var(--t-xs);font-weight:700" title="Tap for changelog">v7.5</span>
     <div class="footer-right">
       <button class="footer-btn" onclick="document.getElementById('licence-overlay').classList.add('open')">LICENCE</button>
     </div>
@@ -1449,7 +1448,7 @@
     <button class="reminder-btn" onclick="openReminder()">🔔 SET CHECK-IN REMINDER</button>
     <button class="reminder-btn" style="background:rgba(167,139,250,0.05);border-color:rgba(167,139,250,0.2);color:rgba(167,139,250,0.6);margin-top:var(--sp-2)" onclick="document.getElementById('settings-panel').classList.remove('open');document.getElementById('onboarding-overlay').classList.add('open')">◈ VIEW INTRO</button>
     <button class="reminder-btn" style="background:rgba(255,77,109,0.05);border-color:rgba(255,77,109,0.15);color:rgba(255,77,109,0.4);margin-top:var(--sp-2)" onclick="resetToDefaults()">↺ RESET TO DEFAULTS</button>
-    <div class="version-tap" id="version-tap" onclick="openChangelog()">BASELINE DRIFT // STATUS HUD v7.4 // TAP FOR CHANGELOG</div>
+    <div class="version-tap" id="version-tap" onclick="openChangelog()">BASELINE DRIFT // STATUS HUD v7.5 // TAP FOR CHANGELOG</div>
   </div>
 </div>
 
@@ -1626,7 +1625,7 @@
 'use strict';
 
 // ── CONSTANTS ────────────────────────────────────────────────────────────────
-var VERSION   = '7.4';
+var VERSION   = '7.5';
 var APP_URL   = 'https://baseline-drift.github.io/Baseline-Drift/';
 var BUG_EMAIL = 'baselinedrift5@gmail.com';
 
@@ -1798,6 +1797,9 @@ function buildConditions(baseline) {
 
 
 var CHANGELOG = [
+  { version:'7.5', date:'18 Jun 2026', items:[
+    'Baseline drift marker — a white tick now appears on each slider showing your personal baseline position. A drift delta below each bar shows how far you are from your centre (↑23 from baseline / ↓12 from baseline / at baseline). This is what the app was always named after.'
+  ]},
   { version:'7.4', date:'9 Jun 2026', items:[
     'Backup nudge — yellow dot appears on SETTINGS button after 14 unbackedup readings (configurable in Advanced settings). Clears on JSON export.',
     'Shareable read-only page — tap ↗ SHARE in the graph overlay to generate a clean HTML file for the current date range. Includes trend graph, logged readings, and notes.',
@@ -2425,6 +2427,10 @@ STATS.forEach(function(stat) {
     '<div class="bar-track stat-' + stat.key + '-track" style="background:' + stat.track + '">' +
       '<div class="bar-fill stat-' + stat.key + '-fill" id="fill-' + stat.key + '" style="width:' + values[stat.key] + '%;background:linear-gradient(90deg,' + stat.color + '88,' + stat.color + ');box-shadow:0 0 12px ' + stat.glow + '"></div>' +
       '<div class="bar-tick" style="left:25%"></div><div class="bar-tick" style="left:50%"></div><div class="bar-tick" style="left:75%"></div>' +
+      '<div id="baseline-tick-' + stat.key + '" style="position:absolute;top:0;bottom:0;width:2px;background:rgba(255,255,255,0.5);border-radius:1px;pointer-events:none;display:none"></div>' +
+    '</div>' +
+    '<div style="display:flex;align-items:center;justify-content:flex-end;margin-top:2px;min-height:14px">' +
+      '<span id="drift-delta-' + stat.key + '" style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--text-dim)"></span>' +
     '</div>' +
     '<input type="range" min="0" max="100" step="' + cfg.increment + '" value="' + values[stat.key] + '" id="range-' + stat.key + '" style="accent-color:' + stat.color + '"/>' +
     '<div class="stat-comment" id="comment-' + stat.key + '"></div>';
@@ -2529,6 +2535,28 @@ function updateStat(key) {
   document.getElementById('comment-' + key).textContent = '// ' + getComment(stat, val);
   var bandEl = document.getElementById('band-' + key);
   if (bandEl) { bandEl.textContent = BAND_LABELS[band]; bandEl.style.color = BAND_COLORS[band]; }
+
+  // Baseline drift marker
+  var baselines = cfg.statBaselines || {};
+  var bv = baselines[key] !== undefined ? baselines[key] : (cfg.personalBaseline || 50);
+  var tick = document.getElementById('baseline-tick-' + key);
+  var delta = document.getElementById('drift-delta-' + key);
+  if (tick) {
+    tick.style.display = 'block';
+    tick.style.left = bv + '%';
+  }
+  if (delta) {
+    var diff = val - bv;
+    if (diff === 0) {
+      delta.textContent = '// at baseline';
+      delta.style.color = 'var(--text-dim)';
+    } else {
+      var sign = diff > 0 ? '↑' : '↓';
+      var col = diff > 0 ? 'rgba(52,217,123,0.6)' : 'rgba(255,77,109,0.6)';
+      delta.textContent = '// ' + sign + Math.abs(diff) + ' from baseline';
+      delta.style.color = col;
+    }
+  }
 }
 
 // ── LOG ──────────────────────────────────────────────────────────────────────
