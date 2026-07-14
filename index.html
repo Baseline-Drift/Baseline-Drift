@@ -2113,6 +2113,7 @@ function applyProposedBaselines() {
     var proposed = JSON.parse(localStorage.getItem('hud_proposed_baselines') || 'null');
     if (!proposed) return;
     cfg.statBaselines = proposed;
+    cfg.baselinePersonalised = true;
     // Also update the shared personalBaseline used by classifyState
     var keys = ['vitality','stamina','affect','focus'];
     var avg = Math.round(keys.reduce(function(a,k){ return a + proposed[k]; }, 0) / keys.length);
@@ -2545,11 +2546,17 @@ function updateStat(key) {
   var bandEl = document.getElementById('band-' + key);
   if (bandEl) { bandEl.textContent = BAND_LABELS[band]; bandEl.style.color = BAND_COLORS[band]; }
 
-  // Baseline drift marker
+  // Baseline drift marker — only shown once baselines reflect real logged data
   var baselines = cfg.statBaselines || {};
   var bv = baselines[key] !== undefined ? baselines[key] : (cfg.personalBaseline || 50);
   var tick = document.getElementById('baseline-tick-' + key);
   var delta = document.getElementById('drift-delta-' + key);
+  var personalised = cfg.baselinePersonalised === true || (cfg.personalBaseline && cfg.personalBaseline !== 50);
+  if (!personalised) {
+    if (tick)  tick.style.display = 'none';
+    if (delta) delta.textContent = '';
+    return;
+  }
   if (tick) {
     tick.style.display = 'block';
     tick.style.left = bv + '%';
