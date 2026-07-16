@@ -3003,7 +3003,7 @@ function renderGraph() {
   var isDark=!document.body.classList.contains('light-theme');
   var gridC=isDark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.08)',textC=isDark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.4)',bgC=isDark?'#080a0f':'#f0f0f0';
   var keys=[['vitality','#ff4d6d'],['stamina','#43d97b'],['affect','#a78bfa'],['focus','#fbbf24']].filter(function(p){ return graphStatFilters[p[0]] !== false; });
-  var svg='<svg width="'+W+'" height="'+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%"><rect width="'+W+'" height="'+H+'" fill="'+bgC+'" rx="2"/>';
+  var svg='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto"><rect width="'+W+'" height="'+H+'" fill="'+bgC+'" rx="2"/>';
   [0,25,50,75,100].forEach(function(v){var y=toY(v);svg+='<line x1="'+PAD.l+'" y1="'+y+'" x2="'+(W-PAD.r)+'" y2="'+y+'" stroke="'+gridC+'" stroke-width="1"/><text x="'+(PAD.l-4)+'" y="'+(y+4)+'" text-anchor="end" font-size="9" fill="'+textC+'" font-family="monospace">'+v+'</text>';});
   if(n<=8) history.forEach(function(e,i){svg+='<text x="'+toX(i)+'" y="'+(H-PAD.b+14)+'" text-anchor="middle" font-size="8" fill="'+textC+'" font-family="monospace">'+e.dateStr.split(' ').slice(0,2).join(' ')+'</text>';});
   else{svg+='<text x="'+toX(0)+'" y="'+(H-PAD.b+14)+'" text-anchor="middle" font-size="8" fill="'+textC+'" font-family="monospace">'+history[0].dateStr.split(' ').slice(0,2).join(' ')+'</text>';svg+='<text x="'+toX(n-1)+'" y="'+(H-PAD.b+14)+'" text-anchor="middle" font-size="8" fill="'+textC+'" font-family="monospace">'+history[n-1].dateStr.split(' ').slice(0,2).join(' ')+'</text>';}
@@ -3122,7 +3122,7 @@ function shareReadings() {
   var keys = [['vitality','#ff4d6d'],['stamina','#43d97b'],['affect','#a78bfa'],['focus','#fbbf24']];
   var labels = ['VITALITY','STAMINA','MOOD','FOCUS'];
 
-  var svg = '<svg width="'+W+'" height="'+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:'+W+'px">';
+  var svg = '<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:'+W+'px;height:auto">';
   svg += '<rect width="'+W+'" height="'+H+'" fill="#0d0f16" rx="3"/>';
   [0,10,25,50,75,100].forEach(function(v){
     var y = toY(v);
